@@ -41,14 +41,16 @@ namespace Engine.Tests
         {
             _engine.NewGame();
             _engine.TakeTurn(HexOwner.Player1, 1, 1);
-            Assert.Throws<Exception>(() => _engine.TakeTurn(HexOwner.Player1, 1, 2), "Cannot play twice in a row", null);
+            Assert.Throws<Exception>(() => _engine.TakeTurn(HexOwner.Player1, 1, 2), "Cannot play twice in a row");
         }
 
         [Test]
         public void ShouldNotAllowNoPlayerToPlay()
         {
             _engine.NewGame();
-            Assert.Throws<Exception>(() => _engine.TakeTurn(HexOwner.Empty, 1, 1), "Cannot play as a non player", null);
+            Assert.Throws<Exception>(() => _engine.TakeTurn(HexOwner.Empty, 1, 1), "Cannot play as a non player");
+           // This should really fail above, not below
+            Assert.IsFalse(true);
         }
 
         [Test]

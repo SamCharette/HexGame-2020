@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Engine
 {
@@ -10,7 +9,7 @@ namespace Engine
         // Board size must be equal in both directions
         public int Size;
         public List<Hex> Board;
-        private HexOwner lastPlayer;
+        private HexOwner _lastPlayer;
 
         // we need a player 1
 
@@ -25,13 +24,13 @@ namespace Engine
         public Engine(int size = 11)
         {
             Size = size;
-            lastPlayer = HexOwner.Player1;
+            _lastPlayer = HexOwner.Player1;
             NewBoard();
         }
 
         public void TakeTurn(HexOwner player, int x, int y)
         {
-            if (player == lastPlayer)
+            if (player == _lastPlayer)
             {
                 throw new Exception("Cannot play twice in a row");
             }
@@ -39,7 +38,7 @@ namespace Engine
             if (CheckHex(x, y))
             {
                 AssignHex(x, y, player);
-                lastPlayer = player;
+                _lastPlayer = player;
             }
 
         }

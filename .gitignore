@@ -4,3 +4,4 @@
 
 /.vs
 /Engine/obj
+/Engine/bin/Debug/netstandard2.0

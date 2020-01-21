@@ -52,11 +52,17 @@ namespace Engine
 
         public bool CheckHex(int x, int y)
         {
-            var hexToCheck = Board?.First(hex => hex.X == x && hex.Y == y);
+            if (Board != null  && Board.Any())
+            {
+                var hexToCheck = Board.FirstOrDefault(hex => hex.X == x && hex.Y == y);
 
-            if (hexToCheck == null) return false;
+                if (hexToCheck == null) return false;
 
-            return hexToCheck.Owner == HexOwner.Empty;
+                return hexToCheck.Owner == HexOwner.Empty;
+                
+            }
+
+            return false;
         }
 
         private void AssignHex(int x, int y, HexOwner owner)

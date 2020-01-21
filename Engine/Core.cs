@@ -28,6 +28,13 @@ namespace Engine
             NewBoard();
         }
 
+        public void NewGame(int size = 11)
+        {
+            Size = size;
+            NewBoard();
+            _lastPlayer = HexOwner.Empty;
+        }
+
         public void TakeTurn(HexOwner player, int x, int y)
         {
             if (player == _lastPlayer)

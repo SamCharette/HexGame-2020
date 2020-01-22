@@ -48,9 +48,8 @@ namespace Engine.Tests
         public void ShouldNotAllowNoPlayerToPlay()
         {
             _engine.NewGame();
-            Assert.Throws<Exception>(() => _engine.TakeTurn(HexOwner.Empty, 1, 1), "Cannot play as a non player");
-           // This should really fail above, not below
-            Assert.IsFalse(true);
+            Exception ex = Assert.Throws<Exception>(() => _engine.TakeTurn(HexOwner.Empty, 1, 1));
+            Assert.That(ex.Message, Is.EqualTo("Cannot take a turn as a non-player"));
         }
 
         [Test]

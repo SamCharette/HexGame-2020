@@ -37,15 +37,29 @@ namespace Engine
 
         public void TakeTurn(HexOwner player, int x, int y)
         {
-            if (player == _lastPlayer)
+            try
             {
-                throw new Exception("Cannot play twice in a row");
-            }
+                // First, check to see if the player is empty
+                if (player == HexOwner.Empty)
+                {
+                    throw new Exception("Cannot take a turn as a non-player");
+                }
 
-            if (CheckHex(x, y))
+                // Next, check to see if the player is the same as the last one
+                if (player == _lastPlayer)
+                {
+                    throw new Exception("Cannot play twice in a row");
+                }
+
+                if (CheckHex(x, y))
+                {
+                    AssignHex(x, y, player);
+                    _lastPlayer = player;
+                }
+            }
+            catch (Exception e)
             {
-                AssignHex(x, y, player);
-                _lastPlayer = player;
+                throw e;
             }
 
         }
@@ -56,17 +70,24 @@ namespace Engine
             {
                 var hexToCheck = Board.FirstOrDefault(hex => hex.X == x && hex.Y == y);
 
-                if (hexToCheck == null) return false;
+                if (hexToCheck == null)
+                {
+                    return false;
+                }
 
                 return hexToCheck.Owner == HexOwner.Empty;
                 
             }
-
-            return false;
+            throw new Exception("Can't find a board");
         }
 
         private void AssignHex(int x, int y, HexOwner owner)
         {
+            if (owner == HexOwner.Empty)
+            {
+                throw new Exception("Cannot claim hex for non-player");
+            }
+
             var hexToClaim = Board?.First(hex => hex.X == x && hex.Y == y);
 
             if (hexToClaim != null)

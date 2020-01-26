@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Engine.GameTypes;
+using Engine.Interfaces;
 
 namespace Engine
 {
-    public class Engine
+    public class Referee
     {
         // Board size must be equal in both directions
         public int Size;
-        public List<Hex> Board;
-        private HexOwner _lastPlayer;
+        public Board Board;
+        private IPlayer _lastPlayer;
 
         // we need a player 1
 
@@ -21,10 +23,9 @@ namespace Engine
 
 
         // functions
-        public Engine(int size = 11)
+        public Referee(int size = 11)
         {
             Size = size;
-            _lastPlayer = HexOwner.Player1;
             NewBoard();
         }
 
@@ -32,15 +33,14 @@ namespace Engine
         {
             Size = size;
             NewBoard();
-            _lastPlayer = HexOwner.Empty;
         }
 
-        public void TakeTurn(HexOwner player, int x, int y)
+        public void TakeTurn(IPlayer player, int x, int y)
         {
             try
             {
                 // First, check to see if the player is empty
-                if (player == HexOwner.Empty)
+                if (player == null)
                 {
                     throw new Exception("Cannot take a turn as a non-player");
                 }
@@ -61,38 +61,37 @@ namespace Engine
             {
                 throw e;
             }
-
         }
 
         public bool CheckHex(int x, int y)
         {
-            if (Board != null  && Board.Any())
+            if (Board != null && Board.Spaces.Any())
             {
-                var hexToCheck = Board.FirstOrDefault(hex => hex.X == x && hex.Y == y);
+                var hexToCheck = Board.Spaces.FirstOrDefault(hex => hex.X == x && hex.Y == y);
 
                 if (hexToCheck == null)
                 {
                     return false;
                 }
 
-                return hexToCheck.Owner == HexOwner.Empty;
-                
+                return hexToCheck.Owner == null;
             }
+
             throw new Exception("Can't find a board");
         }
 
-        private void AssignHex(int x, int y, HexOwner owner)
+        private void AssignHex(int x, int y, IPlayer owner)
         {
-            if (owner == HexOwner.Empty)
+            if (owner == null)
             {
                 throw new Exception("Cannot claim hex for non-player");
             }
 
-            var hexToClaim = Board?.First(hex => hex.X == x && hex.Y == y);
+            var hexToClaim = Board.Spaces?.First(hex => hex.X == x && hex.Y == y);
 
             if (hexToClaim != null)
             {
-                if (hexToClaim.Owner == HexOwner.Empty)
+                if (hexToClaim.Owner == null)
                 {
                     hexToClaim.Owner = owner;
                 }
@@ -109,16 +108,8 @@ namespace Engine
 
         public void NewBoard()
         {
-            Board = new List<Hex>();
+            Board = new Board();
 
-            for (var i = 0; i < Size; i++)
-            {
-                for (var j = 0; j < Size; j++)
-                {
-                    var hex = new Hex(i, j);
-                    Board.Add(hex);
-                }
-            }
         }
     }
 }

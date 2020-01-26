@@ -1,18 +1,13 @@
-﻿namespace Engine
-{
+﻿using Engine.Interfaces;
 
-    public enum HexOwner
-    {
-        Empty,
-        Player1,
-        Player2
-    }
+namespace Engine.GameTypes
+{
 
     public class Hex
     {
         public int X;
         public int Y;
-        public HexOwner Owner;
+        public IPlayer Owner;
 
         public Hex(int x, int y)
         {

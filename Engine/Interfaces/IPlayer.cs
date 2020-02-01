@@ -6,5 +6,7 @@ namespace Engine.Interfaces
 {
     public interface IPlayer
     {
+        string Name { get; set; }
+        int PlayerNumber { get; set; }
     }
 }

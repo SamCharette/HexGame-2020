@@ -12,6 +12,7 @@ namespace Engine
 
         public Board()
         {
+            Spaces = new List<Hex>();
             for (var i = 0; i < 11; i++)
             {
                 for (var j = 0; j < 11; j++)
@@ -23,12 +24,12 @@ namespace Engine
         }
         public bool TakeHex(int x, int y, IPlayer player)
         {
-
+            return false;
         }
 
         public bool CheckHex(int x, int y)
         {
-
+            return false;
         }
     }
 }

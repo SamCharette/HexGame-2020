@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Engine.GameTypes;
 using Engine.Interfaces;
+using Engine.Players;
 
 namespace Engine
 {
@@ -14,8 +15,32 @@ namespace Engine
         private IPlayer _lastPlayer;
 
         // we need a player 1
+        private IPlayer _player1;
 
         // we need a player 2
+        private IPlayer _player2;
+
+        private IPlayer CurrentPlayer()
+        {
+            if (_player1 == _lastPlayer)
+            {
+                return _player2;
+            }
+
+            return _player1;
+        }
+
+        private void SwitchPlayers()
+        {
+            if (_player1 == _lastPlayer)
+            {
+                _lastPlayer = _player2);
+            }
+            else
+            {
+                _lastPlayer = _player1;
+            }
+        }
 
         // We need a way to get input from a player
 
@@ -27,88 +52,51 @@ namespace Engine
         {
             Size = size;
             NewBoard();
+            _player1 = new RandomPlayer();
+            _player2 = new RandomPlayer();
         }
 
         public void NewGame(int size = 11)
         {
             Size = size;
             NewBoard();
+            Play();
         }
 
-        public void TakeTurn(IPlayer player, int x, int y)
+        public void Play()
         {
-            try
+            while (Board.Winner() == null)
             {
-                // First, check to see if the player is empty
-                if (player == null)
-                {
-                    throw new Exception("Cannot take a turn as a non-player");
-                }
-
-                // Next, check to see if the player is the same as the last one
-                if (player == _lastPlayer)
-                {
-                    throw new Exception("Cannot play twice in a row");
-                }
-
-                if (CheckHex(x, y))
-                {
-                    AssignHex(x, y, player);
-                    _lastPlayer = player;
-                }
-            }
-            catch (Exception e)
-            {
-                throw e;
+                TakeTurn(CurrentPlayer());
             }
         }
 
-        public bool CheckHex(int x, int y)
+        public void TakeTurn(IPlayer player)
         {
-            if (Board != null && Board.Spaces.Any())
+            // First, check to see if the player is empty
+            if (player == null)
             {
-                var hexToCheck = Board.Spaces.FirstOrDefault(hex => hex.X == x && hex.Y == y);
-
-                if (hexToCheck == null)
-                {
-                    return false;
-                }
-
-                return hexToCheck.Owner == null;
+                throw new Exception("Cannot take a turn as a non-player");
             }
 
-            throw new Exception("Can't find a board");
+            // Next, check to see if the player is the same as the last one
+            if (player == _lastPlayer)
+            {
+                throw new Exception("Cannot play twice in a row");
+            }
+
+            var hexWanted = player.SelectHex(Board);
+            if (Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer()))
+            {
+                SwitchPlayers();
+            };
+
         }
 
-        private void AssignHex(int x, int y, IPlayer owner)
-        {
-            if (owner == null)
-            {
-                throw new Exception("Cannot claim hex for non-player");
-            }
-
-            var hexToClaim = Board.Spaces?.First(hex => hex.X == x && hex.Y == y);
-
-            if (hexToClaim != null)
-            {
-                if (hexToClaim.Owner == null)
-                {
-                    hexToClaim.Owner = owner;
-                }
-                else
-                {
-                    throw new Exception("Hex is already taken");
-                }
-            }
-            else
-            {
-                throw new Exception("Could not find hex to claim");
-            }
-        }
 
         public void NewBoard()
         {
-            Board = new Board();
+            Board = new Board(Size);
 
         }
     }

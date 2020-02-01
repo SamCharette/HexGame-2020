@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Engine.GameTypes;
 
 namespace Engine.Interfaces
 {
@@ -8,5 +9,6 @@ namespace Engine.Interfaces
     {
         string Name { get; set; }
         int PlayerNumber { get; set; }
+        Hex SelectHex(Board board);
     }
 }

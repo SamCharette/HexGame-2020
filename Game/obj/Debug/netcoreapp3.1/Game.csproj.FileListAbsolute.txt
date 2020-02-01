@@ -1,0 +1,14 @@
+C:\Users\spamf\source\repos\hexgame\Game\obj\Debug\netcoreapp3.1\Game.csprojAssemblyReference.cache
+C:\Users\spamf\source\repos\hexgame\Game\obj\Debug\netcoreapp3.1\Game.AssemblyInfoInputs.cache
+C:\Users\spamf\source\repos\hexgame\Game\obj\Debug\netcoreapp3.1\Game.AssemblyInfo.cs
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Game.exe
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Game.deps.json
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Game.runtimeconfig.json
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Game.runtimeconfig.dev.json
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Game.dll
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Game.pdb
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Engine.dll
+C:\Users\spamf\source\repos\hexgame\Game\bin\Debug\netcoreapp3.1\Engine.pdb
+C:\Users\spamf\source\repos\hexgame\Game\obj\Debug\netcoreapp3.1\Game.csproj.CopyComplete
+C:\Users\spamf\source\repos\hexgame\Game\obj\Debug\netcoreapp3.1\Game.dll
+C:\Users\spamf\source\repos\hexgame\Game\obj\Debug\netcoreapp3.1\Game.pdb

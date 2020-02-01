@@ -105,16 +105,15 @@ namespace Engine
         public bool CheckHexForPlayer(int x, int y, IPlayer player)
         {
             var hex = HexAt(x, y);
-            if (hex?.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber)
-            {
-                return true;
-            }
-
-            return false;
+            return hex?.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber;
         }
 
         public IPlayer Winner()
         {
+            if (Spaces.Count(x => x.Owner == null) < 1)
+            {
+                throw new NoWinnerException();
+            }
             return null;
         }
 

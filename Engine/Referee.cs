@@ -40,8 +40,8 @@ namespace Engine
         {
             Size = size;
             NewBoard();
-            _player1 = new RandomPlayer();
-            _player2 = new RandomPlayer();
+            _player1 = new RandomPlayer(1);
+            _player2 = new RandomPlayer(2);
         }
 
         public void NewGame(int size = 11)
@@ -53,13 +53,27 @@ namespace Engine
 
         public void Play()
         {
-            while (Board.Winner() == null)
+            try
             {
-                TakeTurn(CurrentPlayer());
+                while (Board.Winner() == null)
+                {
+                    Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
+                    var hexTaken = TakeTurn(CurrentPlayer());
+                    if (hexTaken != null)
+                    {
+                        Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("No winner today!");
+
+            }
+           
         }
 
-        public void TakeTurn(IPlayer player)
+        public Hex TakeTurn(IPlayer player)
         {
             // First, check to see if the player is empty
             if (player == null)
@@ -78,6 +92,7 @@ namespace Engine
             {
                 SwitchPlayers();
             };
+            return hexWanted;
 
         }
 

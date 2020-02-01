@@ -12,6 +12,10 @@ namespace Engine.Players
         public string Name { get; set; }
         public int PlayerNumber { get; set; }
 
+        public RandomPlayer(int playerNumber)
+        {
+            PlayerNumber = playerNumber;
+        }
         public Hex SelectHex(Board board)
         {
             var openHexes = board.Spaces.Where(x => x.Owner == null);

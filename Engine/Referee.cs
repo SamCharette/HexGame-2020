@@ -22,24 +22,12 @@ namespace Engine
 
         private IPlayer CurrentPlayer()
         {
-            if (_player1 == _lastPlayer)
-            {
-                return _player2;
-            }
-
-            return _player1;
+            return _player1 == _lastPlayer ? _player2 : _player1;
         }
 
         private void SwitchPlayers()
         {
-            if (_player1 == _lastPlayer)
-            {
-                _lastPlayer = _player2);
-            }
-            else
-            {
-                _lastPlayer = _player1;
-            }
+            _lastPlayer = _player1 == _lastPlayer ? _player2 : _player1;
         }
 
         // We need a way to get input from a player

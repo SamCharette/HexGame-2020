@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Engine.GameTypes;
 using Engine.Interfaces;
+using System.Threading.Tasks;
 
 namespace Engine.Players
 {
@@ -19,6 +20,7 @@ namespace Engine.Players
         public Hex SelectHex(Board board)
         {
             var openHexes = board.Spaces.Where(x => x.Owner == null);
+//            System.Threading.Thread.Sleep(2000);
             var selectedHex = openHexes.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
             return selectedHex;
         }

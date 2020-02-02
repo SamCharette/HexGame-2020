@@ -20,12 +20,17 @@ namespace Engine
         // we need a player 2
         private IPlayer _player2;
 
-        private IPlayer CurrentPlayer()
+        public IPlayer CurrentPlayer()
         {
             return _player1 == _lastPlayer ? _player2 : _player1;
         }
 
-        private void SwitchPlayers()
+        public IPlayer LastPlayer()
+        {
+            return _lastPlayer;
+        }
+
+        void SwitchPlayers()
         {
             _lastPlayer = _player1 == _lastPlayer ? _player2 : _player1;
         }
@@ -49,7 +54,6 @@ namespace Engine
         {
             Size = size;
             NewBoard();
-            Play();
         }
 
         public Board Play()

@@ -17,8 +17,6 @@ namespace WindowsGame
         public Form1()
         {
             InitializeComponent();
-            referee.NewGame();
-            board = referee.Play();
         }
 
         // The height of a hexagon.
@@ -27,22 +25,44 @@ namespace WindowsGame
         // Selected hexagons.
 //        private List<PointF> Hexagons = new List<PointF>();
         private Referee referee = new Referee(11);
-        private Board board;
 
+        public void Play()
+        {
+            try
+            {
+                do
+                {
+                    Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+                    var hexTaken = referee.TakeTurn(referee.CurrentPlayer());
+                    if (hexTaken != null)
+                    {
+                        Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+                    }
+                    Refresh();
+                } while (referee.Board.Winner(referee.CurrentPlayer()) == null);
 
+                Console.WriteLine("The winner is Player #" + referee.CurrentPlayer().PlayerNumber);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("No winner today!");
+
+            }
+
+        }
         // Redraw the grid.
         private void picGrid_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Draw the selected hexagons.
-            foreach (PointF point in board.Spaces.Where(x => x.Owner?.PlayerNumber == 1).ToList().Select(y => y.Point))
+            foreach (PointF point in referee.Board.Spaces.Where(x => x.Owner?.PlayerNumber == 1).ToList().Select(y => y.Point))
             {
                 e.Graphics.FillPolygon(Brushes.LightBlue,
                     HexToPoints(HexHeight, point.X, point.Y));
             }
 
-            foreach (PointF point in board.Spaces.Where(x => x.Owner?.PlayerNumber == 2).ToList().Select(y => y.Point))
+            foreach (PointF point in referee.Board.Spaces.Where(x => x.Owner?.PlayerNumber == 2).ToList().Select(y => y.Point))
             {
                 e.Graphics.FillPolygon(Brushes.LightCoral,
                     HexToPoints(HexHeight, point.X, point.Y));
@@ -216,6 +236,12 @@ namespace WindowsGame
                     new PointF(x + width * 0.75f, y + height / 2),
                     new PointF(x + width * 0.25f, y + height / 2),
                 };
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            referee.NewGame(11);
+            Play();
         }
     }
 }

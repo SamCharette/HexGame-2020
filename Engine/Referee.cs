@@ -30,6 +30,7 @@ namespace Engine
             _lastPlayer = _player1 == _lastPlayer ? _player2 : _player1;
         }
 
+
         // We need a way to get input from a player
 
         // We need a way to send the new board and game state to a player
@@ -51,11 +52,11 @@ namespace Engine
             Play();
         }
 
-        public void Play()
+        public Board Play()
         {
             try
             {
-                while (Board.Winner() == null)
+                while (Board.Winner(_lastPlayer) == null)
                 {
                     Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
                     var hexTaken = TakeTurn(CurrentPlayer());
@@ -70,6 +71,8 @@ namespace Engine
                 Console.WriteLine("No winner today!");
 
             }
+           
+            return Board;
            
         }
 

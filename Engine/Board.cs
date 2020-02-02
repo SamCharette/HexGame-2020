@@ -108,14 +108,30 @@ namespace Engine
             return hex?.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber;
         }
 
-        public IPlayer Winner()
+        public IPlayer Winner(IPlayer player)
         {
+            var horizontal = player != null && player.PlayerNumber == 1;
+            // Let's go through the hexes on the 0 side of the appropriate player,
+            // and start a depth-first search for a connection to the other side.
+            List<Hex> startingHexes;
+
+            //if (horizontal)
+            //{
+            //    startingHexes = Spaces.Where(x => x.X == 0 && x.Owner.PlayerNumber == player.PlayerNumber).ToList();
+            //}
+            //else
+            //{
+            //    startingHexes = Spaces.Where(x => x.Y == 0 && x.Owner.PlayerNumber == player.PlayerNumber).ToList();
+            //}
+
             if (Spaces.Count(x => x.Owner == null) < 1)
             {
-                throw new NoWinnerException();
+                return player;
             }
             return null;
         }
+
+    
 
     }
 }

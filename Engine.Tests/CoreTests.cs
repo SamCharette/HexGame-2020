@@ -16,7 +16,7 @@ namespace Engine.Tests
             _referee = new Referee(11);
         }
 
-        
+
         [Test]
         public void NewEngineBoardShouldBeEmpty()
         {
@@ -40,10 +40,7 @@ namespace Engine.Tests
         [Test]
         public void ShouldNotAllowPlayerToPlayTwice()
         {
-            var player1 = new RandomPlayer
-            {
-                PlayerNumber = 1
-            };
+            var player1 = new RandomPlayer(1);
             _referee.NewGame();
             //_referee.TakeTurn(player1, 1, 1);
             //Exception ex = Assert.Throws<Exception>(() => _referee.TakeTurn(player1, 1, 2), "Cannot play twice in a row");
@@ -62,10 +59,8 @@ namespace Engine.Tests
         public void SelectingProperHexShouldSucceed()
         {
             _referee.NewGame();
-            var player1 = new RandomPlayer()
-            {
-                PlayerNumber = 1
-            };
+            var player1 = new RandomPlayer(1);
+
             //_referee.TakeTurn(player1, 1, 1);
             //Assert.AreEqual(1, _referee.Board.Spaces.Count(x => x.X == 1 && x.Y == 1 && x.Owner == player1));
         }

@@ -43,7 +43,7 @@
             this.picGrid.Location = new System.Drawing.Point(16, 15);
             this.picGrid.Margin = new System.Windows.Forms.Padding(4);
             this.picGrid.Name = "picGrid";
-            this.picGrid.Size = new System.Drawing.Size(700, 702);
+            this.picGrid.Size = new System.Drawing.Size(700, 715);
             this.picGrid.TabIndex = 1;
             this.picGrid.TabStop = false;
             this.picGrid.Paint += new System.Windows.Forms.PaintEventHandler(this.picGrid_Paint);
@@ -73,7 +73,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(944, 731);
+            this.ClientSize = new System.Drawing.Size(944, 744);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.picGrid);

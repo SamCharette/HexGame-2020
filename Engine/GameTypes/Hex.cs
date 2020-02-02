@@ -14,7 +14,9 @@ namespace Engine.GameTypes
         public Hex(int x, int y)
         {
             X = x;
+            Point.X = x;
             Y = y;
+            Point.Y = y;
         }
     }
 }

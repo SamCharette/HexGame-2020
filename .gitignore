@@ -7,3 +7,6 @@
 /Engine/bin/Debug/netstandard2.0
 /Engine.Tests/bin/Debug/netcoreapp3.1
 /Engine.Tests/obj
+/WindowsGame/bin/Debug
+/WindowsGame/obj/Debug
+/Game/obj/Game.csproj.nuget.cache

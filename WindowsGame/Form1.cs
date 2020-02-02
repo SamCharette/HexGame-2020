@@ -32,6 +32,10 @@ namespace WindowsGame
             {
                 do
                 {
+                    if (referee.Board.Spaces.Count(x => x.Owner == null) == 0)
+                    {
+                        break;
+                    } 
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
                     var hexTaken = referee.TakeTurn(referee.CurrentPlayer());
                     if (hexTaken != null)
@@ -41,7 +45,14 @@ namespace WindowsGame
                     Refresh();
                 } while (referee.Board.Winner(referee.CurrentPlayer()) == null);
 
-                Console.WriteLine("The winner is Player #" + referee.CurrentPlayer().PlayerNumber);
+                if (referee.Board.Spaces.Count(x => x.Owner == null) == 0)
+                {
+                    Console.WriteLine("The game is a draw.");
+                }
+                else
+                {
+                    Console.WriteLine("The winner is Player #" + referee.CurrentPlayer().PlayerNumber);
+                }
             }
             catch (Exception e)
             {

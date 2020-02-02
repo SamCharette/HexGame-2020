@@ -12,9 +12,10 @@ namespace Engine
     public class Board
     {
         public List<Hex> Spaces;
-
+        private int _size;
         public Board(int size = 11)
         {
+            _size = size;
             Spaces = new List<Hex>();
             for (var i = 0; i < size; i++)
             {
@@ -26,7 +27,7 @@ namespace Engine
             }
         }
 
-        public List<Hex> GetFriendlyNeighbours(int x, int y, IPlayer player)
+        public List<Hex> GetFriendlyNeighbours(float x, float y, IPlayer player)
         {
             var allNeighbours = GetNeighbours(x, y);
             return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber)
@@ -40,7 +41,7 @@ namespace Engine
                 .ToList();
         }
 
-        public List<Hex> GetNeighbours(int x, int y)
+        public List<Hex> GetNeighbours(float x, float y)
         {
             var neighbours = new List<Hex>();
             // Top right
@@ -78,11 +79,11 @@ namespace Engine
             return neighbours;
         }
 
-        public Hex HexAt(int x, int y)
+        public Hex HexAt(float x, float y)
         {
             return Spaces.FirstOrDefault(hex => hex.X == x && hex.Y == y);
         }
-        public bool TakeHex(int x, int y, IPlayer player)
+        public bool TakeHex(float x, float y, IPlayer player)
         {
             var hexToTake = HexAt(x, y);
             if (hexToTake != null && hexToTake.Owner == null)
@@ -93,13 +94,9 @@ namespace Engine
             return false;
         }
 
-        public bool CheckHex(int x, int y)
+        public bool CheckHex(float x, float y)
         {
-            if (HexAt(x, y) != null)
-            {
-                return true;
-            }
-            return false;
+            return HexAt(x, y) != null;
         }
 
         public bool CheckHexForPlayer(int x, int y, IPlayer player)
@@ -110,28 +107,67 @@ namespace Engine
 
         public IPlayer Winner(IPlayer player)
         {
-            var horizontal = player != null && player.PlayerNumber == 1;
+            if (player == null)
+            {
+                return null;
+            }
+
+            var horizontal = player.PlayerNumber == 1;
             // Let's go through the hexes on the 0 side of the appropriate player,
             // and start a depth-first search for a connection to the other side.
             List<Hex> startingHexes;
 
-            //if (horizontal)
-            //{
-            //    startingHexes = Spaces.Where(x => x.X == 0 && x.Owner.PlayerNumber == player.PlayerNumber).ToList();
-            //}
-            //else
-            //{
-            //    startingHexes = Spaces.Where(x => x.Y == 0 && x.Owner.PlayerNumber == player.PlayerNumber).ToList();
-            //}
-
-            if (Spaces.Count(x => x.Owner == null) < 1)
+            if (horizontal)
             {
-                return player;
+                startingHexes = Spaces.Where(x => x.Y == 0 && x.Owner?.PlayerNumber == 1).ToList();
             }
+            else
+            {
+                startingHexes = Spaces.Where(x => x.X == 0 && x.Owner?.PlayerNumber == 2).ToList();
+            }
+
+            foreach (var hex in startingHexes)
+            {
+                var path = new List<Hex> {hex};
+                if (CheckForWinningPath(path, hex, horizontal))
+                {
+                    return player;
+                }
+            }
+
             return null;
         }
 
-    
+        private bool CheckForWinningPath(List<Hex> currentPath, Hex currentHex, bool isHorizontal)
+        {
+            if (isHorizontal)
+            {
+                if ((int)Math.Round(currentHex.Y) == _size - 1)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if ((int) Math.Round(currentHex.Y) == _size - 1)
+                {
+                    return true;
+                }
+            }
 
+            currentPath.Add(currentHex);
+            var friendlyNeighboursNotLookedAtAlready =
+                GetFriendlyNeighbours(currentHex.X, currentHex.Y, currentHex.Owner)
+                    .Where(x => currentPath.Count(y => y.X == x.X && y.Y == x.Y) < 1).ToList();
+            foreach (var hex in friendlyNeighboursNotLookedAtAlready)
+            {
+                if (CheckForWinningPath(currentPath, hex, isHorizontal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

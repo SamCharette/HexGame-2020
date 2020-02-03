@@ -22,14 +22,13 @@ namespace WindowsGame
         // The height of a hexagon.
         private const float HexHeight = 50;
 
-        // Selected hexagons.
-//        private List<PointF> Hexagons = new List<PointF>();
         private Referee referee = new Referee(11);
 
         public void Play()
         {
             try
             {
+                
                 do
                 {
                     if (referee.Board.Spaces.Count(x => x.Owner == null) == 0)
@@ -37,13 +36,15 @@ namespace WindowsGame
                         break;
                     } 
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+
                     var hexTaken = referee.TakeTurn(referee.CurrentPlayer());
                     if (hexTaken != null)
                     {
                         Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+                       
                     }
                     Refresh();
-                } while (referee.Board.Winner(referee.CurrentPlayer()) == null);
+                } while (!referee.Winner());
 
                 if (referee.Board.Spaces.Count(x => x.Owner == null) == 0)
                 {

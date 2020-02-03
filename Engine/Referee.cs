@@ -56,29 +56,29 @@ namespace Engine
             NewBoard();
         }
 
-        public Board Play()
-        {
-            try
-            {
-                while (Board.Winner(_lastPlayer) == null)
-                {
-                    Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
-                    var hexTaken = TakeTurn(CurrentPlayer());
-                    if (hexTaken != null)
-                    {
-                        Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("No winner today!");
+        //public Board Play()
+        //{
+        //    try
+        //    {
+        //        while (Board.Winner(_lastPlayer) == null)
+        //        {
+        //            Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
+        //            var hexTaken = TakeTurn(CurrentPlayer());
+        //            if (hexTaken != null)
+        //            {
+        //                Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine("No winner today!");
 
-            }
+        //    }
            
-            return Board;
+        //    return Board;
            
-        }
+        //}
 
         public Hex TakeTurn(IPlayer player)
         {
@@ -95,10 +95,8 @@ namespace Engine
             }
 
             var hexWanted = player.SelectHex(Board);
-            if (Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer()))
-            {
-                SwitchPlayers();
-            };
+            Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer());
+
             return hexWanted;
 
         }
@@ -108,6 +106,87 @@ namespace Engine
         {
             Board = new Board(Size);
 
+        }
+
+        private void PrintPath(List<Hex> path)
+        {
+            Console.Write("Path is: ");
+            foreach (var hex in path)
+            {
+                Console.Write("[" + hex.X + "," + hex.Y + "] ");
+            }
+            Console.WriteLine("");
+        }
+
+        public bool Winner()
+        {
+     
+
+            var horizontal = CurrentPlayer().PlayerNumber == 1;
+            // Let's go through the hexes on the 0 side of the appropriate player,
+            // and start a depth-first search for a connection to the other side.
+            List<Hex> startingHexes;
+
+            if (horizontal)
+            {
+                startingHexes = Board.Spaces.Where(x => x.X == 0 && x.Owner?.PlayerNumber == 1).ToList();
+            }
+            else
+            {
+                startingHexes = Board.Spaces.Where(x => x.Y == 0 && x.Owner?.PlayerNumber == 2).ToList();
+            }
+            PrintPath(startingHexes);
+
+            foreach (var hex in startingHexes)
+            {
+                var path = new List<Hex> ();
+                if (CheckForWinningPath(path, hex, horizontal))
+                {
+                    
+                    return true;
+                }
+            }
+            SwitchPlayers();
+            return false;
+        }
+
+        private bool CheckForWinningPath(List<Hex> currentPath, Hex currentHex, bool isHorizontal)
+        {
+
+            currentPath.Add(currentHex);
+            if (isHorizontal)
+            {
+                if ((int)Math.Round(currentHex.X) == Size - 1)
+                {
+                    Console.Write("Winning path is : ");
+                    PrintPath(currentPath);
+                    return true;
+                }
+            }
+            else
+            {
+                if ((int)Math.Round(currentHex.Y) == Size - 1)
+                {
+                    Console.Write("Winning path is : ");
+                    PrintPath(currentPath);
+                    return true;
+                }
+            }
+
+            var friendlyNeighboursNotLookedAtAlready =
+                Board.GetFriendlyNeighbours(currentHex.X, currentHex.Y, currentHex.Owner)
+                    .Where(x => !currentPath.Any(y => y.X == x.X && y.Y == x.Y)).ToList();
+
+            foreach (var hex in friendlyNeighboursNotLookedAtAlready)
+            {
+                if (CheckForWinningPath(currentPath, hex, isHorizontal))
+                {
+                   
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

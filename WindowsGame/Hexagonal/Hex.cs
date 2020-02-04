@@ -13,6 +13,8 @@ namespace WindowsGame.Hexagonal
 		private float x;
 		private float y;
 		private HexState hexState;
+        public int Row;
+        public int Column;
 
 		/// <param name="side">length of one side of the hexagon</param>
 		public Hex(int x, int y, int side, Hexagonal.HexOrientation orientation)
@@ -168,7 +170,17 @@ namespace WindowsGame.Hexagonal
 			}
 		}
 
-		public Hexagonal.HexState HexState
+        public float X
+        {
+            get { return x; }
+        }
+
+        public float Y
+        {
+            get { return y; }
+        }
+
+        public Hexagonal.HexState HexState
 		{
 			get
 			{

@@ -341,10 +341,12 @@ namespace WindowsGame.Hexagonal
 									//}
 									//else
 									//{
-										hexes[i, j] = new Hex(hexes[i - 1, j].Points[(int)Hexagonal.PointyVertice.BottomRight], side, orientation);
-									//}
+                                    var hex = new Hex(hexes[i - 1, j].Points[(int) Hexagonal.PointyVertice.BottomRight],
+                                        side, orientation) {Row = i, Column = j};
+                                    hexes[i, j] = hex;
+                                    //}
 
-								}
+                                }
 								else
 								{
 									// Calculate from Hex to the left
@@ -352,8 +354,9 @@ namespace WindowsGame.Hexagonal
 									float y = hexes[i, j - 1].Points[(int)Hexagonal.PointyVertice.UpperRight].Y;
 									x += r;
 									y -= h;
-									hexes[i, j] = new Hex(x, y, side, orientation);
-								}
+                                    var hex = new Hex(x, y, side, orientation) {Row = i, Column = j};
+                                    hexes[i, j] = hex;
+                                }
 								break;
 							default:
 								break;

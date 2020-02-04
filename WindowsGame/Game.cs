@@ -92,7 +92,8 @@ namespace WindowsGame
 				}
 				else
 				{
-					Console.WriteLine("Hex was clicked.");
+					Console.WriteLine("Hex was clicked: [" + clickedHex.Row + "," + clickedHex.Column + "]");
+;
 					board.BoardState.ActiveHex = clickedHex;
 					if (e.Button == MouseButtons.Right)
 					{

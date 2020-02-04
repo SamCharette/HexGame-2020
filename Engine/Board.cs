@@ -9,6 +9,15 @@ using Engine.Interfaces;
 
 namespace Engine
 {
+    public enum Direction
+    {
+        TopRight,
+        Right,
+        BottomRight,
+        BottomLeft,
+        Left,
+        TopLeft
+    }
     public class Board
     {
         public List<Hex> Spaces;
@@ -28,7 +37,7 @@ namespace Engine
             }
         }
 
-        public List<Hex> GetFriendlyNeighbours(float x, float y, IPlayer player)
+        public List<Hex> GetFriendlyNeighbours(int x, int y, IPlayer player)
         {
             var allNeighbours = GetNeighbours(x, y);
             return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber)
@@ -42,58 +51,51 @@ namespace Engine
                 .ToList();
         }
 
-        public List<Hex> GetNeighbours(float x, float y)
+        public Hex GetNeighbourAt(Direction direction, int x, int y)
         {
-            var neighbours = new List<Hex>();
-
-
-            // top right
-            if (CheckHex(x + 1, y - 1))
+            switch (direction)
             {
-                neighbours.Add(HexAt(x + 1, y - 1));
+                case Direction.TopRight:
+                    return HexAt(x + 1, y - 1);
+                case Direction.Right:
+                    return HexAt(x + 1, y);
+                case Direction.BottomRight:
+                    return HexAt(x , y + 1);
+                case Direction.BottomLeft:
+                    return HexAt(x - 1, y + 1);
+                case Direction.Left:
+                    return HexAt(x - 1, y );
+                case Direction.TopLeft:
+                    return HexAt(x , y - 1);
+
+                default:
+                    return null;
             }
 
-            //  right
-            if (CheckHex(x + 1, y))
-            {
-                neighbours.Add(HexAt(x + 1, y));
-            }
-
-            // bottom right
-            if (CheckHex(x, y + 1))
-            {
-                neighbours.Add(HexAt(x, y + 1));
-            }
-
-
-            // bottom left
-            if (CheckHex(x - 1, y + 1))
-            {
-                neighbours.Add(HexAt(x - 1, y + 1));
-            }
-
-            //  left
-            if (CheckHex(x - 1, y))
-            {
-                neighbours.Add(HexAt(x - 1, y));
-            }
-
-            // top left
-            if (CheckHex(x , y - 1))
-            {
-                neighbours.Add(HexAt(x , y -1 ));
-            }
-
-
-            return neighbours;
         }
 
-        public Hex HexAt(float x, float y)
+        public List<Hex> GetNeighbours(int x, int y)
+        {
+            var neighbours = new List<Hex>
+            {
+                GetNeighbourAt(Direction.TopRight, x, y),
+                GetNeighbourAt(Direction.Right, x, y),
+                GetNeighbourAt(Direction.BottomRight, x, y),
+                GetNeighbourAt(Direction.BottomLeft, x, y),
+                GetNeighbourAt(Direction.Left, x, y),
+                GetNeighbourAt(Direction.TopLeft, x, y)
+            };
+
+
+            return neighbours.Where(hex => hex != null).ToList();
+        }
+
+        public Hex HexAt(int x, int y)
         {
             return Spaces.FirstOrDefault(hex => hex.X == x && hex.Y == y);
         }
 
-        public bool TakeHex(float x, float y, IPlayer player)
+        public bool TakeHex(int x, int y, IPlayer player)
         {
             var hexToTake = HexAt(x, y);
             if (hexToTake != null && hexToTake.Owner == null)
@@ -105,7 +107,7 @@ namespace Engine
             return false;
         }
 
-        public bool CheckHex(float x, float y)
+        public bool CheckHex(int x, int y)
         {
             return HexAt(x, y) != null;
         }

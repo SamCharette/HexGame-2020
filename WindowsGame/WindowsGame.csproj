@@ -52,6 +52,21 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Game.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Game.Designer.cs">
+      <DependentUpon>Game.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Hexagonal\Board.cs" />
+    <Compile Include="Hexagonal\BoardState.cs" />
+    <Compile Include="Hexagonal\FlatVerticie.cs" />
+    <Compile Include="Hexagonal\GraphicsEngine.cs" />
+    <Compile Include="Hexagonal\Hex.cs" />
+    <Compile Include="Hexagonal\HexOrientation.cs" />
+    <Compile Include="Hexagonal\HexState.cs" />
+    <Compile Include="Hexagonal\Math.cs" />
+    <Compile Include="Hexagonal\PointyVertice.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -85,5 +100,6 @@
       <Name>Engine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

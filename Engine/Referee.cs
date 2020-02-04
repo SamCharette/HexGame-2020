@@ -156,7 +156,7 @@ namespace Engine
             currentPath.Add(currentHex);
             if (isHorizontal)
             {
-                if ((int)Math.Round(currentHex.X) == Size - 1)
+                if (currentHex.X == Size - 1)
                 {
                     Console.Write("Winning path is : ");
                     PrintPath(currentPath);
@@ -165,7 +165,7 @@ namespace Engine
             }
             else
             {
-                if ((int)Math.Round(currentHex.Y) == Size - 1)
+                if (currentHex.Y == Size - 1)
                 {
                     Console.Write("Winning path is : ");
                     PrintPath(currentPath);

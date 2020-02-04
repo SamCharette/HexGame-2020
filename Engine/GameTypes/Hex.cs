@@ -9,9 +9,9 @@ namespace Engine.GameTypes
         public IPlayer Owner;
         public PointF Point;
 
-        public float X => Point.X;
+        public int X => (int) Point.X;
 
-        public float Y => Point.Y;
+        public int Y => (int) Point.Y;
 
         public Hex(int x, int y)
         {

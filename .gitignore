@@ -11,3 +11,5 @@
 /WindowsGame/obj/Debug
 /Game/obj/Game.csproj.nuget.cache
 /HexGame/obj/Debug
+/Game/bin/Debug/netcoreapp3.1
+/Game/obj

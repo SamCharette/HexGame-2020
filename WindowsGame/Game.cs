@@ -22,8 +22,8 @@ namespace WindowsGame
 			InitializeComponent();
 
 			textBoxHexSide.Text = "25";
-			textBoxHexBoardHeight.Text = "8";
-			textBoxHexBoardWidth.Text = "8";
+			textBoxHexBoardHeight.Text = "11";
+			textBoxHexBoardWidth.Text = "11";
 			textBoxXOffset.Text = "20";
 			textBoxtYOffset.Text = "20";
 			comboBoxOrientation.SelectedItem = comboBoxOrientation.Items[0];

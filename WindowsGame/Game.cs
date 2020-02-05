@@ -31,7 +31,7 @@ namespace WindowsGame
 		public void Play()
         {
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
-			referee.NewGame();
+			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
 
 			board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
                 Convert.ToInt32(textBoxHexBoardSize.Text),

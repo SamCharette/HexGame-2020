@@ -13,6 +13,7 @@ namespace Engine
         public int Size;
         public Board Board;
         private IPlayer _lastPlayer;
+        public List<Hex> winningPath;
 
         // we need a player 1
         private IPlayer _player1;
@@ -57,6 +58,7 @@ namespace Engine
         {
             Size = size;
             Board = new Board(size);
+            winningPath = new List<Hex>();
         }
 
         public void AddPlayer(IPlayer player, int playerNumber)
@@ -159,7 +161,7 @@ namespace Engine
                 var path = new List<Hex> ();
                 if (CheckForWinningPath(path, hex, horizontal))
                 {
-                    
+                    winningPath = path;
                     return true;
                 }
             }

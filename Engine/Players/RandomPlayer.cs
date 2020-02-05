@@ -20,7 +20,7 @@ namespace Engine.Players
         public Hex SelectHex(Board board)
         {
             var openHexes = board.Spaces.Where(x => x.Owner == null);
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(20);
             var selectedHex = openHexes.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
             return selectedHex;
         }

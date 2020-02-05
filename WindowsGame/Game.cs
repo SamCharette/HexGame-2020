@@ -67,7 +67,7 @@ namespace WindowsGame
                             : referee.lastHexForPlayer2.Y];
 
                         ChangeHexColor(lastHex,
-                            referee.CurrentPlayer().PlayerNumber == 1 ? Color.Aquamarine : Color.LightCoral);
+                            referee.CurrentPlayer().PlayerNumber == 1 ? Color.DeepSkyBlue : Color.LightCoral);
                     
 					}
 					
@@ -86,8 +86,16 @@ namespace WindowsGame
 
                     this.Refresh();
                 }
+
+				// Show the winning path
+                var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? Color.Blue : Color.Red;
+				foreach (var hex in referee.winningPath)
+				{
+					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
+				}
+
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
-                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);
+//                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);
             }
             catch (Exception e)
             {
@@ -98,6 +106,11 @@ namespace WindowsGame
 
 
         }
+
+		private Hex GetBoardHexFromCoordinates(int X, int Y)
+        {
+            return board.Hexes[X, Y];
+		}
 
 		private void ChangeHexColor(Hex hex, Color color)
 		{

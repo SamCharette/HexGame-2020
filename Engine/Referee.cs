@@ -20,6 +20,9 @@ namespace Engine
         // we need a player 2
         private IPlayer _player2;
 
+        public Hex lastHexForPlayer1;
+        public Hex lastHexForPlayer2;
+
         public IPlayer CurrentPlayer()
         {
             return _player1 == _lastPlayer ? _player2 : _player1;
@@ -108,6 +111,15 @@ namespace Engine
 
             var hexWanted = player.SelectHex(Board);
             Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer());
+
+            if (CurrentPlayer().PlayerNumber == 1)
+            {
+                lastHexForPlayer1 = hexWanted;
+            }
+            else
+            {
+                lastHexForPlayer2 = hexWanted;
+            }
 
             return hexWanted;
 

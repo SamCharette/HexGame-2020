@@ -55,17 +55,32 @@ namespace WindowsGame
                 while (referee.Winner() == false)
                 {
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+
+					if (referee.lastHexForPlayer1 != null && referee.lastHexForPlayer2 != null)
+					{
+                        var lastHex = board.Hexes[
+                        referee.CurrentPlayer().PlayerNumber == 1
+                            ? referee.lastHexForPlayer1.X
+                            : referee.lastHexForPlayer2.X,
+                        referee.CurrentPlayer().PlayerNumber == 1
+                            ? referee.lastHexForPlayer1.Y
+                            : referee.lastHexForPlayer2.Y];
+
+                        ChangeHexColor(lastHex,
+                            referee.CurrentPlayer().PlayerNumber == 1 ? Color.Aquamarine : Color.LightCoral);
+                    
+					}
+					
                     var hexTaken = referee.TakeTurn(referee.CurrentPlayer());
                     if (hexTaken != null)
                     {
                         Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
-                        var boardHex = board.Hexes[hexTaken.X, hexTaken.Y];
-                        if (boardHex != null)
-                        {
-                            boardHex.HexState.BackgroundColor = referee.CurrentPlayer().PlayerNumber == 1
-                                ? Color.Aquamarine
-                                : Color.LightCoral;
-                        }
+
+						var boardHex = board.Hexes[hexTaken.X, hexTaken.Y];
+
+						ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
+                            ? Color.Blue
+                            : Color.Red);
 
                     }
 
@@ -83,6 +98,14 @@ namespace WindowsGame
 
 
         }
+
+		private void ChangeHexColor(Hex hex, Color color)
+		{
+			if (hex != null )
+			{
+				hex.HexState.BackgroundColor = color;
+			}
+		}
 
 		private void Form_MouseMove(object sender, MouseEventArgs e)
 		{

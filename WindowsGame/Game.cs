@@ -7,27 +7,75 @@ using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
-using WindowsGame.Hexagonal;
+using Engine;
+using Engine.Hexagonal;
+using Board = Engine.Hexagonal.Board;
 
 namespace WindowsGame
 {
 	public partial class Game : Form
 	{
 
-		Hexagonal.Board board;
-		Hexagonal.GraphicsEngine graphicsEngine;
+		Board board;
+		GraphicsEngine graphicsEngine;
+        private Referee referee;
 
 		public Game()
 		{
 			InitializeComponent();
 
-			textBoxHexSide.Text = "25";
-			textBoxHexBoardHeight.Text = "11";
-			textBoxHexBoardWidth.Text = "11";
-			textBoxXOffset.Text = "20";
-			textBoxtYOffset.Text = "20";
-			comboBoxOrientation.SelectedItem = comboBoxOrientation.Items[0];
-			textBoxPenWidth.Text = "2";
+			textBoxHexBoardSize.Text = "11";
+			comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
+		}
+
+		public void Play()
+        {
+            referee = new Referee();
+			referee.NewGame();
+
+            board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
+                Convert.ToInt32(textBoxHexBoardSize.Text),
+                25,
+                HexOrientation.Pointy
+            )
+            {
+                BoardState =
+                {
+                    BackgroundColor = Color.Green,
+                    GridPenWidth = 2,
+                    ActiveHexBorderColor = Color.Red,
+                    ActiveHexBorderWidth = 2
+                }
+            };
+
+            try
+            {
+                while (referee.Winner() == false)
+                {
+                    Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+                    var hexTaken = referee.TakeTurn(referee.CurrentPlayer());
+                    if (hexTaken != null)
+                    {
+                        Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+                        var boardHex = board.Hexes[hexTaken.X, hexTaken.Y];
+                        if (boardHex != null)
+                        {
+                            boardHex.HexState.BackgroundColor = referee.CurrentPlayer().PlayerNumber == 1
+                                ? Color.Aquamarine
+                                : Color.LightCoral;
+                        }
+                    }
+                }
+				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("No winner today!");
+
+            }
+
+			graphicsEngine = new GraphicsEngine(board, 20, 20);
+
 		}
 
 		private void Form_MouseMove(object sender, MouseEventArgs e)
@@ -35,37 +83,9 @@ namespace WindowsGame
 			labelXY.Text = e.X.ToString() + "," + e.Y.ToString();
 
 		}
-
-		private void buttonTestBoard_Click(object sender, EventArgs e)
+        private void buttonTestBoard_Click(object sender, EventArgs e)
 		{
-			Hexagonal.HexOrientation orientation = HexOrientation.Flat;
-			Console.WriteLine(Convert.ToString(comboBoxOrientation.SelectedItem));
-
-
-			switch (Convert.ToString(comboBoxOrientation.SelectedItem))
-			{
-				case "Flat":
-					orientation = Hexagonal.HexOrientation.Flat;
-					break;
-				case "Pointy":
-					orientation = Hexagonal.HexOrientation.Pointy;
-					break;
-				default:
-					break;
-			}
-
-			Board board = new Board(Convert.ToInt32(textBoxHexBoardWidth.Text),
-				Convert.ToInt32(textBoxHexBoardHeight.Text),
-				Convert.ToInt32(textBoxHexSide.Text),
-				 orientation
-				);
-			board.BoardState.BackgroundColor = Color.Green;
-			board.BoardState.GridPenWidth = Convert.ToInt32(textBoxPenWidth.Text);
-			board.BoardState.ActiveHexBorderColor = Color.Red;
-			board.BoardState.ActiveHexBorderWidth = Convert.ToInt32(textBoxPenWidth.Text);
-
-			this.board = board;
-			this.graphicsEngine = new GraphicsEngine(board, Convert.ToInt32(textBoxXOffset.Text), Convert.ToInt32(textBoxtYOffset.Text));
+			Play();
 		}
 
 		private void Form_MouseClick(object sender, MouseEventArgs e)
@@ -135,7 +155,6 @@ namespace WindowsGame
 				board = null;
 			}
 		}
-
 
 
 	}

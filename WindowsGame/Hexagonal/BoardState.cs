@@ -1,99 +1,38 @@
 ﻿using System.Drawing;
 
-namespace WindowsGame.Hexagonal
+namespace Engine.Hexagonal
 {
     public class BoardState
     {
-        private System.Drawing.Color backgroundColor;
-        private System.Drawing.Color gridColor;
-        private int gridPenWidth;
-        private Hexagonal.Hex activeHex;
-        private System.Drawing.Color activeHexBorderColor;
-        private int activeHexBorderWidth;
 
         #region Properties
 
-        public System.Drawing.Color BackgroundColor
-        {
-            get
-            {
-                return backgroundColor;
-            }
-            set
-            {
-                backgroundColor = value;
-            }
-        }
+        public System.Drawing.Color Player1HexColor { get; set; }
+        public System.Drawing.Color Player2HexColor { get; set; }
+        public System.Drawing.Color BackgroundColor { get; set; }
 
-        public System.Drawing.Color GridColor
-        {
-            get
-            {
-                return gridColor;
-            }
-            set
-            {
-                gridColor = value;
-            }
-        }
+        public System.Drawing.Color GridColor { get; set; }
 
-        public int GridPenWidth
-        {
-            get
-            {
-                return gridPenWidth;
-            }
-            set
-            {
-                gridPenWidth = value;
-            }
-        }
+        public int GridPenWidth { get; set; }
 
-        public Hexagonal.Hex ActiveHex
-        {
-            get
-            {
-                return activeHex;
-            }
-            set
-            {
-                activeHex = value;
-            }
-        }
+        public Hexagonal.Hex ActiveHex { get; set; }
 
-        public System.Drawing.Color ActiveHexBorderColor
-        {
-            get
-            {
-                return activeHexBorderColor;
-            }
-            set
-            {
-                activeHexBorderColor = value;
-            }
-        }
+        public System.Drawing.Color ActiveHexBorderColor { get; set; }
 
-        public int ActiveHexBorderWidth
-        {
-            get
-            {
-                return activeHexBorderWidth;
-            }
-            set
-            {
-                activeHexBorderWidth = value;
-            }
-        }
+        public int ActiveHexBorderWidth { get; set; }
+
         #endregion
 
         public BoardState()
         {
-            backgroundColor = Color.White;
-            gridColor = Color.Black;
-            gridPenWidth = 1;
-            activeHex = null;
-            activeHexBorderColor = Color.Blue;
-            activeHexBorderWidth = 1;
+            BackgroundColor = Color.White;
+            GridColor = Color.Black;
+            GridPenWidth = 1;
+            ActiveHex = null;
+            ActiveHexBorderColor = Color.Blue;
+            ActiveHexBorderWidth = 1;
+            Player1HexColor = Color.CornflowerBlue;
+            Player2HexColor = Color.LightCoral;
         }
     }
 }

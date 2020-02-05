@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace WindowsGame.Hexagonal
+namespace Engine.Hexagonal
 {
     public class HexState
     {

@@ -5,18 +5,18 @@ namespace Engine.Hexagonal
 {
 	public class GraphicsEngine
 	{
-		private Hexagonal.Board board;
+		private WindowsGame.Hexagonal.Board board;
 		private float boardPixelWidth;
 		private float boardPixelHeight;
 		private int boardXOffset;
 		private int boardYOffset;
 
-		public GraphicsEngine(Hexagonal.Board board)
+		public GraphicsEngine(WindowsGame.Hexagonal.Board board)
 		{
 			this.Initialize(board, 0, 0);
 		}
 
-		public GraphicsEngine(Hexagonal.Board board, int xOffset, int yOffset)
+		public GraphicsEngine(WindowsGame.Hexagonal.Board board, int xOffset, int yOffset)
 		{
 			this.Initialize(board, xOffset, yOffset);
 		}
@@ -45,7 +45,7 @@ namespace Engine.Hexagonal
 			}
 		}
 
-		private void Initialize(Hexagonal.Board board, int xOffset, int yOffset)
+		private void Initialize(WindowsGame.Hexagonal.Board board, int xOffset, int yOffset)
 		{
 			this.board = board;
 			this.boardXOffset = xOffset;

@@ -7,9 +7,10 @@ using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using WindowsGame.Hexagonal;
 using Engine;
 using Engine.Hexagonal;
-using Board = Engine.Hexagonal.Board;
+using Board = WindowsGame.Hexagonal.Board;
 
 namespace WindowsGame
 {
@@ -30,6 +31,8 @@ namespace WindowsGame
 
 		public void Play()
         {
+            int boardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
+			
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
 

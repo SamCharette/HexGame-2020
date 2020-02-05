@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Engine.Hexagonal
+namespace WindowsGame.Hexagonal
 {
 	class Math
 	{

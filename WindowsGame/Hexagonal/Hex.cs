@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using Engine.Hexagonal;
 
-namespace Engine.Hexagonal
+namespace WindowsGame.Hexagonal
 {
 	public class Hex
 	{
@@ -9,7 +10,7 @@ namespace Engine.Hexagonal
 		private float side;
 		private float h;
 		private float r;
-		private Hexagonal.HexOrientation orientation;
+		private HexOrientation orientation;
 		private float x;
 		private float y;
 		private HexState hexState;
@@ -17,12 +18,12 @@ namespace Engine.Hexagonal
         public int Column;
 
 		/// <param name="side">length of one side of the hexagon</param>
-		public Hex(int x, int y, int side, Hexagonal.HexOrientation orientation)
+		public Hex(int x, int y, int side, HexOrientation orientation)
 		{
-			Initialize(Hexagonal.Math.ConvertToFloat(x), Hexagonal.Math.ConvertToFloat(y), Hexagonal.Math.ConvertToFloat(side), orientation);
+			Initialize(Math.ConvertToFloat(x), Math.ConvertToFloat(y), Math.ConvertToFloat(side), orientation);
 		}
 
-		public Hex(float x, float y, float side, Hexagonal.HexOrientation orientation)
+		public Hex(float x, float y, float side, HexOrientation orientation)
 		{
 			Initialize(x, y, side, orientation);
 		}
@@ -38,7 +39,7 @@ namespace Engine.Hexagonal
 		/// <summary>
 		/// Sets internal fields and calls CalculateVertices()
 		/// </summary>
-		private void Initialize(float x, float y, float side, Hexagonal.HexOrientation orientation)
+		private void Initialize(float x, float y, float side, HexOrientation orientation)
 		{
 			this.x = x;
 			this.y = y;
@@ -82,49 +83,20 @@ namespace Engine.Hexagonal
 			//     \/
 			// Pointy orientation (scale is off)
 
-			h = Hexagonal.Math.CalculateH(side);
-			r = Hexagonal.Math.CalculateR(side);
+			h = Math.CalculateH(side);
+			r = Math.CalculateR(side);
 
-			switch (orientation)
-			{
-				case Hexagonal.HexOrientation.Flat:
-					// x,y coordinates are top left point
-					points = new System.Drawing.PointF[6];
-					points[0] = new PointF(x, y);
-					points[1] = new PointF(x + side, y);
-					points[2] = new PointF(x + side + h, y + r);
-					points[3] = new PointF(x + side, y + r + r);
-					points[4] = new PointF(x, y + r + r);
-					points[5] = new PointF(x - h, y + r);
-					break;
-				case Hexagonal.HexOrientation.Pointy:
-					//x,y coordinates are top center point
-					points = new System.Drawing.PointF[6];
-					points[0] = new PointF(x, y);
-					points[1] = new PointF(x + r, y + h);
-					points[2] = new PointF(x + r, y + side + h);
-					points[3] = new PointF(x, y + side + h + h);
-					points[4] = new PointF(x - r, y + side + h);
-					points[5] = new PointF(x - r, y + h);
-					break;
-				default:
-					throw new Exception("No HexOrientation defined for Hex object.");
-
-			}
+            //x,y coordinates are top center point
+			points = new System.Drawing.PointF[6];
+			points[0] = new PointF(x, y);
+			points[1] = new PointF(x + r, y + h);
+			points[2] = new PointF(x + r, y + side + h);
+			points[3] = new PointF(x, y + side + h + h);
+			points[4] = new PointF(x - r, y + side + h);
+			points[5] = new PointF(x - r, y + h);
 
 		}
 
-		public Hexagonal.HexOrientation Orientation
-		{
-			get
-			{
-				return orientation;
-			}
-			set
-			{
-				orientation = value;
-			}
-		}
 
 		public System.Drawing.PointF[] Points
 		{
@@ -180,7 +152,7 @@ namespace Engine.Hexagonal
             get { return y; }
         }
 
-        public Hexagonal.HexState HexState
+        public HexState HexState
 		{
 			get
 			{

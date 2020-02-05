@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Engine.Hexagonal
+namespace WindowsGame.Hexagonal
 {
     public class BoardState
     {
@@ -15,7 +15,7 @@ namespace Engine.Hexagonal
 
         public int GridPenWidth { get; set; }
 
-        public Hexagonal.Hex ActiveHex { get; set; }
+        public Hex ActiveHex { get; set; }
 
         public System.Drawing.Color ActiveHexBorderColor { get; set; }
 

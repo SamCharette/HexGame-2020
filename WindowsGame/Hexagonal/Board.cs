@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Drawing;
+using Engine.Hexagonal;
+using Math = WindowsGame.Hexagonal.Math;
 
-namespace Engine.Hexagonal
+namespace WindowsGame.Hexagonal
 {
     /// <summary>
     ///     Represents a 2D hexagon board
@@ -86,9 +88,6 @@ namespace Engine.Hexagonal
                 for (var j = 0; j < width; j++)
                 {
                     // Set position booleans
-
-                  
-
                     inTopRow = i == 0;
 
                     inBottomRow = i == height - 1;

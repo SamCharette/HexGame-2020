@@ -1,4 +1,4 @@
-﻿namespace Engine.Hexagonal
+﻿namespace WindowsGame.Hexagonal
 {
     public enum HexOrientation
     {

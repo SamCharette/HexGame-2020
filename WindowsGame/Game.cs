@@ -30,10 +30,10 @@ namespace WindowsGame
 
 		public void Play()
         {
-            referee = new Referee();
+            referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame();
 
-            board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
+			board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
                 Convert.ToInt32(textBoxHexBoardSize.Text),
                 25,
                 HexOrientation.Pointy
@@ -48,8 +48,10 @@ namespace WindowsGame
                 }
             };
 
-            try
-            {
+            graphicsEngine = new GraphicsEngine(board, 20, 20);
+
+			try
+			{
                 while (referee.Winner() == false)
                 {
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
@@ -64,19 +66,23 @@ namespace WindowsGame
                                 ? Color.Aquamarine
                                 : Color.LightCoral;
                         }
+
                     }
+
+                    this.Refresh();
                 }
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
+                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);
             }
             catch (Exception e)
             {
                 Console.WriteLine("No winner today!");
 
             }
+			
 
-			graphicsEngine = new GraphicsEngine(board, 20, 20);
 
-		}
+        }
 
 		private void Form_MouseMove(object sender, MouseEventArgs e)
 		{

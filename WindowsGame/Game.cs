@@ -62,8 +62,8 @@ namespace WindowsGame
 
 			try
             {
-                
-                while (referee.Winner() == false)
+                var isThereAWinnor = false;
+                while (!isThereAWinnor)
                 {
 
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
@@ -97,7 +97,8 @@ namespace WindowsGame
                             ? Color.Blue
                             : Color.Red);
 
-                        referee.SwitchPlayers();
+
+                        isThereAWinnor = referee.Winner();
 
                     }
 

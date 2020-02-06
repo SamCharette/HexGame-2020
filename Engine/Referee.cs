@@ -106,7 +106,6 @@ namespace Engine
             Board = new Board(size);
             winningPath = new List<Hex>();
             Board.clickedHex = null;
-            IsWaiting = false;
         }
 
         public void AddPlayer(IPlayer player, int playerNumber)
@@ -184,7 +183,6 @@ namespace Engine
 
         }
 
-        public bool IsWaiting { get; set; }
 
         private void PrintPath(List<Hex> path)
         {
@@ -224,6 +222,7 @@ namespace Engine
                     return true;
                 }
             }
+            SwitchPlayers();
             return false;
         }
 

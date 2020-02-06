@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Engine/obj
+/Engine/bin/Debug/netstandard2.0
+/Engine.Tests/bin/Debug/netcoreapp3.1
+/Engine.Tests/obj
+/WindowsGame/bin/Debug
+/WindowsGame/obj/Debug
+/Game/obj/Game.csproj.nuget.cache
+/HexGame/obj/Debug
+/Game/bin/Debug/netcoreapp3.1
+/Game/obj

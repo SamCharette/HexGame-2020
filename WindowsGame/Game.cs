@@ -7,6 +7,8 @@ using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using WindowsGame.Hexagonal;
 using Engine;
 using Engine.Hexagonal;
@@ -26,15 +28,18 @@ namespace WindowsGame
 			InitializeComponent();
 
 			textBoxHexBoardSize.Text = "11";
-			comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
+            comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[0];
+            comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
 		}
 
-		public void Play()
+		public async void Play()
         {
             int boardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
 			
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
+            referee.CreatePlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
+            referee.CreatePlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
 
 			board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
                 Convert.ToInt32(textBoxHexBoardSize.Text),
@@ -53,10 +58,14 @@ namespace WindowsGame
 
             graphicsEngine = new GraphicsEngine(board, 20, 20);
 
+            this.Refresh();
+
 			try
-			{
+            {
+                
                 while (referee.Winner() == false)
                 {
+
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
 
 					if (referee.lastHexForPlayer1 != null && referee.lastHexForPlayer2 != null)
@@ -73,8 +82,11 @@ namespace WindowsGame
                             referee.CurrentPlayer().PlayerNumber == 1 ? Color.DeepSkyBlue : Color.LightCoral);
                     
 					}
-					
-                    var hexTaken = referee.TakeTurn(referee.CurrentPlayer());
+
+
+                    var hexTaken = await (referee.TakeTurn(referee.CurrentPlayer()));
+                    //hexTaken = referee.TakeTurn(referee.CurrentPlayer());
+
                     if (hexTaken != null)
                     {
                         Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
@@ -84,6 +96,8 @@ namespace WindowsGame
 						ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
                             ? Color.Blue
                             : Color.Red);
+
+                        referee.SwitchPlayers();
 
                     }
 
@@ -96,7 +110,7 @@ namespace WindowsGame
 				{
 					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
 				}
-
+				this.Refresh();
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
 //                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);
             }
@@ -105,9 +119,6 @@ namespace WindowsGame
                 Console.WriteLine("No winner today!");
 
             }
-			
-
-
         }
 
 		private Hex GetBoardHexFromCoordinates(int X, int Y)
@@ -124,14 +135,27 @@ namespace WindowsGame
 		}
 
 		private void Form_MouseMove(object sender, MouseEventArgs e)
-		{
-			labelXY.Text = e.X.ToString() + "," + e.Y.ToString();
+        {
+            if (board != null)
+            {
+                var hexHoveringOver = board.FindHexMouseClick(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
+                if (hexHoveringOver != null)
+                {
+                    labelXY.Text = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
+                }
+			    else
+                {
+                    labelXY.Text = "";
+                }
+            }
+           
 
 		}
         private void buttonTestBoard_Click(object sender, EventArgs e)
 		{
 			Play();
 		}
+
 
 		private void Form_MouseClick(object sender, MouseEventArgs e)
 		{
@@ -158,49 +182,28 @@ namespace WindowsGame
 				else
 				{
 					Console.WriteLine("Hex was clicked: [" + clickedHex.Row + "," + clickedHex.Column + "]");
-;
-					board.BoardState.ActiveHex = clickedHex;
-					if (e.Button == MouseButtons.Right)
-					{
-						clickedHex.HexState.BackgroundColor = Color.Blue;
-					}
-				}
+
+                    referee.ClickOnHexCoords(clickedHex.Row, clickedHex.Column);
+                }
 
 			}
 		}
 
 		private void Form_Paint(object sender, PaintEventArgs e)
-		{
-			//Draw the graphics/GUI
-
-			foreach (Control c in this.Controls)
-			{
-				c.Refresh();
-			}
-
-			if (graphicsEngine != null)
-			{
-				graphicsEngine.Draw(e.Graphics);
-			}
-
-			//Force the next Paint()
-			this.Invalidate();
-
-		}
+        {
+            //Draw the graphics/GUI
+            graphicsEngine?.Draw(e.Graphics);
+        }
 
 		private void Form_Closing(object sender, FormClosingEventArgs e)
 		{
-			if (graphicsEngine != null)
-			{
-				graphicsEngine = null;
-			}
+			graphicsEngine = null;
+			board = null;
+        }
 
-			if (board != null)
-			{
-				board = null;
-			}
+		private void comboBoxPlayer1Type_SelectedIndexChanged(object sender, EventArgs e)
+		{
+
 		}
-
-
 	}
 }

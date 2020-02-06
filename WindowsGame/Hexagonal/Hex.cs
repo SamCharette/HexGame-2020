@@ -17,7 +17,6 @@ namespace WindowsGame.Hexagonal
         public int Row;
         public int Column;
 
-		/// <param name="side">length of one side of the hexagon</param>
 		public Hex(int x, int y, int side, HexOrientation orientation)
 		{
 			Initialize(Math.ConvertToFloat(x), Math.ConvertToFloat(y), Math.ConvertToFloat(side), orientation);

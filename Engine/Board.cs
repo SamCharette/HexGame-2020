@@ -18,6 +18,7 @@ namespace Engine
     {
         public List<Hex> Spaces;
         private int _size;
+        public Hex clickedHex;
 
         public Board(int size = 11)
         {

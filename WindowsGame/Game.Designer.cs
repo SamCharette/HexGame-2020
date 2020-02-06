@@ -37,9 +37,8 @@
             this.labelXY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelXY.Name = "labelXY";
             this.labelXY.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.labelXY.Size = new System.Drawing.Size(52, 17);
+            this.labelXY.Size = new System.Drawing.Size(0, 17);
             this.labelXY.TabIndex = 1;
-            this.labelXY.Text = "label1";
             this.labelXY.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // buttonTestBoard
@@ -91,8 +90,8 @@
             this.comboBoxPlayer2Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer2Type.FormattingEnabled = true;
             this.comboBoxPlayer2Type.Items.AddRange(new object[] {
-            "Pointy",
-            "Flat"});
+            "Human",
+            "Random AI"});
             this.comboBoxPlayer2Type.Location = new System.Drawing.Point(1086, 412);
             this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer2Type.Name = "comboBoxPlayer2Type";
@@ -126,13 +125,14 @@
             this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Items.AddRange(new object[] {
-            "Pointy",
-            "Flat"});
+            "Human",
+            "Random AI"});
             this.comboBoxPlayer1Type.Location = new System.Drawing.Point(1086, 363);
             this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer1Type.Name = "comboBoxPlayer1Type";
             this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
             this.comboBoxPlayer1Type.TabIndex = 18;
+            this.comboBoxPlayer1Type.SelectedIndexChanged += new System.EventHandler(this.comboBoxPlayer1Type_SelectedIndexChanged);
             // 
             // Game
             // 

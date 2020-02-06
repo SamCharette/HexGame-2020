@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Engine.GameTypes;
 using Engine.Interfaces;
 using Engine.Players;
@@ -14,6 +16,7 @@ namespace Engine
         public Board Board;
         private IPlayer _lastPlayer;
         public List<Hex> winningPath;
+        public Hex clickedHex;
 
         // we need a player 1
         private IPlayer _player1;
@@ -23,6 +26,9 @@ namespace Engine
 
         public Hex lastHexForPlayer1;
         public Hex lastHexForPlayer2;
+
+        private EventWaitHandle waitHandle = new AutoResetEvent(false);
+        private Hex hexWanted;
 
         public IPlayer CurrentPlayer()
         {
@@ -34,11 +40,51 @@ namespace Engine
             return _lastPlayer;
         }
 
-        void SwitchPlayers()
+        public void SwitchPlayers()
         {
             _lastPlayer = _player1 == _lastPlayer ? _player2 : _player1;
         }
+        public void ClickOnHexCoords(int x, int y)
+        {
+            Board.clickedHex = Board.CheckHex(x, y) ? Board.HexAt(x, y) : null;
+        }
 
+        public void CreatePlayer(string type, int playerNum)
+        {
+            switch (type)
+            {
+                case "Human":
+                {
+                    if (playerNum == 1)
+                    {
+                        _player1 = new HumanPlayer();
+                    }
+                    else
+                    {
+                        _player2 = new HumanPlayer();
+                    }
+
+                    break;
+                }
+                   
+                default:
+                {
+                    if (playerNum == 1)
+                    {
+                        _player1 = new RandomPlayer(1);
+                    }
+                    else
+                    {
+                        _player2 = new RandomPlayer(2);
+                    }
+
+                    break;
+                }
+            }
+            _player1.PlayerNumber = 1;
+            _player2.PlayerNumber = 2;
+
+        }
 
         // We need a way to get input from a player
 
@@ -59,6 +105,8 @@ namespace Engine
             Size = size;
             Board = new Board(size);
             winningPath = new List<Hex>();
+            Board.clickedHex = null;
+            IsWaiting = false;
         }
 
         public void AddPlayer(IPlayer player, int playerNumber)
@@ -73,32 +121,36 @@ namespace Engine
             }
         }
 
-        public Board Play()
+        //public Board Play()
+        //{
+        //    try
+        //    {
+        //        while (Winner() == false)
+        //        {
+        //            Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
+        //            var hexTaken = TakeTurn(CurrentPlayer());
+        //            if (hexTaken != null)
+        //            {
+        //                Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine("No winner today!");
+
+        //    }
+
+        //    return Board;
+
+        //}
+
+      
+
+        public async Task<Hex> TakeTurn(IPlayer player)
         {
-            try
-            {
-                while (Winner() == false)
-                {
-                    Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
-                    var hexTaken = TakeTurn(CurrentPlayer());
-                    if (hexTaken != null)
-                    {
-                        Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("No winner today!");
+            hexWanted = null;
 
-            }
-
-            return Board;
-
-        }
-
-        public Hex TakeTurn(IPlayer player)
-        {
             // First, check to see if the player is empty
             if (player == null)
             {
@@ -111,21 +163,28 @@ namespace Engine
                 throw new Exception("Cannot play twice in a row");
             }
 
-            var hexWanted = player.SelectHex(Board);
-            Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer());
+            hexWanted = await Task.Run(() =>player.SelectHex(Board));
 
-            if (CurrentPlayer().PlayerNumber == 1)
+            if (hexWanted != null)
             {
-                lastHexForPlayer1 = hexWanted;
-            }
-            else
-            {
-                lastHexForPlayer2 = hexWanted;
-            }
+                Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer());
 
+                if (CurrentPlayer().PlayerNumber == 1)
+                {
+                    lastHexForPlayer1 = hexWanted;
+                }
+                else
+                {
+                    lastHexForPlayer2 = hexWanted;
+                }
+                
+            }
+           
             return hexWanted;
 
         }
+
+        public bool IsWaiting { get; set; }
 
         private void PrintPath(List<Hex> path)
         {
@@ -165,7 +224,6 @@ namespace Engine
                     return true;
                 }
             }
-            SwitchPlayers();
             return false;
         }
 

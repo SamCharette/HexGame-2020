@@ -58,6 +58,25 @@ namespace WindowsGame
 
             graphicsEngine = new GraphicsEngine(board, 20, 20);
 
+
+            // make the edges colourful!
+            foreach (var hex in board.Hexes)
+            {
+                if (hex.Row == 0 || hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, Color.Azure);
+                }
+                if (hex.Column == 0 || hex.Column == boardSize - 1)
+                {
+                    ChangeHexColor(hex, Color.MistyRose);
+                }
+                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
+                    || hex.Column == boardSize -1 && hex.Row == 0 || hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, Color.Plum);
+                }
+            }
+
             this.Refresh();
 
 			try

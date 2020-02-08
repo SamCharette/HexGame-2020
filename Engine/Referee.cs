@@ -119,33 +119,7 @@ namespace Engine
                 _player2 = player;
             }
         }
-
-        //public Board Play()
-        //{
-        //    try
-        //    {
-        //        while (Winner() == false)
-        //        {
-        //            Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
-        //            var hexTaken = TakeTurn(CurrentPlayer());
-        //            if (hexTaken != null)
-        //            {
-        //                Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("No winner today!");
-
-        //    }
-
-        //    return Board;
-
-        //}
-
-      
-
+        
         public async Task<Hex> TakeTurn(IPlayer player)
         {
             hexWanted = null;
@@ -218,12 +192,34 @@ namespace Engine
                 var path = new List<Hex> ();
                 if (CheckForWinningPath(path, hex, horizontal))
                 {
-                    winningPath = path;
+                    winningPath = path; //FindBestPathIn(path);
                     return true;
                 }
             }
             SwitchPlayers();
             return false;
+        }
+
+        private List<Hex> FindBestPathIn(List<Hex> path)
+        {
+            // Here we want to do an A* search for the best path from beginning to end in the winning path
+            var pathStart = CurrentPlayer().PlayerNumber == 1
+                ? path.FirstOrDefault(x => x.X == 0)
+                : path.FirstOrDefault(x => x.Y == 0);
+
+            var pathEnd = CurrentPlayer().PlayerNumber == 1
+                ? path.FirstOrDefault(x => x.Y == 0)
+                : path.FirstOrDefault(x => x.X == 0);
+
+            var bestPath = new List<Hex>();
+
+            var openList = new List<Hex> {pathStart};
+            var closedList = new List<Hex>();
+
+            
+
+
+            return bestPath;
         }
 
         private bool CheckForWinningPath(List<Hex> currentPath, Hex currentHex, bool isHorizontal)

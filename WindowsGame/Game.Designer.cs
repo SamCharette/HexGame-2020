@@ -25,6 +25,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.comboBoxPlayer1Type = new System.Windows.Forms.ComboBox();
+            this.lblWInner = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // labelXY
@@ -134,11 +135,23 @@
             this.comboBoxPlayer1Type.TabIndex = 18;
             this.comboBoxPlayer1Type.SelectedIndexChanged += new System.EventHandler(this.comboBoxPlayer1Type_SelectedIndexChanged);
             // 
+            // lblWInner
+            // 
+            this.lblWInner.AutoSize = true;
+            this.lblWInner.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWInner.Location = new System.Drawing.Point(320, 602);
+            this.lblWInner.Name = "lblWInner";
+            this.lblWInner.Size = new System.Drawing.Size(177, 39);
+            this.lblWInner.TabIndex = 19;
+            this.lblWInner.Text = "Winner is: ";
+            this.lblWInner.Visible = false;
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1214, 676);
+            this.Controls.Add(this.lblWInner);
             this.Controls.Add(this.comboBoxPlayer1Type);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -172,5 +185,6 @@
 		private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboBoxPlayer1Type;
+        private System.Windows.Forms.Label lblWInner;
     }
 }

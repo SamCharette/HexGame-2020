@@ -35,6 +35,7 @@ namespace WindowsGame
 		public async void Play()
         {
             int boardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
+            this.lblWInner.Visible = false;
 			
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
@@ -130,6 +131,9 @@ namespace WindowsGame
 				{
 					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
 				}
+
+                this.lblWInner.Text = "The winner is: Player #" + referee.CurrentPlayer().PlayerNumber;
+                this.lblWInner.Visible = true;
 				this.Refresh();
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
 //                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);

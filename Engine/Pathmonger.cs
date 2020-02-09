@@ -116,34 +116,26 @@ namespace Engine
 
         public void SetUpAvailableBlocks(List<Hex> hexes, List<Hex> winningPath)
         {
-            // We're going to get a list of hexes that represents a winning path.
-            // This will mark those, and only those, as available to be used.
+            // hexes is the entire board.  winningPath is the path, however circuitous, that lead to a win.
             foreach (var hex in hexes)
             {
+                // For each hex on the board, we want to get the node that is associated with it
                 var node = Nodes.FirstOrDefault(x => x.Location.X == hex.X && x.Location.Y == hex.Y);
                 if (node != null)
                 {
+                    // If we found it we want to list its owner as either player 1, player 2 or 0, for unowned
                     node.Owner = hex.Owner?.PlayerNumber ?? 0;
-                    var nodeFromPath =
-                        winningPath.FirstOrDefault(x => x.X == node.Location.X && x.Y == node.Location.Y);
-                    // Only those in the winning path are untested.  Everything else is closed to us.
-                    node.State = nodeFromPath != null ? NodeState.Untested : NodeState.Closed;
+                    node.State = node.Owner == PlayerNumber ?  NodeState.Untested : NodeState.Closed;
                 }
             }
             // Start at the beginning and add all taken hexes to the open list
-            var startingHexesInWinningPath = PlayerNumber == 2
-                ? hexes.Where(hex => hex.Y == 0).ToList()
-                : hexes.Where(hex => hex.X == 0).ToList();
-
-            startingNodes = new List<Node>();
-            foreach (var hex in startingHexesInWinningPath)
-            {
-                var nodeInMemory = Nodes.FirstOrDefault(node => node.Location.X == hex.X && node.Location.Y == hex.Y);
-                if (nodeInMemory != null)
-                {
-                    nodeInMemory.State = NodeState.Open;
-                    startingNodes.Add(nodeInMemory);
-                }
+            startingNodes = PlayerNumber == 2
+                ? Nodes.Where(node => node.Location.Y == 0 && node.State == NodeState.Untested).ToList()
+                : Nodes.Where(node => node.Location.X == 0 && node.State == NodeState.Untested).ToList();
+            
+            foreach (var node in startingNodes)
+            {  
+                node.State = NodeState.Open;
             }
 
             
@@ -162,7 +154,7 @@ namespace Engine
             // First, if we've gone too far in the recursion, just die
             if (CurrentRecursion > MaxRecursion)
             {
-                Console.WriteLine("Pathmonger: Maximum recursion reached.");
+                Console.WriteLine("OW!  Pathmonger head hurt!  Too many loopies!");
                 return null;
             }
             if (currentNode == null)

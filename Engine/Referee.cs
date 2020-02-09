@@ -9,6 +9,11 @@ using Engine.Players;
 
 namespace Engine
 {
+    public class Move
+    {
+        public IPlayer player;
+        public Hex hex;
+    }
     public class Referee
     {
         // Board size must be equal in both directions
@@ -17,6 +22,8 @@ namespace Engine
         private IPlayer _lastPlayer;
         public List<Hex> winningPath;
         public Hex clickedHex;
+        public List<Move> AllGameMoves;
+
 
         // we need a player 1
         private IPlayer _player1;
@@ -106,6 +113,7 @@ namespace Engine
             Board = new Board(size);
             winningPath = new List<Hex>();
             Board.clickedHex = null;
+            AllGameMoves = new List<Move>();
         }
 
         public void AddPlayer(IPlayer player, int playerNumber)
@@ -152,7 +160,10 @@ namespace Engine
                 }
                 
             }
-           
+            var playerMove = new Move();
+            playerMove.player = CurrentPlayer();
+            playerMove.hex = hexWanted;
+            AllGameMoves.Add(playerMove);
             return hexWanted;
 
         }
@@ -185,7 +196,6 @@ namespace Engine
             {
                 startingHexes = Board.Spaces.Where(x => x.Y == 0 && x.Owner?.PlayerNumber == 2).ToList();
             }
-            PrintPath(startingHexes);
 
             foreach (var hex in startingHexes)
             {
@@ -197,11 +207,11 @@ namespace Engine
                     try
                     {
                         var pathmonger = new Pathmonger(Size, horizontal);
-                        pathmonger.SetUpAvailableBlocks(path);
+                        pathmonger.SetUpAvailableBlocks(Board.Spaces, path);
                         var bestPath = pathmonger.Start();
                         if (bestPath != null)
                         {
-                            Console.WriteLine("Best path is: ");
+                            Console.WriteLine("Best path is (" + bestPath.Count() + "): ");
                             foreach (var node in bestPath)
                             {
                                 Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
@@ -237,7 +247,7 @@ namespace Engine
             {
                 if (currentHex.X == Size - 1)
                 {
-                    Console.Write("Winning path is : ");
+                    Console.Write("Winning path is (" + currentPath.Count() + "): ");
                     PrintPath(currentPath);
                     return true;
                 }
@@ -246,7 +256,7 @@ namespace Engine
             {
                 if (currentHex.Y == Size - 1)
                 {
-                    Console.Write("Winning path is : ");
+                    Console.Write("Winning path is (" + currentPath.Count() + "): ");
                     PrintPath(currentPath);
                     return true;
                 }

@@ -95,7 +95,7 @@ namespace Engine
                 {
                     var node = new Node
                     {
-                        H = !isHorizontal ? Size - j - 1 : Size - i - 1,
+                        H = isHorizontal ? Size - j - 1 : Size - i - 1,
                         Location = {X = i, Y = j},
                         State = NodeState.Untested
                     };

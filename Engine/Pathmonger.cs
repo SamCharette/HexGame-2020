@@ -7,7 +7,6 @@ using Engine.GameTypes;
 
 namespace Engine
 {
-    
     public class Node
     {
         public Point Location;
@@ -75,6 +74,8 @@ namespace Engine
         public bool IsHorizontal;
         public List<Node> startingNodes = new List<Node>();
         public List<Node> Nodes;
+
+        private const int CostToMove = 10;
 
         private int PlayerNumber
         {
@@ -190,7 +191,7 @@ namespace Engine
             {
                 foreach (var step in nextSteps)
                 {
-                    step.G = currentNode.G + 1;
+                    step.G = currentNode.G + CostToMove;
                     step.ParentNode = currentNode;
                     step.State = NodeState.Open;
                 }

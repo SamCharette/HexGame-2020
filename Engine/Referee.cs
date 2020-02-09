@@ -192,7 +192,34 @@ namespace Engine
                 var path = new List<Hex> ();
                 if (CheckForWinningPath(path, hex, horizontal))
                 {
-                    winningPath = path; //FindBestPathIn(path);
+                    
+
+                    try
+                    {
+                        var pathmonger = new Pathmonger(Size, horizontal);
+                        pathmonger.SetUpAvailableBlocks(path);
+                        var bestPath = pathmonger.Start();
+                        if (bestPath != null)
+                        {
+                            Console.WriteLine("Best path is: ");
+                            foreach (var node in bestPath)
+                            {
+                                Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
+                            }
+                            Console.WriteLine();
+                            Console.WriteLine("-----");
+                        } 
+                        else
+                        {
+                            Console.WriteLine("Best path not found");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Pathmonger pooped.  " + e.Message);
+                    }
+                    
+                    winningPath = path;
                     return true;
                 }
             }
@@ -200,27 +227,7 @@ namespace Engine
             return false;
         }
 
-        private List<Hex> FindBestPathIn(List<Hex> path)
-        {
-            // Here we want to do an A* search for the best path from beginning to end in the winning path
-            var pathStart = CurrentPlayer().PlayerNumber == 1
-                ? path.FirstOrDefault(x => x.X == 0)
-                : path.FirstOrDefault(x => x.Y == 0);
-
-            var pathEnd = CurrentPlayer().PlayerNumber == 1
-                ? path.FirstOrDefault(x => x.Y == 0)
-                : path.FirstOrDefault(x => x.X == 0);
-
-            var bestPath = new List<Hex>();
-
-            var openList = new List<Hex> {pathStart};
-            var closedList = new List<Hex>();
-
-            
-
-
-            return bestPath;
-        }
+     
 
         private bool CheckForWinningPath(List<Hex> currentPath, Hex currentHex, bool isHorizontal)
         {

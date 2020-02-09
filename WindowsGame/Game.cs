@@ -136,7 +136,6 @@ namespace WindowsGame
                 this.lblWInner.Visible = true;
 				this.Refresh();
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
-//                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);
             }
             catch (Exception e)
             {

@@ -252,92 +252,109 @@ namespace WindowsGame
         private void btnSave_Click(object sender, EventArgs e)
         {
             // Save the game and the moves.
-            string fileName = @"C:\GameFiles\game-" + DateTime.Now.ToFileTimeUtc().ToString() + ".xml";
-            using (XmlWriter writer = XmlWriter.Create(fileName))
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("Match");
-                writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
-                writer.WriteStartElement("Players");
-                    writer.WriteStartElement("Player");
-                        writer.WriteElementString("Type", referee.Player1.GetType().Name);
-                        writer.WriteElementString("Number", "1");
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Player");
-                        writer.WriteElementString("Type", referee.Player2.GetType().Name);
-                        writer.WriteElementString("Number", "2");
-                    writer.WriteEndElement();
-                writer.WriteEndElement();
-                writer.WriteStartElement("Moves");
-                int moveNumber = 1;
-                foreach (var move in referee.AllGameMoves)
+                using (XmlWriter writer = XmlWriter.Create(saveFileDialog1.FileName))
                 {
-                    writer.WriteStartElement("Move");
-                    writer.WriteElementString("Number", moveNumber.ToString());
-                    writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
-                    writer.WriteElementString("X", move.hex.X.ToString());
-                    writer.WriteElementString("Y", move.hex.Y.ToString());
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("Match");
+                    writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                    writer.WriteStartElement("Players");
+                        writer.WriteStartElement("Player");
+                            writer.WriteElementString("Type", referee.Player1.GetType().Name);
+                            writer.WriteElementString("Number", "1");
+                        writer.WriteEndElement();
+                        writer.WriteStartElement("Player");
+                            writer.WriteElementString("Type", referee.Player2.GetType().Name);
+                            writer.WriteElementString("Number", "2");
+                        writer.WriteEndElement();
                     writer.WriteEndElement();
-                    moveNumber++;
+                    writer.WriteStartElement("Moves");
+                    int moveNumber = 1;
+                    foreach (var move in referee.AllGameMoves)
+                    {
+                        writer.WriteStartElement("Move");
+                        writer.WriteElementString("Number", moveNumber.ToString());
+                        writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
+                        writer.WriteElementString("X", move.hex.X.ToString());
+                        writer.WriteElementString("Y", move.hex.Y.ToString());
+                        writer.WriteEndElement();
+                        moveNumber++;
+                    }
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteEndDocument();
+                    writer.Flush();
                 }
-                writer.WriteEndElement();
-                writer.WriteEndElement();
-                writer.WriteEndDocument();
-                writer.Flush();
-            }
 
-            btnSave.Enabled = false;
+                btnSave.Enabled = false;
+            }
+            
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-  
-                var doc = new XmlDocument();
-
-                //Load the document with the last book node.
-                var reader = new XmlTextReader(openFileDialog1.OpenFile())
+                try
                 {
-                    WhitespaceHandling = WhitespaceHandling.None
-                };
 
-                reader.Read();
-   
-                doc.Load(reader);
+                    var doc = new XmlDocument();
 
-                var matchNode = doc.GetElementsByTagName("Match");
-                var sizeNode = matchNode.Item(0).ChildNodes.Item(1);
-
-                referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
-                
-                var firstPlayer = new ReplayPlayer() { PlayerNumber = 1};
-                var otherPlayer = new ReplayPlayer() {PlayerNumber = 2};
-                var player1Turn = 1;
-                var player2Turn = 1;
-                var moves = doc.GetElementsByTagName("Move");
-                foreach (XmlNode move in moves)
-                {
-                    var player = Convert.ToInt32(move["Player"]?.InnerText);
-                    var x = Convert.ToInt32(move["X"]?.InnerText);
-                    var y = Convert.ToInt32(move["Y"]?.InnerText);
-                    var turnNumber = move["Number"];
-                    if (player == 1)
+                    //Load the document with the last book node.
+                    var reader = new XmlTextReader(openFileDialog1.OpenFile())
                     {
-                        firstPlayer.AddMove(x, y, player1Turn);
-                        player1Turn++;
-                    }
-                    else
+                        WhitespaceHandling = WhitespaceHandling.None
+                    };
+
+                    reader.Read();
+
+                    doc.Load(reader);
+
+                    var matchNode = doc.GetElementsByTagName("Match");
+                    var sizeNode = matchNode.Item(0)?.ChildNodes.Item(1);
+
+                    if (sizeNode == null)
                     {
-                        otherPlayer.AddMove(x, y, player2Turn);
-                        player2Turn++;
+                        Console.WriteLine("The file was not in the proper format.");
+                        return;
                     }
+                    referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
+
+                    var firstPlayer = new ReplayPlayer() { PlayerNumber = 1 };
+                    var otherPlayer = new ReplayPlayer() { PlayerNumber = 2 };
+                    var player1Turn = 1;
+                    var player2Turn = 1;
+                    var moves = doc.GetElementsByTagName("Move");
+                    foreach (XmlNode move in moves)
+                    {
+                        var player = Convert.ToInt32(move["Player"]?.InnerText);
+                        var x = Convert.ToInt32(move["X"]?.InnerText);
+                        var y = Convert.ToInt32(move["Y"]?.InnerText);
+                        var turnNumber = move["Number"];
+                        if (player == 1)
+                        {
+                            firstPlayer.AddMove(x, y, player1Turn);
+                            player1Turn++;
+                        }
+                        else
+                        {
+                            otherPlayer.AddMove(x, y, player2Turn);
+                            player2Turn++;
+                        }
+                    }
+                    referee.AddPlayer(firstPlayer, 1);
+                    referee.AddPlayer(otherPlayer, 2);
+
+                    // and feed it the moves
+                    StartGame();
                 }
-                referee.AddPlayer(firstPlayer, 1);
-                referee.AddPlayer(otherPlayer, 2);
-
-                // and feed it the moves
-                StartGame();
+                catch (Exception exception)
+                {
+                    Console.WriteLine("Game couldn't be loaded properly.");
+                    
+                }
+  
             }
         }
     }

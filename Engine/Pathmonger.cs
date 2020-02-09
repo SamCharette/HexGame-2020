@@ -101,6 +101,7 @@ namespace Engine
                     Nodes.Add(node);
                 }
             }
+            Console.WriteLine("Rawr!  I'm the Pathmonger!  I monger all the paths!");
         }
         private bool IsNodeAtBeginning(Node node)
         {
@@ -109,7 +110,7 @@ namespace Engine
 
         private bool IsNodeAtEnd(Node node)
         {
-            return IsHorizontal ? node.Location.Y == Size - 1 : node.Location.X == Size - 1;
+            return IsHorizontal ? node.Location.X == Size - 1 : node.Location.Y == Size - 1;
         }
 
         public void SetUpAvailableBlocks(List<Hex> hexes, List<Hex> winningPath)
@@ -129,16 +130,19 @@ namespace Engine
                 }
             }
             // Start at the beginning and add all taken hexes to the open list
-            startingNodes = PlayerNumber == 1
-                ? Nodes.Where(x => x.Location.X == 0)
-                    .ToList()
-                : Nodes.Where(x => x.Location.Y == 0)
-                    .ToList();
+            var startingHexesInWinningPath = PlayerNumber == 2
+                ? winningPath.Where(hex => hex.X == 0).ToList()
+                : winningPath.Where(hex => hex.Y == 0).ToList();
 
-
-            foreach (var node in startingNodes)
+            startingNodes = new List<Node>();
+            foreach (var hex in startingHexesInWinningPath)
             {
-                node.State = NodeState.Open;
+                var nodeInMemory = Nodes.FirstOrDefault(node => node.Location.X == hex.X && node.Location.Y == hex.Y);
+                if (nodeInMemory != null)
+                {
+                    nodeInMemory.State = NodeState.Open;
+                    startingNodes.Add(nodeInMemory);
+                }
             }
 
             
@@ -160,7 +164,13 @@ namespace Engine
                 Console.WriteLine("Pathmonger: Maximum recursion reached.");
                 return null;
             }
-            Console.WriteLine("Pathmonger is looking at [" +
+            if (currentNode == null)
+            {
+                Console.WriteLine("RAWR!  Why is u feedin me a NULL?!?");
+                return null;
+            }
+
+            Console.WriteLine("Yum, feeding on [" +
                               currentNode.Location.X +
                               "," +
                               currentNode.Location.Y +
@@ -215,7 +225,7 @@ namespace Engine
                     // If we still can't find a hex to continue with
                     if (hexToGoToNext == null)
                     {
-                        Console.WriteLine("Pathmonger made a booboo.  Couldn't figure out how to proceed.");
+                        Console.WriteLine("RAWR!  POOPIE!  I don't know where to go from here.");
                         return null;
                     } else
                     {

@@ -171,7 +171,6 @@ namespace Engine
 
         private void PrintPath(List<Hex> path)
         {
-            Console.Write("Path is: ");
             foreach (var hex in path)
             {
                 Console.Write("[" + hex.X + "," + hex.Y + "] ");
@@ -211,6 +210,15 @@ namespace Engine
                         var bestPath = pathmonger.Start();
                         if (bestPath != null)
                         {
+                            foreach (var step in bestPath.OrderByDescending(x => x.F))
+                            {
+                                var tempHex = Board.Spaces.FirstOrDefault(x =>
+                                    x.X == step.Location.X && x.Y == step.Location.Y);
+                                if (tempHex != null)
+                                {
+                                    winningPath.Add(tempHex);
+                                }
+                            }
                             Console.WriteLine("Best path is (" + bestPath.Count() + "): ");
                             foreach (var node in bestPath)
                             {
@@ -221,6 +229,7 @@ namespace Engine
                         } 
                         else
                         {
+                            winningPath = path;
                             Console.WriteLine("Best path not found");
                         }
                     }
@@ -229,7 +238,6 @@ namespace Engine
                         Console.WriteLine("Pathmonger pooped.  " + e.Message);
                     }
                     
-                    winningPath = path;
                     return true;
                 }
             }

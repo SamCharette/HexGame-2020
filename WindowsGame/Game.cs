@@ -223,10 +223,5 @@ namespace WindowsGame
 			graphicsEngine = null;
 			board = null;
         }
-
-		private void comboBoxPlayer1Type_SelectedIndexChanged(object sender, EventArgs e)
-		{
-
-		}
-	}
+    }
 }

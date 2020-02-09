@@ -24,12 +24,9 @@ namespace Engine
         public Hex clickedHex;
         public List<Move> AllGameMoves;
 
+        public IPlayer Player1 { get; private set; }
+        public IPlayer Player2 { get; private set; }
 
-        // we need a player 1
-        private IPlayer _player1;
-
-        // we need a player 2
-        private IPlayer _player2;
 
         public Hex lastHexForPlayer1;
         public Hex lastHexForPlayer2;
@@ -39,7 +36,7 @@ namespace Engine
 
         public IPlayer CurrentPlayer()
         {
-            return _player1 == _lastPlayer ? _player2 : _player1;
+            return Player1 == _lastPlayer ? Player2 : Player1;
         }
 
         public IPlayer LastPlayer()
@@ -49,7 +46,7 @@ namespace Engine
 
         public void SwitchPlayers()
         {
-            _lastPlayer = _player1 == _lastPlayer ? _player2 : _player1;
+            _lastPlayer = Player1 == _lastPlayer ? Player2 : Player1;
         }
         public void ClickOnHexCoords(int x, int y)
         {
@@ -64,11 +61,11 @@ namespace Engine
                 {
                     if (playerNum == 1)
                     {
-                        _player1 = new HumanPlayer();
+                        Player1 = new HumanPlayer();
                     }
                     else
                     {
-                        _player2 = new HumanPlayer();
+                        Player2 = new HumanPlayer();
                     }
 
                     break;
@@ -78,18 +75,18 @@ namespace Engine
                 {
                     if (playerNum == 1)
                     {
-                        _player1 = new RandomPlayer(1);
+                        Player1 = new RandomPlayer(1);
                     }
                     else
                     {
-                        _player2 = new RandomPlayer(2);
+                        Player2 = new RandomPlayer(2);
                     }
 
                     break;
                 }
             }
-            _player1.PlayerNumber = 1;
-            _player2.PlayerNumber = 2;
+            Player1.PlayerNumber = 1;
+            Player2.PlayerNumber = 2;
 
         }
 
@@ -120,11 +117,11 @@ namespace Engine
         {
             if (playerNumber == 1)
             {
-                _player1 = player;
+                Player1 = player;
             }
             else
             {
-                _player2 = player;
+                Player2 = player;
             }
         }
         

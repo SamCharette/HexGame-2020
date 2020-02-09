@@ -7,8 +7,10 @@ using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using WindowsGame.Hexagonal;
 using Engine;
 using Engine.Hexagonal;
@@ -46,6 +48,7 @@ namespace WindowsGame
         {
             int boardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
             this.lblWInner.Visible = false;
+            this.btnSave.Visible = false;
 			
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
@@ -144,6 +147,8 @@ namespace WindowsGame
 
                 this.lblWInner.Text = "The winner is: Player #" + referee.CurrentPlayer().PlayerNumber;
                 this.lblWInner.Visible = true;
+                this.btnSave.Enabled = true;
+                this.btnSave.Visible = true;
 				this.Refresh();
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
             }
@@ -245,6 +250,46 @@ namespace WindowsGame
 		{
 			graphicsEngine = null;
 			board = null;
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            // Save the game and the moves.
+            string fileName = @"C:\GameFiles\game-" + DateTime.Now.ToFileTimeUtc().ToString() + ".xml";
+            using (XmlWriter writer = XmlWriter.Create(fileName))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Match");
+                writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                writer.WriteStartElement("Players");
+                    writer.WriteStartElement("Player");
+                        writer.WriteElementString("Type", referee.Player1.GetType().Name);
+                        writer.WriteElementString("Number", "1");
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Player");
+                        writer.WriteElementString("Type", referee.Player2.GetType().Name);
+                        writer.WriteElementString("Number", "2");
+                    writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.WriteStartElement("Moves");
+                int moveNumber = 1;
+                foreach (var move in referee.AllGameMoves)
+                {
+                    writer.WriteStartElement("Move");
+                    writer.WriteElementString("Number", moveNumber.ToString());
+                    writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
+                    writer.WriteElementString("X", move.hex.X.ToString());
+                    writer.WriteElementString("Y", move.hex.Y.ToString());
+                    writer.WriteEndElement();
+                    moveNumber++;
+                }
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            btnSave.Enabled = false;
         }
     }
 }

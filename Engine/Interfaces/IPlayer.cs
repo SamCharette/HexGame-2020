@@ -10,5 +10,6 @@ namespace Engine.Interfaces
         string Name { get; set; }
         int PlayerNumber { get; set; }
         Hex SelectHex(Board board);
+
     }
 }

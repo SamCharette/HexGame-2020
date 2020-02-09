@@ -26,6 +26,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.comboBoxPlayer1Type = new System.Windows.Forms.ComboBox();
             this.lblWInner = new System.Windows.Forms.Label();
+            this.btnSave = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // labelXY
@@ -145,11 +146,23 @@
             this.lblWInner.Text = "Winner is: ";
             this.lblWInner.Visible = false;
             // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(926, 638);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(82, 32);
+            this.btnSave.TabIndex = 20;
+            this.btnSave.Text = "Save Game";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Visible = false;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1214, 676);
+            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lblWInner);
             this.Controls.Add(this.comboBoxPlayer1Type);
             this.Controls.Add(this.label7);
@@ -185,5 +198,6 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboBoxPlayer1Type;
         private System.Windows.Forms.Label lblWInner;
+        private System.Windows.Forms.Button btnSave;
     }
 }

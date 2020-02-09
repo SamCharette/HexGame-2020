@@ -27,6 +27,8 @@
             this.comboBoxPlayer1Type = new System.Windows.Forms.ComboBox();
             this.lblWInner = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
+            this.btnLoad = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.SuspendLayout();
             // 
             // labelXY
@@ -51,7 +53,7 @@
             this.buttonTestBoard.Name = "buttonTestBoard";
             this.buttonTestBoard.Size = new System.Drawing.Size(109, 32);
             this.buttonTestBoard.TabIndex = 3;
-            this.buttonTestBoard.Text = "Test Board";
+            this.buttonTestBoard.Text = "Play Game!";
             this.buttonTestBoard.UseVisualStyleBackColor = true;
             this.buttonTestBoard.Click += new System.EventHandler(this.buttonTestBoard_Click);
             // 
@@ -157,11 +159,28 @@
             this.btnSave.Visible = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
+            // btnLoad
+            // 
+            this.btnLoad.Location = new System.Drawing.Point(794, 638);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(82, 32);
+            this.btnLoad.TabIndex = 21;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.DefaultExt = "xml";
+            this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.InitialDirectory = "C:\\GameFiles";
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1214, 676);
+            this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lblWInner);
             this.Controls.Add(this.comboBoxPlayer1Type);
@@ -176,7 +195,7 @@
             this.DoubleBuffered = true;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Game";
-            this.Text = "TestForm";
+            this.Text = "HexGame";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_Closing);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form_MouseClick);
@@ -199,5 +218,7 @@
         private System.Windows.Forms.ComboBox comboBoxPlayer1Type;
         private System.Windows.Forms.Label lblWInner;
         private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnLoad;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }

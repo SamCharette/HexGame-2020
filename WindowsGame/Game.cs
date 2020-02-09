@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Text;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using WindowsGame.Hexagonal;
 using Engine;
 using Engine.Hexagonal;
+using Engine.Interfaces;
+using Engine.Players;
 using Board = WindowsGame.Hexagonal.Board;
 
 namespace WindowsGame
@@ -44,19 +37,23 @@ namespace WindowsGame
             comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
 		}
 
-		public async void Play()
+        public async void Play()
         {
-            int boardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
-            this.lblWInner.Visible = false;
-            this.btnSave.Visible = false;
-			
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             referee.CreatePlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
             referee.CreatePlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
+            StartGame();
+        }
 
-			board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
-                Convert.ToInt32(textBoxHexBoardSize.Text),
+		public async void StartGame()
+        {
+            int boardSize = referee.Size;
+            this.lblWInner.Visible = false;
+            this.btnSave.Visible = false;
+			
+			board = new Board(boardSize,
+                boardSize,
                 25,
                 HexOrientation.Pointy
             )
@@ -95,8 +92,8 @@ namespace WindowsGame
 
 			try
             {
-                var isThereAWinnor = false;
-                while (!isThereAWinnor)
+                var isThereAWinner = false;
+                while (!isThereAWinner)
                 {
 
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
@@ -131,7 +128,7 @@ namespace WindowsGame
                             : lastTakenByPlayer2);
 
 
-                        isThereAWinnor = referee.Winner();
+                        isThereAWinner = referee.Winner();
 
                     }
 
@@ -290,6 +287,58 @@ namespace WindowsGame
             }
 
             btnSave.Enabled = false;
+        }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+  
+                var doc = new XmlDocument();
+
+                //Load the document with the last book node.
+                var reader = new XmlTextReader(openFileDialog1.OpenFile())
+                {
+                    WhitespaceHandling = WhitespaceHandling.None
+                };
+
+                reader.Read();
+   
+                doc.Load(reader);
+
+                var matchNode = doc.GetElementsByTagName("Match");
+                var sizeNode = matchNode.Item(0).ChildNodes.Item(1);
+
+                referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
+                
+                var firstPlayer = new ReplayPlayer() { PlayerNumber = 1};
+                var otherPlayer = new ReplayPlayer() {PlayerNumber = 2};
+                var player1Turn = 1;
+                var player2Turn = 1;
+                var moves = doc.GetElementsByTagName("Move");
+                foreach (XmlNode move in moves)
+                {
+                    var player = Convert.ToInt32(move["Player"]?.InnerText);
+                    var x = Convert.ToInt32(move["X"]?.InnerText);
+                    var y = Convert.ToInt32(move["Y"]?.InnerText);
+                    var turnNumber = move["Number"];
+                    if (player == 1)
+                    {
+                        firstPlayer.AddMove(x, y, player1Turn);
+                        player1Turn++;
+                    }
+                    else
+                    {
+                        otherPlayer.AddMove(x, y, player2Turn);
+                        player2Turn++;
+                    }
+                }
+                referee.AddPlayer(firstPlayer, 1);
+                referee.AddPlayer(otherPlayer, 2);
+
+                // and feed it the moves
+                StartGame();
+            }
         }
     }
 }

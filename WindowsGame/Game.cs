@@ -22,8 +22,18 @@ namespace WindowsGame
 		Board board;
 		GraphicsEngine graphicsEngine;
         private Referee referee;
+        private Color emptyColor = Color.White;
+        private Color emptyBlueSide = Color.Azure;
+        private Color emptyRedSide = Color.MistyRose;
+        private Color emptyCorner = Color.Plum;
+        private Color takenBeforeByPlayer1 = Color.DeepSkyBlue;
+        private Color lastTakenByPlayer1 = Color.Blue;
+        private Color takenBeforeByPlayer2 = Color.LightCoral;
+        private Color lastTakenByPlayer2 = Color.Red;
+        private Color backgroundColor = Color.Green;
 
-		public Game()
+
+        public Game()
 		{
 			InitializeComponent();
 
@@ -50,7 +60,7 @@ namespace WindowsGame
             {
                 BoardState =
                 {
-                    BackgroundColor = Color.Green,
+                    BackgroundColor = backgroundColor,
                     GridPenWidth = 2,
                     ActiveHexBorderColor = Color.Red,
                     ActiveHexBorderWidth = 2
@@ -65,16 +75,16 @@ namespace WindowsGame
             {
                 if (hex.Row == 0 || hex.Row == boardSize - 1)
                 {
-                    ChangeHexColor(hex, Color.Azure);
+                    ChangeHexColor(hex, emptyBlueSide);
                 }
                 if (hex.Column == 0 || hex.Column == boardSize - 1)
                 {
-                    ChangeHexColor(hex, Color.MistyRose);
+                    ChangeHexColor(hex, emptyRedSide);
                 }
                 if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
                     || hex.Column == boardSize -1 && hex.Row == 0 || hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
                 {
-                    ChangeHexColor(hex, Color.Plum);
+                    ChangeHexColor(hex, emptyCorner);
                 }
             }
 
@@ -99,7 +109,7 @@ namespace WindowsGame
                             : referee.lastHexForPlayer2.Y];
 
                         ChangeHexColor(lastHex,
-                            referee.CurrentPlayer().PlayerNumber == 1 ? Color.DeepSkyBlue : Color.LightCoral);
+                            referee.CurrentPlayer().PlayerNumber == 1 ? takenBeforeByPlayer1 : takenBeforeByPlayer2);
                     
 					}
 
@@ -114,8 +124,8 @@ namespace WindowsGame
 						var boardHex = board.Hexes[hexTaken.X, hexTaken.Y];
 
 						ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
-                            ? Color.Blue
-                            : Color.Red);
+                            ? lastTakenByPlayer1
+                            : lastTakenByPlayer2);
 
 
                         isThereAWinnor = referee.Winner();
@@ -126,7 +136,7 @@ namespace WindowsGame
                 }
 
 				// Show the winning path
-                var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? Color.Blue : Color.Red;
+                var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? lastTakenByPlayer1 : lastTakenByPlayer2;
 				foreach (var hex in referee.winningPath)
 				{
 					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
@@ -164,7 +174,20 @@ namespace WindowsGame
                 var hexHoveringOver = board.FindHexMouseClick(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
                 if (hexHoveringOver != null)
                 {
-                    labelXY.Text = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
+                    var label = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
+                    if (hexHoveringOver.HexState.BackgroundColor == lastTakenByPlayer1 || hexHoveringOver.HexState.BackgroundColor == takenBeforeByPlayer1)
+                    {
+                        label += " Player 1";
+                    }
+                    else if(hexHoveringOver.HexState.BackgroundColor == lastTakenByPlayer2 || hexHoveringOver.HexState.BackgroundColor == takenBeforeByPlayer2)
+                    {
+                        label += " Player 2";
+                    }
+                    else
+                    {
+                        label += " not owned";
+                    }
+                    labelXY.Text =label;
                 }
 			    else
                 {

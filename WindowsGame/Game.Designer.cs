@@ -34,7 +34,7 @@
             this.labelXY.AutoSize = true;
             this.labelXY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelXY.ForeColor = System.Drawing.Color.Blue;
-            this.labelXY.Location = new System.Drawing.Point(1107, 27);
+            this.labelXY.Location = new System.Drawing.Point(1068, 32);
             this.labelXY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelXY.Name = "labelXY";
             this.labelXY.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -79,7 +79,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(1107, 11);
+            this.label4.Location = new System.Drawing.Point(1068, 11);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(85, 17);

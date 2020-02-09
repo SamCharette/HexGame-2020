@@ -132,8 +132,8 @@ namespace Engine
             }
             // Start at the beginning and add all taken hexes to the open list
             var startingHexesInWinningPath = PlayerNumber == 2
-                ? winningPath.Where(hex => hex.Y == 0).ToList()
-                : winningPath.Where(hex => hex.X == 0).ToList();
+                ? hexes.Where(hex => hex.Y == 0).ToList()
+                : hexes.Where(hex => hex.X == 0).ToList();
 
             startingNodes = new List<Node>();
             foreach (var hex in startingHexesInWinningPath)

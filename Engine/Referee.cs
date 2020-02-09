@@ -182,12 +182,12 @@ namespace Engine
         {
      
 
-            var horizontal = CurrentPlayer().PlayerNumber == 1;
+            var horizontal = CurrentPlayer().PlayerNumber != 1;
             // Let's go through the hexes on the 0 side of the appropriate player,
             // and start a depth-first search for a connection to the other side.
             List<Hex> startingHexes;
 
-            if (horizontal)
+            if (!horizontal)
             {
                 startingHexes = Board.Spaces.Where(x => x.X == 0 && x.Owner?.PlayerNumber == 1).ToList();
             }
@@ -251,7 +251,7 @@ namespace Engine
         {
 
             currentPath.Add(currentHex);
-            if (isHorizontal)
+            if (!isHorizontal)
             {
                 if (currentHex.X == Size - 1)
                 {

@@ -94,7 +94,7 @@ namespace Engine
                 {
                     var node = new Node
                     {
-                        H = isHorizontal ? Size - j - 1 : Size - i - 1,
+                        H = !isHorizontal ? Size - j - 1 : Size - i - 1,
                         Location = {X = i, Y = j},
                         State = NodeState.Untested
                     };
@@ -110,7 +110,7 @@ namespace Engine
 
         private bool IsNodeAtEnd(Node node)
         {
-            return IsHorizontal ? node.Location.X == Size - 1 : node.Location.Y == Size - 1;
+            return IsHorizontal ? node.Location.Y == Size - 1 : node.Location.X == Size - 1;
         }
 
         public void SetUpAvailableBlocks(List<Hex> hexes, List<Hex> winningPath)
@@ -131,8 +131,8 @@ namespace Engine
             }
             // Start at the beginning and add all taken hexes to the open list
             var startingHexesInWinningPath = PlayerNumber == 2
-                ? winningPath.Where(hex => hex.X == 0).ToList()
-                : winningPath.Where(hex => hex.Y == 0).ToList();
+                ? winningPath.Where(hex => hex.Y == 0).ToList()
+                : winningPath.Where(hex => hex.X == 0).ToList();
 
             startingNodes = new List<Node>();
             foreach (var hex in startingHexesInWinningPath)

@@ -9,6 +9,11 @@ using Engine.Players;
 
 namespace Engine
 {
+    public class Move
+    {
+        public IPlayer player;
+        public Hex hex;
+    }
     public class Referee
     {
         // Board size must be equal in both directions
@@ -17,12 +22,11 @@ namespace Engine
         private IPlayer _lastPlayer;
         public List<Hex> winningPath;
         public Hex clickedHex;
+        public List<Move> AllGameMoves;
 
-        // we need a player 1
-        private IPlayer _player1;
+        public IPlayer Player1 { get; private set; }
+        public IPlayer Player2 { get; private set; }
 
-        // we need a player 2
-        private IPlayer _player2;
 
         public Hex lastHexForPlayer1;
         public Hex lastHexForPlayer2;
@@ -32,7 +36,7 @@ namespace Engine
 
         public IPlayer CurrentPlayer()
         {
-            return _player1 == _lastPlayer ? _player2 : _player1;
+            return Player1 == _lastPlayer ? Player2 : Player1;
         }
 
         public IPlayer LastPlayer()
@@ -42,7 +46,7 @@ namespace Engine
 
         public void SwitchPlayers()
         {
-            _lastPlayer = _player1 == _lastPlayer ? _player2 : _player1;
+            _lastPlayer = Player1 == _lastPlayer ? Player2 : Player1;
         }
         public void ClickOnHexCoords(int x, int y)
         {
@@ -57,11 +61,11 @@ namespace Engine
                 {
                     if (playerNum == 1)
                     {
-                        _player1 = new HumanPlayer();
+                        Player1 = new HumanPlayer();
                     }
                     else
                     {
-                        _player2 = new HumanPlayer();
+                        Player2 = new HumanPlayer();
                     }
 
                     break;
@@ -71,18 +75,18 @@ namespace Engine
                 {
                     if (playerNum == 1)
                     {
-                        _player1 = new RandomPlayer(1);
+                        Player1 = new RandomPlayer(1);
                     }
                     else
                     {
-                        _player2 = new RandomPlayer(2);
+                        Player2 = new RandomPlayer(2);
                     }
 
                     break;
                 }
             }
-            _player1.PlayerNumber = 1;
-            _player2.PlayerNumber = 2;
+            Player1.PlayerNumber = 1;
+            Player2.PlayerNumber = 2;
 
         }
 
@@ -106,46 +110,21 @@ namespace Engine
             Board = new Board(size);
             winningPath = new List<Hex>();
             Board.clickedHex = null;
+            AllGameMoves = new List<Move>();
         }
 
         public void AddPlayer(IPlayer player, int playerNumber)
         {
             if (playerNumber == 1)
             {
-                _player1 = player;
+                Player1 = player;
             }
             else
             {
-                _player2 = player;
+                Player2 = player;
             }
         }
-
-        //public Board Play()
-        //{
-        //    try
-        //    {
-        //        while (Winner() == false)
-        //        {
-        //            Console.WriteLine("Player taking turn: " + CurrentPlayer().PlayerNumber);
-        //            var hexTaken = TakeTurn(CurrentPlayer());
-        //            if (hexTaken != null)
-        //            {
-        //                Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("No winner today!");
-
-        //    }
-
-        //    return Board;
-
-        //}
-
-      
-
+        
         public async Task<Hex> TakeTurn(IPlayer player)
         {
             hexWanted = null;
@@ -178,7 +157,10 @@ namespace Engine
                 }
                 
             }
-           
+            var playerMove = new Move();
+            playerMove.player = CurrentPlayer();
+            playerMove.hex = hexWanted;
+            AllGameMoves.Add(playerMove);
             return hexWanted;
 
         }
@@ -186,7 +168,6 @@ namespace Engine
 
         private void PrintPath(List<Hex> path)
         {
-            Console.Write("Path is: ");
             foreach (var hex in path)
             {
                 Console.Write("[" + hex.X + "," + hex.Y + "] ");
@@ -198,12 +179,12 @@ namespace Engine
         {
      
 
-            var horizontal = CurrentPlayer().PlayerNumber == 1;
+            var horizontal = CurrentPlayer().PlayerNumber != 1;
             // Let's go through the hexes on the 0 side of the appropriate player,
             // and start a depth-first search for a connection to the other side.
             List<Hex> startingHexes;
 
-            if (horizontal)
+            if (!horizontal)
             {
                 startingHexes = Board.Spaces.Where(x => x.X == 0 && x.Owner?.PlayerNumber == 1).ToList();
             }
@@ -211,14 +192,49 @@ namespace Engine
             {
                 startingHexes = Board.Spaces.Where(x => x.Y == 0 && x.Owner?.PlayerNumber == 2).ToList();
             }
-            PrintPath(startingHexes);
 
             foreach (var hex in startingHexes)
             {
                 var path = new List<Hex> ();
                 if (CheckForWinningPath(path, hex, horizontal))
                 {
-                    winningPath = path;
+                    
+
+                    try
+                    {
+                        var pathmonger = new Pathmonger(Size, horizontal);
+                        pathmonger.SetUpAvailableBlocks(Board.Spaces);
+                        pathmonger.Start();
+                        if (pathmonger.FinalPath.Any())
+                        {
+                            foreach (var step in pathmonger.FinalPath.OrderByDescending(x => x.F))
+                            {
+                                var tempHex = Board.Spaces.FirstOrDefault(x =>
+                                    x.X == step.Location.X && x.Y == step.Location.Y);
+                                if (tempHex != null)
+                                {
+                                    winningPath.Add(tempHex);
+                                }
+                            }
+                            Console.WriteLine("Best path is (" + pathmonger.FinalPath.Count() + "): ");
+                            foreach (var node in pathmonger.FinalPath)
+                            {
+                                Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
+                            }
+                            Console.WriteLine();
+                            Console.WriteLine("-----");
+                        } 
+                        else
+                        {
+                            winningPath = path;
+                            Console.WriteLine("Best path not found");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Pathmonger pooped.  " + e.Message);
+                    }
+                    
                     return true;
                 }
             }
@@ -226,15 +242,17 @@ namespace Engine
             return false;
         }
 
+     
+
         private bool CheckForWinningPath(List<Hex> currentPath, Hex currentHex, bool isHorizontal)
         {
 
             currentPath.Add(currentHex);
-            if (isHorizontal)
+            if (!isHorizontal)
             {
                 if (currentHex.X == Size - 1)
                 {
-                    Console.Write("Winning path is : ");
+                    Console.Write("Winning path is (" + currentPath.Count() + "): ");
                     PrintPath(currentPath);
                     return true;
                 }
@@ -243,7 +261,7 @@ namespace Engine
             {
                 if (currentHex.Y == Size - 1)
                 {
-                    Console.Write("Winning path is : ");
+                    Console.Write("Winning path is (" + currentPath.Count() + "): ");
                     PrintPath(currentPath);
                     return true;
                 }

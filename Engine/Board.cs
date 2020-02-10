@@ -73,22 +73,49 @@ namespace Engine
 
         public List<Hex> GetNeighbours(int x, int y)
         {
-            var neighbours = new List<Hex>
+            var neighbours = new List<Hex>();
+
+            var neighbour = GetNeighbourAt(Direction.TopRight, x, y);
+            if (neighbour != null)
             {
-                GetNeighbourAt(Direction.TopRight, x, y),
-                GetNeighbourAt(Direction.Right, x, y),
-                GetNeighbourAt(Direction.BottomRight, x, y),
-                GetNeighbourAt(Direction.BottomLeft, x, y),
-                GetNeighbourAt(Direction.Left, x, y),
-                GetNeighbourAt(Direction.TopLeft, x, y)
-            };
-
-
-            return neighbours.Where(hex => hex != null).ToList();
+                neighbours.Add(neighbour);
+            }
+            neighbour = GetNeighbourAt(Direction.Right, x, y);
+            if (neighbour != null)
+            {
+                neighbours.Add(neighbour);
+            }
+            neighbour = GetNeighbourAt(Direction.BottomRight, x, y);
+            if (neighbour != null)
+            {
+                neighbours.Add(neighbour);
+            }
+            neighbour = GetNeighbourAt(Direction.BottomLeft, x, y);
+            if (neighbour != null)
+            {
+                neighbours.Add(neighbour);
+            }
+            neighbour = GetNeighbourAt(Direction.Left, x, y);
+            if (neighbour != null)
+            {
+                neighbours.Add(neighbour);
+            }
+            neighbour = GetNeighbourAt(Direction.TopLeft, x, y);
+            if (neighbour != null)
+            {
+                neighbours.Add(neighbour);
+            }
+            
+            return neighbours.ToList();
         }
 
         public Hex HexAt(int x, int y)
         {
+            
+            if (!(x >= 0 && x < _size && y >= 0 && y < _size))
+            {
+                return null;
+            }
             return Spaces.FirstOrDefault(hex => hex.X == x && hex.Y == y);
         }
 

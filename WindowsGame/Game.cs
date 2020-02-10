@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Text;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Xml;
 using WindowsGame.Hexagonal;
 using Engine;
 using Engine.Hexagonal;
+using Engine.Interfaces;
+using Engine.Players;
 using Board = WindowsGame.Hexagonal.Board;
 
 namespace WindowsGame
@@ -22,8 +17,18 @@ namespace WindowsGame
 		Board board;
 		GraphicsEngine graphicsEngine;
         private Referee referee;
+        private Color emptyColor = Color.White;
+        private Color emptyBlueSide = Color.Azure;
+        private Color emptyRedSide = Color.MistyRose;
+        private Color emptyCorner = Color.Plum;
+        private Color takenBeforeByPlayer1 = Color.DeepSkyBlue;
+        private Color lastTakenByPlayer1 = Color.Blue;
+        private Color takenBeforeByPlayer2 = Color.LightCoral;
+        private Color lastTakenByPlayer2 = Color.Red;
+        private Color backgroundColor = Color.Green;
 
-		public Game()
+
+        public Game()
 		{
 			InitializeComponent();
 
@@ -32,24 +37,30 @@ namespace WindowsGame
             comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
 		}
 
-		public async void Play()
+        public async void Play()
         {
-            int boardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
-			
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             referee.CreatePlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
             referee.CreatePlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
+            StartGame();
+        }
 
-			board = new Board(Convert.ToInt32(textBoxHexBoardSize.Text),
-                Convert.ToInt32(textBoxHexBoardSize.Text),
+		public async void StartGame()
+        {
+            int boardSize = referee.Size;
+            this.lblWInner.Visible = false;
+            this.btnSave.Visible = false;
+			
+			board = new Board(boardSize,
+                boardSize,
                 25,
                 HexOrientation.Pointy
             )
             {
                 BoardState =
                 {
-                    BackgroundColor = Color.Green,
+                    BackgroundColor = backgroundColor,
                     GridPenWidth = 2,
                     ActiveHexBorderColor = Color.Red,
                     ActiveHexBorderWidth = 2
@@ -58,12 +69,31 @@ namespace WindowsGame
 
             graphicsEngine = new GraphicsEngine(board, 20, 20);
 
+
+            // make the edges colourful!
+            foreach (var hex in board.Hexes)
+            {
+                if (hex.Row == 0 || hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, emptyBlueSide);
+                }
+                if (hex.Column == 0 || hex.Column == boardSize - 1)
+                {
+                    ChangeHexColor(hex, emptyRedSide);
+                }
+                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
+                    || hex.Column == boardSize -1 && hex.Row == 0 || hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, emptyCorner);
+                }
+            }
+
             this.Refresh();
 
 			try
             {
-                var isThereAWinnor = false;
-                while (!isThereAWinnor)
+                var isThereAWinner = false;
+                while (!isThereAWinner)
                 {
 
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
@@ -79,7 +109,7 @@ namespace WindowsGame
                             : referee.lastHexForPlayer2.Y];
 
                         ChangeHexColor(lastHex,
-                            referee.CurrentPlayer().PlayerNumber == 1 ? Color.DeepSkyBlue : Color.LightCoral);
+                            referee.CurrentPlayer().PlayerNumber == 1 ? takenBeforeByPlayer1 : takenBeforeByPlayer2);
                     
 					}
 
@@ -94,11 +124,11 @@ namespace WindowsGame
 						var boardHex = board.Hexes[hexTaken.X, hexTaken.Y];
 
 						ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
-                            ? Color.Blue
-                            : Color.Red);
+                            ? lastTakenByPlayer1
+                            : lastTakenByPlayer2);
 
 
-                        isThereAWinnor = referee.Winner();
+                        isThereAWinner = referee.Winner();
 
                     }
 
@@ -106,14 +136,18 @@ namespace WindowsGame
                 }
 
 				// Show the winning path
-                var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? Color.Blue : Color.Red;
+                var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? lastTakenByPlayer1 : lastTakenByPlayer2;
 				foreach (var hex in referee.winningPath)
 				{
 					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
 				}
+
+                this.lblWInner.Text = "The winner is: Player #" + referee.CurrentPlayer().PlayerNumber;
+                this.lblWInner.Visible = true;
+                this.btnSave.Enabled = true;
+                this.btnSave.Visible = true;
 				this.Refresh();
 				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
-//                MessageBox.Show(this, "The winner is player #" + referee.CurrentPlayer().PlayerNumber);
             }
             catch (Exception e)
             {
@@ -142,7 +176,20 @@ namespace WindowsGame
                 var hexHoveringOver = board.FindHexMouseClick(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
                 if (hexHoveringOver != null)
                 {
-                    labelXY.Text = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
+                    var label = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
+                    if (hexHoveringOver.HexState.BackgroundColor == lastTakenByPlayer1 || hexHoveringOver.HexState.BackgroundColor == takenBeforeByPlayer1)
+                    {
+                        label += " Player 1";
+                    }
+                    else if(hexHoveringOver.HexState.BackgroundColor == lastTakenByPlayer2 || hexHoveringOver.HexState.BackgroundColor == takenBeforeByPlayer2)
+                    {
+                        label += " Player 2";
+                    }
+                    else
+                    {
+                        label += " not owned";
+                    }
+                    labelXY.Text =label;
                 }
 			    else
                 {
@@ -202,9 +249,115 @@ namespace WindowsGame
 			board = null;
         }
 
-		private void comboBoxPlayer1Type_SelectedIndexChanged(object sender, EventArgs e)
-		{
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            // Save the game and the moves.
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                using (XmlWriter writer = XmlWriter.Create(saveFileDialog1.FileName))
+                {
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("Match");
+                    writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                    writer.WriteStartElement("Players");
+                        writer.WriteStartElement("Player");
+                            writer.WriteElementString("Type", referee.Player1.GetType().Name);
+                            writer.WriteElementString("Number", "1");
+                        writer.WriteEndElement();
+                        writer.WriteStartElement("Player");
+                            writer.WriteElementString("Type", referee.Player2.GetType().Name);
+                            writer.WriteElementString("Number", "2");
+                        writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Moves");
+                    int moveNumber = 1;
+                    foreach (var move in referee.AllGameMoves)
+                    {
+                        writer.WriteStartElement("Move");
+                        writer.WriteElementString("Number", moveNumber.ToString());
+                        writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
+                        writer.WriteElementString("X", move.hex.X.ToString());
+                        writer.WriteElementString("Y", move.hex.Y.ToString());
+                        writer.WriteEndElement();
+                        moveNumber++;
+                    }
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteEndDocument();
+                    writer.Flush();
+                }
 
-		}
-	}
+                btnSave.Enabled = false;
+            }
+            
+        }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+
+         
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+
+                    var doc = new XmlDocument();
+
+                    //Load the document with the last book node.
+                    var reader = new XmlTextReader(openFileDialog1.OpenFile())
+                    {
+                        WhitespaceHandling = WhitespaceHandling.None
+                    };
+
+                    reader.Read();
+
+                    doc.Load(reader);
+
+                    var matchNode = doc.GetElementsByTagName("Match");
+                    var sizeNode = matchNode.Item(0)?.ChildNodes.Item(1);
+
+                    if (sizeNode == null)
+                    {
+                        Console.WriteLine("The file was not in the proper format.");
+                        return;
+                    }
+                    referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
+
+                    var firstPlayer = new ReplayPlayer() { PlayerNumber = 1 };
+                    var otherPlayer = new ReplayPlayer() { PlayerNumber = 2 };
+                    var player1Turn = 1;
+                    var player2Turn = 1;
+                    var moves = doc.GetElementsByTagName("Move");
+                    foreach (XmlNode move in moves)
+                    {
+                        var player = Convert.ToInt32(move["Player"]?.InnerText);
+                        var x = Convert.ToInt32(move["X"]?.InnerText);
+                        var y = Convert.ToInt32(move["Y"]?.InnerText);
+                        var turnNumber = move["Number"];
+                        if (player == 1)
+                        {
+                            firstPlayer.AddMove(x, y, player1Turn);
+                            player1Turn++;
+                        }
+                        else
+                        {
+                            otherPlayer.AddMove(x, y, player2Turn);
+                            player2Turn++;
+                        }
+                    }
+                    referee.AddPlayer(firstPlayer, 1);
+                    referee.AddPlayer(otherPlayer, 2);
+
+                    // and feed it the moves
+                    StartGame();
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine("Game couldn't be loaded properly.");
+                    
+                }
+  
+            }
+        }
+    }
 }

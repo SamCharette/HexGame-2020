@@ -25,6 +25,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.comboBoxPlayer1Type = new System.Windows.Forms.ComboBox();
+            this.lblWInner = new System.Windows.Forms.Label();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnLoad = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.SuspendLayout();
             // 
             // labelXY
@@ -33,7 +38,7 @@
             this.labelXY.AutoSize = true;
             this.labelXY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelXY.ForeColor = System.Drawing.Color.Blue;
-            this.labelXY.Location = new System.Drawing.Point(1107, 27);
+            this.labelXY.Location = new System.Drawing.Point(1068, 32);
             this.labelXY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelXY.Name = "labelXY";
             this.labelXY.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -49,7 +54,7 @@
             this.buttonTestBoard.Name = "buttonTestBoard";
             this.buttonTestBoard.Size = new System.Drawing.Size(109, 32);
             this.buttonTestBoard.TabIndex = 3;
-            this.buttonTestBoard.Text = "Test Board";
+            this.buttonTestBoard.Text = "Play Game!";
             this.buttonTestBoard.UseVisualStyleBackColor = true;
             this.buttonTestBoard.Click += new System.EventHandler(this.buttonTestBoard_Click);
             // 
@@ -78,7 +83,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(1107, 11);
+            this.label4.Location = new System.Drawing.Point(1068, 11);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(85, 17);
@@ -90,8 +95,8 @@
             this.comboBoxPlayer2Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer2Type.FormattingEnabled = true;
             this.comboBoxPlayer2Type.Items.AddRange(new object[] {
-            "Human",
-            "Random AI"});
+            "Random AI",
+            "Human"});
             this.comboBoxPlayer2Type.Location = new System.Drawing.Point(1086, 412);
             this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer2Type.Name = "comboBoxPlayer2Type";
@@ -125,20 +130,66 @@
             this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Items.AddRange(new object[] {
-            "Human",
-            "Random AI"});
+            "Random AI",
+            "Human"});
             this.comboBoxPlayer1Type.Location = new System.Drawing.Point(1086, 363);
             this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer1Type.Name = "comboBoxPlayer1Type";
             this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
             this.comboBoxPlayer1Type.TabIndex = 18;
-            this.comboBoxPlayer1Type.SelectedIndexChanged += new System.EventHandler(this.comboBoxPlayer1Type_SelectedIndexChanged);
+            // 
+            // lblWInner
+            // 
+            this.lblWInner.AutoSize = true;
+            this.lblWInner.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWInner.Location = new System.Drawing.Point(320, 602);
+            this.lblWInner.Name = "lblWInner";
+            this.lblWInner.Size = new System.Drawing.Size(177, 39);
+            this.lblWInner.TabIndex = 19;
+            this.lblWInner.Text = "Winner is: ";
+            this.lblWInner.Visible = false;
+            // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(926, 638);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(82, 32);
+            this.btnSave.TabIndex = 20;
+            this.btnSave.Text = "Save Game";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Visible = false;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnLoad
+            // 
+            this.btnLoad.Location = new System.Drawing.Point(794, 638);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(82, 32);
+            this.btnLoad.TabIndex = 21;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.DefaultExt = "xml";
+            this.openFileDialog1.InitialDirectory = "C:\\GameFiles";
+            this.openFileDialog1.ShowHelp = true;
+            // 
+            // saveFileDialog1
+            // 
+            this.saveFileDialog1.DefaultExt = "xml";
+            this.saveFileDialog1.FileName = "game.xml";
+            this.saveFileDialog1.InitialDirectory = "C:\\GameFiles";
             // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1214, 676);
+            this.Controls.Add(this.btnLoad);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.lblWInner);
             this.Controls.Add(this.comboBoxPlayer1Type);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -151,7 +202,7 @@
             this.DoubleBuffered = true;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Game";
-            this.Text = "TestForm";
+            this.Text = "HexGame";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_Closing);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form_MouseClick);
@@ -172,5 +223,10 @@
 		private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboBoxPlayer1Type;
+        private System.Windows.Forms.Label lblWInner;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnLoad;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
     }
 }

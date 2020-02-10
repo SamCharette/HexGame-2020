@@ -12,11 +12,10 @@ namespace Engine.GameTypes
         public int X => (int) Point.X;
 
         public int Y => (int) Point.Y;
-
+        // The cost in path is what a system can use to evaluate if a hex is desirable.
         public Hex(int x, int y)
         {
-            Point.X = x;
-            Point.Y = y;
+            Point = new PointF(x, y);
         }
     }
 }

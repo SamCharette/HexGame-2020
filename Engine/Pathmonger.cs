@@ -13,18 +13,24 @@ namespace Engine
         public float G;
         public float H;
         public float F { get { return this.G + this.H; } }
-        public NodeState State;
-        public Node ParentNode;
-        public int Owner;
-        public bool IsWalkableFromHere(Node neighbour)
+        public NodeState State = NodeState.Untested;
+        public Node ParentNode = null;
+        public int OwningPlayer;
+        
+        public bool CanWalkTo(Node neighbour)
         {
+            // Can't be a neighbour to itself
+            if (neighbour.Location.X == Location.X && neighbour.Location.Y == Location.Y)
+            {
+                return false;
+            }
             // is untested?
-            if (neighbour.State != NodeState.Untested)
+            if (neighbour.State == NodeState.Closed)
             {
                 return false;
             }
             // Only walkable if we own it
-            if (neighbour.Owner != Owner)
+            if (neighbour.OwningPlayer != OwningPlayer)
             {
                 return false;
             }
@@ -72,10 +78,10 @@ namespace Engine
         public int CurrentRecursion;
         public int MaxRecursion;
         public bool IsHorizontal;
-        public List<Node> startingNodes = new List<Node>();
         public List<Node> Nodes;
+        public List<Node> FinalPath = new List<Node>();
 
-        private const int CostToMove = 10;
+        private const int CostToMove = 20;
 
         private int PlayerNumber
         {
@@ -89,20 +95,18 @@ namespace Engine
             
             IsHorizontal = isHorizontal;
             Nodes = new List<Node>();
-            for (var i = 0; i < size; i++)
+            for (var x = 0; x < size; x++)
             {
-                for (var j = 0; j < size; j++)
+                for (var y = 0; y < size; y++)
                 {
                     var node = new Node
                     {
-                        H = isHorizontal ? Size - j - 1 : Size - i - 1,
-                        Location = {X = i, Y = j},
-                        State = NodeState.Untested
+                        H = isHorizontal ? Size - y - 1 : Size - x - 1,
+                        Location = {X = x, Y = y}
                     };
                     Nodes.Add(node);
                 }
             }
-            Console.WriteLine("Rawr!  I'm the Pathmonger!  I monger all the paths!");
         }
         private bool IsNodeAtBeginning(Node node)
         {
@@ -114,7 +118,7 @@ namespace Engine
             return IsHorizontal ? node.Location.Y == Size - 1 : node.Location.X == Size - 1;
         }
 
-        public void SetUpAvailableBlocks(List<Hex> hexes, List<Hex> winningPath)
+        public void SetUpAvailableBlocks(List<Hex> hexes)
         {
             // hexes is the entire board.  winningPath is the path, however circuitous, that lead to a win.
             foreach (var hex in hexes)
@@ -124,12 +128,11 @@ namespace Engine
                 if (node != null)
                 {
                     // If we found it we want to list its owner as either player 1, player 2 or 0, for unowned
-                    node.Owner = hex.Owner?.PlayerNumber ?? 0;
-                    node.State = node.Owner == PlayerNumber ?  NodeState.Untested : NodeState.Closed;
+                    node.OwningPlayer = hex.Owner?.PlayerNumber ?? 0;
                 }
             }
             // Start at the beginning and add all taken hexes to the open list
-            startingNodes = PlayerNumber == 2
+            var startingNodes = PlayerNumber == 2
                 ? Nodes.Where(node => node.Location.Y == 0 && node.State == NodeState.Untested).ToList()
                 : Nodes.Where(node => node.Location.X == 0 && node.State == NodeState.Untested).ToList();
             
@@ -141,91 +144,78 @@ namespace Engine
             
         }
 
-        public List<Node> Start()
+        public void Start()
         {
             CurrentRecursion = 0;
             MaxRecursion = Size * Size / 2; // If we don't find a path after searching half of the entire board, we failed
-            return FindBestPathFrom(startingNodes.FirstOrDefault());
+            FindBestPathFrom();
         }
 
-        public List<Node> FindBestPathFrom(Node currentNode)
+        public void FindBestPathFrom()
         {
+            // Let's grab the cheapest open item
+            var currentNode = Nodes.OrderBy(x => x.F).FirstOrDefault(y => y.State == NodeState.Open);
 
-            // First, if we've gone too far in the recursion, just die
-            if (CurrentRecursion > MaxRecursion)
-            {
-                Console.WriteLine("OW!  Pathmonger head hurt!  Too many loopies!");
-                return null;
-            }
+            // nothing open?  THat's an error
             if (currentNode == null)
             {
-                Console.WriteLine("RAWR!  Why is u feedin me a NULL?!?");
-                return null;
+                Console.WriteLine("An error occurred, and we ran out of open nodes.  No successful path found.");
+                return;
             }
 
-            Console.WriteLine("Yum, feeding on [" +
-                              currentNode.Location.X +
-                              "," +
-                              currentNode.Location.Y +
-                              "] g=" +
-                              currentNode.G +
-                              " h=" +
-                              currentNode.H +
-                              " f=" +
-                              currentNode.F );
             CurrentRecursion++;
 
+            // We put the current node in the closed list
+            currentNode.State = NodeState.Closed;
+
+            // If the node we just added to the closed state is at the end, we're done.
+            if (IsNodeAtEnd(currentNode))
+            {
+                var bestPath = new List<Node>();
+                bestPath.Add(currentNode);
+                var parent = currentNode.ParentNode;
+                while (parent != null)
+                {
+                    bestPath.Add(parent);
+                    parent = parent.ParentNode;
+                }
+
+                FinalPath = bestPath;
+                return;
+            }
+
             // So we get a list of nodes that are walkable from the current node, and currently untested
-            var nextSteps = Nodes.Where(currentNode.IsWalkableFromHere).ToList();
+            var nextSteps = Nodes.Where(currentNode.CanWalkTo).ToList();
 
             // Are there next steps?
             if (nextSteps.Any())
             {
                 foreach (var step in nextSteps)
                 {
-                    step.G = currentNode.G + CostToMove;
-                    step.ParentNode = currentNode;
-                    step.State = NodeState.Open;
-                }
-                // We put the current node in the closed list
-                currentNode.State = NodeState.Closed;
-                // We call this again on whichever one is the cheapest
-                var hexToGoToNext = nextSteps?.OrderByDescending(x => x.F).FirstOrDefault();
-                return FindBestPathFrom(hexToGoToNext);
-            } 
-            else
-            {
-                // So if we're here, it's because there are no further nodes to check in this line
-                // are we at the end?
-                if (IsNodeAtEnd(currentNode))
-                {
-                    var bestPath = new List<Node>();
-                    bestPath.Add(currentNode);
-                    var parent = currentNode.ParentNode;
-                    while (parent != null)
+                    // get the actual node in our play area
+                    if (step.State == NodeState.Open)
                     {
-                        bestPath.Add(parent);
-                        parent = parent.ParentNode;
+                        // if the step is already open, we need to check to see if the way to it is better if we go
+                        // there from here, so we need to compare its G with what it would be if we moved from here
+                        if ((currentNode.G + CostToMove) < step.G)
+                        {
+                            //  Here we've discovered that it's actually easier to get to this step from where we are
+                            // than it is from where we got to it before
+                            step.ParentNode = currentNode;
+                            step.G = currentNode.G = CostToMove;
+                        }
                     }
-
-                    return bestPath;
-                } else
-                {
-                    // If we haven't reached the end, and we can't go forward, then we need to backtrack
-                    // to the best one in the open list
-                    currentNode.State = NodeState.Closed;
-                    var hexToGoToNext = Nodes.FirstOrDefault(x => x.State == NodeState.Open);
-                    // If we still can't find a hex to continue with
-                    if (hexToGoToNext == null)
+                    else
                     {
-                        Console.WriteLine("RAWR!  POOPIE!  I don't know where to go from here.");
-                        return null;
-                    } else
-                    {
-                        return FindBestPathFrom(hexToGoToNext);
+                        step.G = currentNode.G + CostToMove;
+                        step.ParentNode = currentNode;
+                        step.State = NodeState.Open;
                     }
                 }
+               
             }
+            FindBestPathFrom();
+
         }
     }
 

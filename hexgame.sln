@@ -7,11 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Tests", "Engine.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine", "Engine\Engine.csproj", "{3A81126F-59DB-4088-AFCA-69ACBDB814EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{7DF6CF1E-20EA-4D6B-B509-9DC8DB181105}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3A81126F-59DB-4088-AFCA-69ACBDB814EA} = {3A81126F-59DB-4088-AFCA-69ACBDB814EA}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsGame", "WindowsGame\WindowsGame.csproj", "{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}"
 EndProject
 Global
@@ -28,10 +23,6 @@ Global
 		{3A81126F-59DB-4088-AFCA-69ACBDB814EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A81126F-59DB-4088-AFCA-69ACBDB814EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A81126F-59DB-4088-AFCA-69ACBDB814EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DF6CF1E-20EA-4D6B-B509-9DC8DB181105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DF6CF1E-20EA-4D6B-B509-9DC8DB181105}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DF6CF1E-20EA-4D6B-B509-9DC8DB181105}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DF6CF1E-20EA-4D6B-B509-9DC8DB181105}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}.Release|Any CPU.ActiveCfg = Release|Any CPU

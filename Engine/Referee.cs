@@ -203,11 +203,11 @@ namespace Engine
                     try
                     {
                         var pathmonger = new Pathmonger(Size, horizontal);
-                        pathmonger.SetUpAvailableBlocks(Board.Spaces, path);
-                        var bestPath = pathmonger.Start();
-                        if (bestPath != null)
+                        pathmonger.SetUpAvailableBlocks(Board.Spaces);
+                        pathmonger.Start();
+                        if (pathmonger.FinalPath.Any())
                         {
-                            foreach (var step in bestPath.OrderByDescending(x => x.F))
+                            foreach (var step in pathmonger.FinalPath.OrderByDescending(x => x.F))
                             {
                                 var tempHex = Board.Spaces.FirstOrDefault(x =>
                                     x.X == step.Location.X && x.Y == step.Location.Y);
@@ -216,8 +216,8 @@ namespace Engine
                                     winningPath.Add(tempHex);
                                 }
                             }
-                            Console.WriteLine("Best path is (" + bestPath.Count() + "): ");
-                            foreach (var node in bestPath)
+                            Console.WriteLine("Best path is (" + pathmonger.FinalPath.Count() + "): ");
+                            foreach (var node in pathmonger.FinalPath)
                             {
                                 Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
                             }

@@ -174,6 +174,7 @@
             // 
             this.openFileDialog1.DefaultExt = "xml";
             this.openFileDialog1.InitialDirectory = "C:\\GameFiles";
+            this.openFileDialog1.ShowHelp = true;
             // 
             // saveFileDialog1
             // 

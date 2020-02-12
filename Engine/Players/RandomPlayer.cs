@@ -8,21 +8,19 @@ using System.Threading.Tasks;
 
 namespace Engine.Players
 {
-    public class RandomPlayer : IPlayer
+    public class RandomPlayer : Player
     {
-        public string Name { get; set; }
-        public int PlayerNumber { get; set; }
 
-        public RandomPlayer(int playerNumber)
+        public new string PlayerType()
         {
-            PlayerNumber = playerNumber;
+            return "Random AI";
         }
-        public Hex SelectHex(Board board)
+        public new bool IsAvailableToPlay()
         {
-            var openHexes = board.Spaces.Where(x => x.Owner == null);
-            System.Threading.Thread.Sleep(50);
-            var selectedHex = openHexes.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-            return selectedHex;
+            return true;
+        }
+        public RandomPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+        {
         }
     }
 }

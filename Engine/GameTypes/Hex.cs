@@ -6,7 +6,7 @@ namespace Engine.GameTypes
 
     public class Hex
     {
-        public IPlayer Owner;
+        public int Owner = 0;
         public PointF Point;
 
         public int X => (int) Point.X;

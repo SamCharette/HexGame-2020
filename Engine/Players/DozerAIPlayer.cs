@@ -8,30 +8,7 @@ using Engine.Interfaces;
 
 namespace Engine.Players
 {
-    public class Node
-    {
-        public int X;
-        public int Y;
-        public int Owner = 0;
-        public Status Status;
-        public int G;
-        public int H;
-        public Node Parent = null;
 
-        public int F => G + H;
-
-        public bool IsAtBeginning(bool isHorizontal)
-        {
-            return false;
-        }
-    }
-
-    public enum Status
-    {
-        Open,
-        Closed,
-        Untested
-    };
     public class DozerAIPlayer : IPlayer
     {
         public string Name { get; set; }

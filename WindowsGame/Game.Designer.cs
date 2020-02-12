@@ -96,6 +96,7 @@
             this.comboBoxPlayer2Type.FormattingEnabled = true;
             this.comboBoxPlayer2Type.Items.AddRange(new object[] {
             "Random AI",
+            "Dozer AI",
             "Human"});
             this.comboBoxPlayer2Type.Location = new System.Drawing.Point(1086, 412);
             this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
@@ -130,6 +131,7 @@
             this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Items.AddRange(new object[] {
+            "Dozer AI",
             "Random AI",
             "Human"});
             this.comboBoxPlayer1Type.Location = new System.Drawing.Point(1086, 363);

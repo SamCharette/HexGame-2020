@@ -6,13 +6,70 @@ using Engine.Interfaces;
 
 namespace Engine.Players
 {
-    public class PathFinderPlayer : IPlayer
+    public class PathfinderNode : BaseNode
     {
-        public string Name { get; set; }
-        public int PlayerNumber { get; set; }
-        public Hex SelectHex(Board board)
+       
+        public Status Status;
+        public int G;
+        public int H;
+        public Node Parent = null;
+
+        public int F => G + H;
+
+    }
+
+    public enum Status
+    {
+        Open,
+        Closed,
+        Untested
+    };
+
+    public class PathFinderPlayer : Player
+    {
+
+      
+        public PathFinderPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
-            throw new NotImplementedException();
         }
+
+        public string PlayerType()
+        {
+            return "Pathfinder AI";
+        }
+        public bool IsAvailableToPlay()
+        {
+            return true;
+        }
+
+        protected new void SetUpInMemoryBoard()
+        {
+            _memory = new List<BaseNode>();
+
+            for (int x = 0; x < EndNodeLocation; x++)
+            {
+                for (int y = 0; y < EndNodeLocation; y++)
+                {
+                    var newNode = new PathfinderNode();
+                    {
+                        newNode.X = x;
+                        newNode.Y = y;
+                        newNode.Owner = 0;
+
+                        if (_isHorizontal)
+                        {
+                            newNode.Status = y == 0 ? Status.Open : Status.Untested;
+                            newNode.H = EndNodeLocation - y;
+                        }
+                        else
+                        {
+                            newNode.Status = x == 0 ? Status.Open : Status.Untested;
+                            newNode.H = EndNodeLocation - x;
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

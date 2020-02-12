@@ -17,12 +17,12 @@ namespace Engine
     public class Board
     {
         public List<Hex> Spaces;
-        private int _size;
+        public int Size;
         public Hex clickedHex;
 
         public Board(int size = 11)
         {
-            _size = size;
+            Size = size;
             Spaces = new List<Hex>();
             for (var i = 0; i < size; i++)
             {
@@ -34,17 +34,44 @@ namespace Engine
             }
         }
 
+        public bool IsHexAtBeginning(Hex hex, bool isHorizontal)
+        {
+            if (isHorizontal)
+            {
+                return hex.Y == 0;
+            }
+
+            return hex.X == 0;
+        }
+
+        public bool IsHexAtEnd(Hex hex, bool isHorizontal)
+        {
+            if (isHorizontal)
+            {
+                return hex.Y == Size - 1;
+            }
+
+            return hex.X == Size - 1;
+        }
+
         public List<Hex> GetFriendlyNeighbours(int x, int y, IPlayer player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber)
+            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner == player.PlayerNumber)
+                .ToList();
+        }
+
+        public List<Hex> GetTraversableNeighbours(int x, int y, IPlayer player)
+        {
+            var allNeighbours = GetNeighbours(x, y);
+            return allNeighbours?.Where(hex => hex.Owner == null || hex.Owner == player.PlayerNumber)
                 .ToList();
         }
 
         public List<Hex> GetEnemyNeighbours(int x, int y, IPlayer player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner.PlayerNumber != player.PlayerNumber)
+            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner != player.PlayerNumber)
                 .ToList();
         }
 
@@ -112,19 +139,19 @@ namespace Engine
         public Hex HexAt(int x, int y)
         {
             
-            if (!(x >= 0 && x < _size && y >= 0 && y < _size))
+            if (!(x >= 0 && x < Size && y >= 0 && y < Size))
             {
                 return null;
             }
             return Spaces.FirstOrDefault(hex => hex.X == x && hex.Y == y);
         }
 
-        public bool TakeHex(int x, int y, IPlayer player)
+        public bool TakeHex(int x, int y, int playerNumber)
         {
             var hexToTake = HexAt(x, y);
             if (hexToTake != null && hexToTake.Owner == null)
             {
-                hexToTake.Owner = player;
+                hexToTake.Owner = playerNumber;
                 return true;
             }
 
@@ -139,7 +166,7 @@ namespace Engine
         public bool CheckHexForPlayer(int x, int y, IPlayer player)
         {
             var hex = HexAt(x, y);
-            return hex?.Owner != null && hex.Owner.PlayerNumber == player.PlayerNumber;
+            return hex?.Owner != null && hex.Owner == player.PlayerNumber;
         }
 
     }

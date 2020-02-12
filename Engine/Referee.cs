@@ -11,35 +11,36 @@ namespace Engine
 {
     public class Move
     {
-        public IPlayer player;
-        public Hex hex;
+        public Player player;
+        public Tuple<int,int> hex;
     }
     public class Referee
     {
         // Board size must be equal in both directions
         public int Size;
         public Board Board;
-        private IPlayer _lastPlayer;
+        private Player _lastPlayer;
+        private Tuple<int, int> _lastPlay;
         public List<Hex> winningPath;
         public Hex clickedHex;
         public List<Move> AllGameMoves;
 
-        public IPlayer Player1 { get; private set; }
-        public IPlayer Player2 { get; private set; }
+        public Player Player1 { get; private set; }
+        public Player Player2 { get; private set; }
 
 
-        public Hex lastHexForPlayer1;
-        public Hex lastHexForPlayer2;
+        public Tuple<int,int> lastHexForPlayer1;
+        public Tuple<int,int> lastHexForPlayer2;
 
         private EventWaitHandle waitHandle = new AutoResetEvent(false);
-        private Hex hexWanted;
+        private Tuple<int,int> hexWanted;
 
-        public IPlayer CurrentPlayer()
+        public Player CurrentPlayer()
         {
             return Player1 == _lastPlayer ? Player2 : Player1;
         }
 
-        public IPlayer LastPlayer()
+        public Player LastPlayer()
         {
             return _lastPlayer;
         }
@@ -61,25 +62,36 @@ namespace Engine
                 {
                     if (playerNum == 1)
                     {
-                        Player1 = new HumanPlayer();
+                        Player1 = new HumanPlayer(1, Size);
                     }
                     else
                     {
-                        Player2 = new HumanPlayer();
+                        Player2 = new HumanPlayer(2, Size);
                     }
 
                     break;
                 }
+
+                //case "Dozer AI":
+                //    if (playerNum == 1)
+                //    {
+                //        Player1 = new DozerAIPlayer(1);
+                //    } else
+                //    {
+                //        Player2 = new DozerAIPlayer(2);
+                //    }
+
+                //    break;
                    
                 default:
                 {
                     if (playerNum == 1)
                     {
-                        Player1 = new RandomPlayer(1);
+                        Player1 = new RandomPlayer(1, Size);
                     }
                     else
                     {
-                        Player2 = new RandomPlayer(2);
+                        Player2 = new RandomPlayer(2, Size);
                     }
 
                     break;
@@ -99,8 +111,8 @@ namespace Engine
         public Referee(int size = 11)
         {
             NewGame(size);
-            AddPlayer(new RandomPlayer(1), 1);
-            AddPlayer(new RandomPlayer(2), 2);
+            AddPlayer(new RandomPlayer(1, Size), 1);
+            AddPlayer(new RandomPlayer(2, Size), 2);
             
         }
 
@@ -113,7 +125,7 @@ namespace Engine
             AllGameMoves = new List<Move>();
         }
 
-        public void AddPlayer(IPlayer player, int playerNumber)
+        public void AddPlayer(Player player, int playerNumber)
         {
             if (playerNumber == 1)
             {
@@ -125,7 +137,7 @@ namespace Engine
             }
         }
         
-        public async Task<Hex> TakeTurn(IPlayer player)
+        public async Task<Tuple<int,int>> TakeTurn(Player player)
         {
             hexWanted = null;
 
@@ -141,11 +153,11 @@ namespace Engine
                 throw new Exception("Cannot play twice in a row");
             }
 
-            hexWanted = await Task.Run(() =>player.SelectHex(Board));
+            hexWanted = await Task.Run(() => player.SelectHex(_lastPlay));
 
             if (hexWanted != null)
             {
-                Board.TakeHex(hexWanted.X, hexWanted.Y, CurrentPlayer());
+                Board.TakeHex(hexWanted.Item1, hexWanted.Item2, CurrentPlayer().PlayerNumber);
 
                 if (CurrentPlayer().PlayerNumber == 1)
                 {
@@ -155,7 +167,8 @@ namespace Engine
                 {
                     lastHexForPlayer2 = hexWanted;
                 }
-                
+
+                _lastPlay = hexWanted;
             }
             var playerMove = new Move();
             playerMove.player = CurrentPlayer();

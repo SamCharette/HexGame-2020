@@ -18,14 +18,13 @@ namespace Engine.Players
         public int PlayerNumber { get; set; }
         private int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
         protected int _size;
-        protected int EndNodeLocation => _size = 1;
+        protected int EndNodeLocation => _size - 1;
         protected bool _isHorizontal => PlayerNumber == 2;
         protected List<BaseNode> _memory;
         public int WaitTime = 50;
 
-        
 
-        public Player(int playerNumber, int boardSize)
+        protected Player(int playerNumber, int boardSize)
         {
             PlayerNumber = playerNumber;
             _size = boardSize;
@@ -36,22 +35,26 @@ namespace Engine.Players
         {
             _memory = new List<BaseNode>();
 
-            for (int x = 0; x < EndNodeLocation; x++)
+            for (int x = 0; x <= EndNodeLocation; x++)
             {
-                for (int y = 0; y < EndNodeLocation; y++)
+                for (int y = 0; y <= EndNodeLocation; y++)
                 {
                     var newNode = new BaseNode();
                     
                     newNode.X = x;
                     newNode.Y = y;
                     newNode.Owner = 0;
+                    _memory.Add(newNode);
                 }
             }
         }
 
         public Tuple<int,int> SelectHex(Tuple<int,int> opponentMove)
         {
-            UpdateBoard(EnemyPlayerNumber, opponentMove.Item1, opponentMove.Item2);
+            if (opponentMove != null)
+            {
+                UpdateBoard(EnemyPlayerNumber, opponentMove.Item1, opponentMove.Item2);
+            }
             var choice = MakeChoice();
             if (choice != null)
             {

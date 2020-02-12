@@ -22,6 +22,7 @@ namespace Engine
         private Player _lastPlayer;
         private Tuple<int, int> _lastPlay;
         public List<Hex> winningPath;
+        public Player WinningPlayer;
         public Hex clickedHex;
         public List<Move> AllGameMoves;
 
@@ -39,6 +40,8 @@ namespace Engine
         {
             return Player1 == _lastPlayer ? Player2 : Player1;
         }
+
+      
 
         public Player LastPlayer()
         {
@@ -121,8 +124,10 @@ namespace Engine
             Size = size;
             Board = new Board(size);
             winningPath = new List<Hex>();
+            WinningPlayer = null;
             Board.clickedHex = null;
             AllGameMoves = new List<Move>();
+            _lastPlayer = Player2;
         }
 
         public void AddPlayer(Player player, int playerNumber)
@@ -155,7 +160,13 @@ namespace Engine
 
             hexWanted = await Task.Run(() => player.SelectHex(_lastPlay));
 
-            if (hexWanted != null)
+            if (hexWanted == null)
+            {
+                Console.WriteLine("Referee calls foul!  No hex was selected.  Player LOSES.");
+                WinningPlayer = LastPlayer();
+                return null;
+            }
+            else
             {
                 Board.TakeHex(hexWanted.Item1, hexWanted.Item2, CurrentPlayer().PlayerNumber);
 
@@ -168,13 +179,15 @@ namespace Engine
                     lastHexForPlayer2 = hexWanted;
                 }
 
-                _lastPlay = hexWanted;
+                _lastPlay = hexWanted; 
+                var playerMove = new Move();
+                playerMove.player = CurrentPlayer();
+                playerMove.hex = hexWanted;
+                AllGameMoves.Add(playerMove);
+                LookForWinner();
+                return new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2);
             }
-            var playerMove = new Move();
-            playerMove.player = CurrentPlayer();
-            playerMove.hex = hexWanted;
-            AllGameMoves.Add(playerMove);
-            return hexWanted;
+           
 
         }
 
@@ -188,9 +201,13 @@ namespace Engine
             Console.WriteLine("");
         }
 
-        public bool Winner()
+        public bool LookForWinner()
         {
-     
+
+            if (WinningPlayer != null)
+            {
+                return true;
+            }
 
             var horizontal = CurrentPlayer().PlayerNumber != 1;
             // Let's go through the hexes on the 0 side of the appropriate player,
@@ -199,11 +216,11 @@ namespace Engine
 
             if (!horizontal)
             {
-                startingHexes = Board.Spaces.Where(x => x.X == 0 && x.Owner?.PlayerNumber == 1).ToList();
+                startingHexes = Board.Spaces.Where(x => x.X == 0 && x.Owner == 1).ToList();
             }
             else
             {
-                startingHexes = Board.Spaces.Where(x => x.Y == 0 && x.Owner?.PlayerNumber == 2).ToList();
+                startingHexes = Board.Spaces.Where(x => x.Y == 0 && x.Owner == 2).ToList();
             }
 
             foreach (var hex in startingHexes)
@@ -213,41 +230,42 @@ namespace Engine
                 {
                     
 
-                    try
-                    {
-                        var pathmonger = new Pathmonger(Size, horizontal);
-                        pathmonger.SetUpAvailableBlocks(Board.Spaces);
-                        pathmonger.Start();
-                        if (pathmonger.FinalPath.Any())
-                        {
-                            foreach (var step in pathmonger.FinalPath.OrderByDescending(x => x.F))
-                            {
-                                var tempHex = Board.Spaces.FirstOrDefault(x =>
-                                    x.X == step.Location.X && x.Y == step.Location.Y);
-                                if (tempHex != null)
-                                {
-                                    winningPath.Add(tempHex);
-                                }
-                            }
-                            Console.WriteLine("Best path is (" + pathmonger.FinalPath.Count() + "): ");
-                            foreach (var node in pathmonger.FinalPath)
-                            {
-                                Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
-                            }
-                            Console.WriteLine();
-                            Console.WriteLine("-----");
-                        } 
-                        else
-                        {
-                            winningPath = path;
-                            Console.WriteLine("Best path not found");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Pathmonger pooped.  " + e.Message);
-                    }
-                    
+                    //try
+                    //{
+                    //    var pathmonger = new Pathmonger(Size, horizontal);
+                    //    pathmonger.SetUpAvailableBlocks(Board.Spaces);
+                    //    pathmonger.Start();
+                    //    if (pathmonger.FinalPath.Any())
+                    //    {
+                    //        foreach (var step in pathmonger.FinalPath.OrderByDescending(x => x.F))
+                    //        {
+                    //            var tempHex = Board.Spaces.FirstOrDefault(x =>
+                    //                x.X == step.Location.X && x.Y == step.Location.Y);
+                    //            if (tempHex != null)
+                    //            {
+                    //                winningPath.Add(tempHex);
+                    //            }
+                    //        }
+                    //        Console.WriteLine("Best path is (" + pathmonger.FinalPath.Count() + "): ");
+                    //        foreach (var node in pathmonger.FinalPath)
+                    //        {
+                    //            Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
+                    //        }
+                    //        Console.WriteLine();
+                    //        Console.WriteLine("-----");
+                    //    } 
+                    //    else
+                    //    {
+                    //        winningPath = path;
+                    //        Console.WriteLine("Best path not found");
+                    //    }
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    Console.WriteLine("Pathmonger pooped.  " + e.Message);
+                    //}
+
+                    WinningPlayer = CurrentPlayer();
                     return true;
                 }
             }
@@ -288,7 +306,10 @@ namespace Engine
             {
                 if (CheckForWinningPath(currentPath, hex, isHorizontal))
                 {
-                   
+                    foreach (var node in currentPath)
+                    {
+                        winningPath.Add(node);
+                    }
                     return true;
                 }
             }

@@ -54,24 +54,24 @@ namespace Engine
             return hex.X == Size - 1;
         }
 
-        public List<Hex> GetFriendlyNeighbours(int x, int y, IPlayer player)
+        public List<Hex> GetFriendlyNeighbours(int x, int y, int player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner == player.PlayerNumber)
+            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner == player)
                 .ToList();
         }
 
-        public List<Hex> GetTraversableNeighbours(int x, int y, IPlayer player)
+        public List<Hex> GetTraversableNeighbours(int x, int y, int player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner == null || hex.Owner == player.PlayerNumber)
+            return allNeighbours?.Where(hex => hex.Owner == null || hex.Owner == player)
                 .ToList();
         }
 
-        public List<Hex> GetEnemyNeighbours(int x, int y, IPlayer player)
+        public List<Hex> GetEnemyNeighbours(int x, int y, int player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner != player.PlayerNumber)
+            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner != player)
                 .ToList();
         }
 
@@ -149,7 +149,7 @@ namespace Engine
         public bool TakeHex(int x, int y, int playerNumber)
         {
             var hexToTake = HexAt(x, y);
-            if (hexToTake != null && hexToTake.Owner == null)
+            if (hexToTake != null && hexToTake.Owner == 0)
             {
                 hexToTake.Owner = playerNumber;
                 return true;

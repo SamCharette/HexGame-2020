@@ -92,8 +92,8 @@ namespace WindowsGame
 
 			try
             {
-                var isThereAWinner = false;
-                while (!isThereAWinner)
+                
+                while (referee.WinningPlayer == null)
                 {
 
                     Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
@@ -102,11 +102,11 @@ namespace WindowsGame
 					{
                         var lastHex = board.Hexes[
                         referee.CurrentPlayer().PlayerNumber == 1
-                            ? referee.lastHexForPlayer1.X
-                            : referee.lastHexForPlayer2.X,
+                            ? referee.lastHexForPlayer1.Item1
+                            : referee.lastHexForPlayer2.Item1,
                         referee.CurrentPlayer().PlayerNumber == 1
-                            ? referee.lastHexForPlayer1.Y
-                            : referee.lastHexForPlayer2.Y];
+                            ? referee.lastHexForPlayer1.Item2
+                            : referee.lastHexForPlayer2.Item2];
 
                         ChangeHexColor(lastHex,
                             referee.CurrentPlayer().PlayerNumber == 1 ? takenBeforeByPlayer1 : takenBeforeByPlayer2);
@@ -119,17 +119,15 @@ namespace WindowsGame
 
                     if (hexTaken != null)
                     {
-                        Console.WriteLine("Hex selected was : " + hexTaken.X + ", " + hexTaken.Y);
+                        Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
 
-						var boardHex = board.Hexes[hexTaken.X, hexTaken.Y];
+                        var boardHex = board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
-						ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
+                        ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
                             ? lastTakenByPlayer1
                             : lastTakenByPlayer2);
 
-
-                        isThereAWinner = referee.Winner();
-
+                        
                     }
 
                     this.Refresh();
@@ -142,12 +140,12 @@ namespace WindowsGame
 					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
 				}
 
-                this.lblWInner.Text = "The winner is: Player #" + referee.CurrentPlayer().PlayerNumber;
+                this.lblWInner.Text = "The winner is: Player #" + referee.WinningPlayer.PlayerNumber;
                 this.lblWInner.Visible = true;
                 this.btnSave.Enabled = true;
                 this.btnSave.Visible = true;
 				this.Refresh();
-				Console.WriteLine("The winner is player #" + referee.CurrentPlayer().PlayerNumber);
+				Console.WriteLine("The winner is player #" + referee.WinningPlayer.PlayerNumber);
             }
             catch (Exception e)
             {
@@ -276,8 +274,8 @@ namespace WindowsGame
                         writer.WriteStartElement("Move");
                         writer.WriteElementString("Number", moveNumber.ToString());
                         writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
-                        writer.WriteElementString("X", move.hex.X.ToString());
-                        writer.WriteElementString("Y", move.hex.Y.ToString());
+                        writer.WriteElementString("X", move.hex.Item1.ToString());
+                        writer.WriteElementString("Y", move.hex.Item2.ToString());
                         writer.WriteEndElement();
                         moveNumber++;
                     }
@@ -323,8 +321,8 @@ namespace WindowsGame
                     }
                     referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
 
-                    var firstPlayer = new ReplayPlayer() { PlayerNumber = 1 };
-                    var otherPlayer = new ReplayPlayer() { PlayerNumber = 2 };
+                    var firstPlayer = new Playback(1, referee.Size);
+                    var otherPlayer = new Playback(2, referee.Size);
                     var player1Turn = 1;
                     var player2Turn = 1;
                     var moves = doc.GetElementsByTagName("Move");

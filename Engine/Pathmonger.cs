@@ -128,7 +128,7 @@ namespace Engine
                 if (node != null)
                 {
                     // If we found it we want to list its owner as either player 1, player 2 or 0, for unowned
-                    node.OwningPlayer = hex.Owner?.PlayerNumber ?? 0;
+                    node.OwningPlayer = hex.Owner;
                 }
             }
             // Start at the beginning and add all taken hexes to the open list

@@ -30,8 +30,7 @@ namespace Engine.Players
     {
         Open,
         Closed,
-        Untested,
-        Impassable
+        Untested
     };
     public class DozerAIPlayer : IPlayer
     {
@@ -41,8 +40,9 @@ namespace Engine.Players
         public List<Node> Nodes = new List<Node>();
         private List<Node> _bestPath = new List<Node>();
         private Board _board;
+        private int Size => _board.Size;
 
-        private int _costToMove = 20;
+        private int _costToMove = 2;
         public bool IsHorizontal => PlayerNumber == 2;
 
         public DozerAIPlayer(int playerNumber)
@@ -52,7 +52,7 @@ namespace Engine.Players
         public Hex SelectHex(Board board)
         {
             _board = board;
-            SetUpInMemoryBoard(board);
+            SetUpInMemoryBoard();
             FindMyWay();
 
             if (_bestPath.Any())
@@ -84,7 +84,8 @@ namespace Engine.Players
             }
 
             // Get the best looking open hex
-            var bestLookingNode = Nodes.OrderBy(x => x.F).ThenBy(z => Guid.NewGuid()).FirstOrDefault(y => y.Status == Status.Open);
+            var bestLookingNode = Nodes.OrderBy(y => y.F)
+                .FirstOrDefault(y => y.Status == Status.Open);
             // Close the hex
             bestLookingNode.Status = Status.Closed;
 
@@ -127,36 +128,36 @@ namespace Engine.Players
             FindMyWay();
         }
 
-        private void SetUpInMemoryBoard(Board board)
+        private void SetUpInMemoryBoard()
         {
             Nodes = new List<Node>();
             _bestPath = new List<Node>();
-            foreach (var hex in board.Spaces)
+            for (int x = 0; x < Size - 1 ; x++)
             {
-                var node = new Node
+                for (int y = 0; y < Size - 1; y++)
                 {
-                    X = hex.X,
-                    Y = hex.Y,
-                    Owner = hex.Owner?.PlayerNumber ?? 0
-                };
-                if (node.Owner != PlayerNumber && node.Owner != 0)
-                {
-                    node.Status = Status.Impassable;
-                }
-                else
-                {
-                    node.Status = board.IsHexAtBeginning(hex, IsHorizontal) ? Status.Open : Status.Untested;
-                }
+                    var node = new Node
+                    {
+                        X = x,
+                        Y = y,
+                        Owner = _board.HexAt(x, y)?.Owner?.PlayerNumber ?? 0
+                    };
 
-                if (IsHorizontal)
-                {
-                    node.H = board.Size - 1 - node.Y;
+                    if (IsHorizontal)
+                    {
+                        node.H = Size - 1 - y;
+                        node.Status = y == 0 ? Status.Open : Status.Untested;
+                    }
+                    else
+                    {
+                        node.H = Size - 1 - x;
+                        node.Status = x == 0 ? Status.Open : Status.Untested;
+                    }
+
+                    node.H *= _costToMove;
+                    Nodes.Add(node);
                 }
-                else
-                {
-                    node.H = board.Size - 1 - node.X;
-                }
-                Nodes.Add(node);
+                
                 
             }
 

@@ -5,9 +5,9 @@ using System.Xml;
 using WindowsGame.Hexagonal;
 using Engine;
 using Engine.Hexagonal;
-using Engine.Interfaces;
 using Engine.Players;
 using Board = WindowsGame.Hexagonal.Board;
+using Hex = WindowsGame.Hexagonal.Hex;
 
 namespace WindowsGame
 {
@@ -115,7 +115,6 @@ namespace WindowsGame
 
 
                     var hexTaken = await (referee.TakeTurn(referee.CurrentPlayer()));
-                    //hexTaken = referee.TakeTurn(referee.CurrentPlayer());
 
                     if (hexTaken != null)
                     {
@@ -123,7 +122,7 @@ namespace WindowsGame
 
                         var boardHex = board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
-                        ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 1
+                        ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 2
                             ? lastTakenByPlayer1
                             : lastTakenByPlayer2);
 

@@ -59,7 +59,7 @@ namespace Engine
                 HumanPlayer player = (HumanPlayer)CurrentPlayer();
                 player.ClickMadeOn(new Tuple<int, int>(x, y));
             }
-            Board.clickedHex = Board.CheckHex(x, y) ? Board.HexAt(x, y) : null;
+            Board.ClickedHex = Board.CheckHex(x, y) ? Board.HexAt(x, y) : null;
         }
 
        
@@ -83,7 +83,7 @@ namespace Engine
             Board = new Board(size);
             winningPath = new List<Hex>();
             WinningPlayer = null;
-            Board.clickedHex = null;
+            Board.ClickedHex = null;
             AllGameMoves = new List<Move>();
             _lastPlayer = Player2;
         }
@@ -186,111 +186,32 @@ namespace Engine
             }
 
             var horizontal = CurrentPlayer().PlayerNumber != 1;
-            // Let's go through the hexes on the 0 side of the appropriate player,
-            // and start a depth-first search for a connection to the other side.
-            List<Hex> startingHexes;
-
-            if (!horizontal)
+            
+            if (CheckForWinningPath(horizontal))
             {
-                startingHexes = Board.Spaces.Where(x => x.X == 0 && x.Owner == 1).ToList();
-            }
-            else
-            {
-                startingHexes = Board.Spaces.Where(x => x.Y == 0 && x.Owner == 2).ToList();
+                WinningPlayer = CurrentPlayer();
+                return true;
             }
 
-            foreach (var hex in startingHexes)
-            {
-                var path = new List<Hex> ();
-                if (CheckForWinningPath(path, hex, horizontal))
-                {
-                    
-
-                    //try
-                    //{
-                    //    var pathmonger = new Pathmonger(Size, horizontal);
-                    //    pathmonger.SetUpAvailableBlocks(Board.Spaces);
-                    //    pathmonger.Start();
-                    //    if (pathmonger.FinalPath.Any())
-                    //    {
-                    //        foreach (var step in pathmonger.FinalPath.OrderByDescending(x => x.F))
-                    //        {
-                    //            var tempHex = Board.Spaces.FirstOrDefault(x =>
-                    //                x.X == step.Location.X && x.Y == step.Location.Y);
-                    //            if (tempHex != null)
-                    //            {
-                    //                winningPath.Add(tempHex);
-                    //            }
-                    //        }
-                    //        Console.WriteLine("Best path is (" + pathmonger.FinalPath.Count() + "): ");
-                    //        foreach (var node in pathmonger.FinalPath)
-                    //        {
-                    //            Console.Write("[" + node.Location.X + "," + node.Location.Y + "] ");
-                    //        }
-                    //        Console.WriteLine();
-                    //        Console.WriteLine("-----");
-                    //    } 
-                    //    else
-                    //    {
-                    //        winningPath = path;
-                    //        Console.WriteLine("Best path not found");
-                    //    }
-                    //}
-                    //catch (Exception e)
-                    //{
-                    //    Console.WriteLine("Pathmonger pooped.  " + e.Message);
-                    //}
-
-                    WinningPlayer = CurrentPlayer();
-                    return true;
-                }
-            }
             SwitchPlayers();
             return false;
         }
 
      
 
-        private bool CheckForWinningPath(List<Hex> currentPath, Hex currentHex, bool isHorizontal)
+        private bool CheckForWinningPath(bool isHorizontal)
         {
 
-            currentPath.Add(currentHex);
-            if (!isHorizontal)
+            Board.FindBestPath(isHorizontal);
+            if (Board.BestPath.Any())
             {
-                if (currentHex.X == Size - 1)
-                {
-                    Console.Write("Winning path is (" + currentPath.Count() + "): ");
-                    PrintPath(currentPath);
-                    return true;
-                }
-            }
-            else
-            {
-                if (currentHex.Y == Size - 1)
-                {
-                    Console.Write("Winning path is (" + currentPath.Count() + "): ");
-                    PrintPath(currentPath);
-                    return true;
-                }
-            }
-
-            var friendlyNeighboursNotLookedAtAlready =
-                Board.GetFriendlyNeighbours(currentHex.X, currentHex.Y, currentHex.Owner)
-                    .Where(x => !currentPath.Any(y => y.X == x.X && y.Y == x.Y)).ToList();
-
-            foreach (var hex in friendlyNeighboursNotLookedAtAlready)
-            {
-                if (CheckForWinningPath(currentPath, hex, isHorizontal))
-                {
-                    foreach (var node in currentPath)
-                    {
-                        winningPath.Add(node);
-                    }
-                    return true;
-                }
+                PrintPath(Board.BestPath);
+                winningPath = Board.BestPath;
+                return true;
             }
 
             return false;
+
         }
     }
 }

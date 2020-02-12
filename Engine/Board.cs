@@ -1,10 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Engine.GameTypes;
-using Engine.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace Engine
 {
+    public class Hex
+    {
+        public int X;
+        public int Y;
+        public int Owner;
+        public int G;
+        public int H;
+        public int F => G + H;
+        public HexState State;
+        public Hex Parent;
+
+        public Hex(int x, int y)
+        {
+            X = x;
+            Y = y;
+            Owner = 0;
+            State = HexState.Untested;
+        }
+    }
+
+    public enum HexState
+    {
+        Open,
+        Closed,
+        Untested
+    }
     public enum Direction
     {
         TopRight,
@@ -17,9 +43,10 @@ namespace Engine
     public class Board
     {
         public List<Hex> Spaces;
+        public List<Hex> BestPath;
         public int Size;
-        public Hex clickedHex;
-
+        public Hex ClickedHex;
+        private int _costToMove = 1;
         public Board(int size = 11)
         {
             Size = size;
@@ -57,21 +84,21 @@ namespace Engine
         public List<Hex> GetFriendlyNeighbours(int x, int y, int player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner == player)
+            return allNeighbours?.Where(hex => hex.Owner == player)
                 .ToList();
         }
 
-        public List<Hex> GetTraversableNeighbours(int x, int y, int player)
+        public List<Hex> GetFriendlyPathableNeighbours(int x, int y, int player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner == null || hex.Owner == player)
+            return allNeighbours?.Where(hex => hex.Owner == player && hex.State != HexState.Closed)
                 .ToList();
         }
 
         public List<Hex> GetEnemyNeighbours(int x, int y, int player)
         {
             var allNeighbours = GetNeighbours(x, y);
-            return allNeighbours?.Where(hex => hex.Owner != null && hex.Owner != player)
+            return allNeighbours?.Where(hex => hex.Owner != player)
                 .ToList();
         }
 
@@ -163,10 +190,91 @@ namespace Engine
             return HexAt(x, y) != null;
         }
 
-        public bool CheckHexForPlayer(int x, int y, IPlayer player)
+        public bool CheckHexForPlayer(int x, int y, int player)
         {
+
             var hex = HexAt(x, y);
-            return hex?.Owner != null && hex.Owner == player.PlayerNumber;
+            return hex?.Owner != null && hex.Owner == player;
+        }
+
+        public void FindBestPath(bool isHorizontal)
+        {
+            var startHexes = new List<Hex>();
+            foreach (var hex in Spaces)
+            {
+                hex.State = HexState.Untested;
+                hex.Parent = null;
+                hex.G = 0;
+                hex.H = 0;
+                if (isHorizontal)
+                {
+                    hex.H = Size - 1 - hex.Y;
+                    if (hex.Y == 0 && hex.Owner == 2)
+                    {
+                        startHexes.Add(hex);
+                    }
+                }
+                else
+                {
+                    hex.H = Size - 1 - hex.X;
+                    if (hex.X == 0 && hex.Owner == 1)
+                    {
+                        startHexes.Add(hex);
+                    }
+                }
+            }
+            BestPath = new List<Hex>();
+            foreach (var hex in startHexes)
+            {
+                hex.State = HexState.Open;
+            }
+
+            KeepLooking(isHorizontal);
+        }
+
+        public void KeepLooking(bool isHorizontal)
+        {
+            if (!Spaces.Any(hex => hex.State == HexState.Open))
+            {
+                Console.WriteLine("Something happened.  No more open spaces to look into");
+                BestPath = new List<Hex>();
+                return;
+            }
+
+            var bestHex = Spaces.OrderBy(hex => hex.F).FirstOrDefault(y => y.State == HexState.Open);
+            bestHex.State = HexState.Closed;
+
+            if (IsHexAtEnd(bestHex, isHorizontal))
+            {
+                Console.WriteLine("Found da bestest path");
+                var parentHex = bestHex;
+                while (parentHex != null)
+                {
+                    BestPath.Add(parentHex);
+                    parentHex = parentHex.Parent;
+                }
+
+                return;
+            }
+
+            var neighbours = GetFriendlyPathableNeighbours(bestHex.X, bestHex.Y, bestHex.Owner);
+            foreach (var neighbour in neighbours)
+            {
+                if (neighbour.State == HexState.Open && neighbour.G > bestHex.G + _costToMove)
+                {
+                    neighbour.Parent = bestHex;
+                    neighbour.G = bestHex.G + _costToMove;
+                }
+                else
+                {
+                    neighbour.State = HexState.Open;
+                    neighbour.Parent = bestHex;
+                    neighbour.G = bestHex.G + _costToMove;
+                    
+                }
+            }
+            KeepLooking(isHorizontal);
+
         }
 
     }

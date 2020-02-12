@@ -49,7 +49,7 @@ namespace Engine.Players
             }
         }
 
-        public Tuple<int,int> SelectHex(Tuple<int,int> opponentMove)
+        public virtual Tuple<int,int> SelectHex(Tuple<int,int> opponentMove)
         {
             if (opponentMove != null)
             {

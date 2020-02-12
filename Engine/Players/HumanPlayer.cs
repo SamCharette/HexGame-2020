@@ -14,7 +14,8 @@ namespace Engine.Players
         private int _xFromUserInput = 0;
         private int _yFromUserInput = 0;
         private bool _hasReceivedInput = false;
-        public new Tuple<int,int> SelectHex(Tuple<int,int> opponentMove)
+
+        public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
             _hasReceivedInput = false;
             while (!_hasReceivedInput)
@@ -43,6 +44,7 @@ namespace Engine.Players
 
         public HumanPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
+            base.SetUpInMemoryBoard();
         }
     }
 }

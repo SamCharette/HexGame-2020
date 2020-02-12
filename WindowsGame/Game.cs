@@ -41,8 +41,8 @@ namespace WindowsGame
         {
             referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
 			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
-            referee.CreatePlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
-            referee.CreatePlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
+            referee.AddPlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
+            referee.AddPlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
             StartGame();
         }
 
@@ -343,8 +343,8 @@ namespace WindowsGame
                             player2Turn++;
                         }
                     }
-                    referee.AddPlayer(firstPlayer, 1);
-                    referee.AddPlayer(otherPlayer, 2);
+                    referee.AddPlayer("Replay AI", 1);
+                    referee.AddPlayer("Replay AI", 2);
 
                     // and feed it the moves
                     StartGame();

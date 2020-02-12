@@ -54,57 +54,15 @@ namespace Engine
         }
         public void ClickOnHexCoords(int x, int y)
         {
+            if (CurrentPlayer() is HumanPlayer)
+            {
+                HumanPlayer player = (HumanPlayer)CurrentPlayer();
+                player.ClickMadeOn(new Tuple<int, int>(x, y));
+            }
             Board.clickedHex = Board.CheckHex(x, y) ? Board.HexAt(x, y) : null;
         }
 
-        public void CreatePlayer(string type, int playerNum)
-        {
-            switch (type)
-            {
-                case "Human":
-                {
-                    if (playerNum == 1)
-                    {
-                        Player1 = new HumanPlayer(1, Size);
-                    }
-                    else
-                    {
-                        Player2 = new HumanPlayer(2, Size);
-                    }
-
-                    break;
-                }
-
-                //case "Dozer AI":
-                //    if (playerNum == 1)
-                //    {
-                //        Player1 = new DozerAIPlayer(1);
-                //    } else
-                //    {
-                //        Player2 = new DozerAIPlayer(2);
-                //    }
-
-                //    break;
-                   
-                default:
-                {
-                    if (playerNum == 1)
-                    {
-                        Player1 = new RandomPlayer(1, Size);
-                    }
-                    else
-                    {
-                        Player2 = new RandomPlayer(2, Size);
-                    }
-
-                    break;
-                }
-            }
-            Player1.PlayerNumber = 1;
-            Player2.PlayerNumber = 2;
-
-        }
-
+       
         // We need a way to get input from a player
 
         // We need a way to send the new board and game state to a player
@@ -114,8 +72,8 @@ namespace Engine
         public Referee(int size = 11)
         {
             NewGame(size);
-            AddPlayer(new RandomPlayer(1, Size), 1);
-            AddPlayer(new RandomPlayer(2, Size), 2);
+            AddPlayer("", 1);
+            AddPlayer("", 2);
             
         }
 
@@ -130,16 +88,34 @@ namespace Engine
             _lastPlayer = Player2;
         }
 
-        public void AddPlayer(Player player, int playerNumber)
+        public void AddPlayer(string playerType, int playerNumber)
         {
-            if (playerNumber == 1)
+        
+            switch (playerType)
             {
-                Player1 = player;
+                case "Human":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new HumanPlayer(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new HumanPlayer(playerNumber, Size);
+                    }
+                   
+                    break;
+                default:
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new RandomPlayer(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new RandomPlayer(playerNumber, Size);
+                    }
+                    break;
             }
-            else
-            {
-                Player2 = player;
-            }
+           
         }
         
         public async Task<Tuple<int,int>> TakeTurn(Player player)

@@ -104,6 +104,17 @@ namespace Engine
                     }
                    
                     break;
+                case "Dozer AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new PathFinderPlayer(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new PathFinderPlayer(playerNumber, Size);
+                    }
+
+                    break;
                 default:
                     if (playerNumber == 1)
                     {

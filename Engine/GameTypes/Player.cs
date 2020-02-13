@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-
-namespace Engine.Players
+namespace Engine.GameTypes
 {
     public class BaseNode
     {
@@ -31,7 +30,7 @@ namespace Engine.Players
             SetUpInMemoryBoard();
         }
 
-        protected void SetUpInMemoryBoard()
+        protected virtual void SetUpInMemoryBoard()
         {
             _memory = new List<BaseNode>();
 

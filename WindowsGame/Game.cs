@@ -256,6 +256,7 @@ namespace WindowsGame
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Match");
                     writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                    writer.WriteElementString("Size", textBoxHexBoardSize.Text);
                     writer.WriteStartElement("Players");
                         writer.WriteStartElement("Player");
                             writer.WriteElementString("Type", referee.Player1.GetType().Name);
@@ -350,7 +351,7 @@ namespace WindowsGame
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine("Game couldn't be loaded properly.");
+                    Console.WriteLine("Game couldn't be loaded properly : " + exception.Message);
                     
                 }
   

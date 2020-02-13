@@ -104,7 +104,7 @@ namespace Engine
                     }
                    
                     break;
-                case "Dozer AI":
+                case "Pathfinder AI":
                     if (playerNumber == 1)
                     {
                         Player1 = new PathFinderPlayer(playerNumber, Size);

@@ -13,7 +13,7 @@ namespace Engine.Players
         public Status Status;
         public int G;
         public int H;
-        public Node Parent = null;
+        public PathfinderNode Parent = null;
 
         public int F => G + H;
 
@@ -51,7 +51,10 @@ namespace Engine.Players
     public class PathFinderPlayer : Player
     {
         private List<PathfinderNode> _preferredPath;
+        private new List<PathfinderNode> _memory;
         private bool havePath = false;
+        private bool poppedMyMoveCherry = false;
+        private PathfinderNode nodeIWant;
       
         public PathFinderPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
@@ -91,22 +94,87 @@ namespace Engine.Players
 
             if (!havePath)
             {
+                nodeIWant = null;
+
                 LookForPath();
             }
 
+
+            if (nodeIWant != null)
+            {
+                return new Tuple<int, int>(nodeIWant.X, nodeIWant.Y);
+            }
             return null;
+        }
+
+        private bool IsNodeAtBeginning(PathfinderNode node)
+        {
+            if (_isHorizontal)
+            {
+                return node.Y == 0;
+            }
+
+            return node.X == 0;
+        }
+
+        private bool IsNodeAtEnd(PathfinderNode node)
+        {
+            if (_isHorizontal)
+            {
+                return node.Y == _size - 1;
+            }
+
+            return node.X == _size - 1;
         }
 
         private void LookForPath()
         {
             // If we don't have any open hexes to start with we's boneded :)
-            //if ()
+            if (!_memory.Any(x => x.Status == Status.Open))
+            {
+                if (!poppedMyMoveCherry)
+                {
+                    // Get a random starting node
+                    poppedMyMoveCherry = true;
+                    var node = _memory.Where(IsNodeAtBeginning).OrderBy(x => Guid.NewGuid())
+                        .FirstOrDefault(final => final.Owner == 0);
+                    if (node != null)
+                    {
+                        nodeIWant = node;
+                        nodeIWant.Owner = PlayerNumber;
+                        nodeIWant.G = 0;
+                        return;
+                    }
+                }
+
+                return;
+            }
+
+            // GEt the best looking node
+            var bestLookingNode = _memory.OrderBy(x => x.F).ThenBy(y => Guid.NewGuid())
+                .FirstOrDefault(z => z.Status == Status.Open);
+
+            if (bestLookingNode == null)
+            {
+                return;
+            }
+
+            bestLookingNode.Status = Status.Closed;
+            if (IsNodeAtEnd(bestLookingNode))
+            {
+                var parent = bestLookingNode;
+                while (parent != null)
+                {
+                    _preferredPath.Add(parent);
+                    parent = parent.Parent;
+                }
+            }
         }
         
 
         protected override void SetUpInMemoryBoard()
         {
-            _memory = new List<BaseNode>();
+            _memory = new List<PathfinderNode>();
 
             for (int x = 0; x < EndNodeLocation; x++)
             {

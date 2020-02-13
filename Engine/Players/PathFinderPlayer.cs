@@ -18,6 +18,56 @@ namespace Engine.Players
 
         public int F => G + H;
 
+        public bool CanWalkTo(PathfinderNode possibleNeighbour)
+        {
+            // Can't be a neighbour to itself
+            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y)
+            {
+                return false;
+            }
+
+            if (possibleNeighbour.Status == Status.Closed)
+            {
+                return false;
+            }
+            // Only walkable if we own it
+            if (possibleNeighbour.Owner != Owner && possibleNeighbour.Owner != 0)
+            {
+                return false;
+            }
+            // Top right
+            if (X == possibleNeighbour.X + 1 && Y == possibleNeighbour.Y - 1)
+            {
+                return true;
+            }
+            // Right
+            if (X == possibleNeighbour.X + 1 && Y == possibleNeighbour.Y)
+            {
+                return true;
+            }
+            // Bottom right
+            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y + 1)
+            {
+                return true;
+            }
+            // Bottom left
+            if (X == possibleNeighbour.X - 1 && Y == possibleNeighbour.Y + 1)
+            {
+                return true;
+            }
+            // Left
+            if (X == possibleNeighbour.X - 1 && Y == possibleNeighbour.Y)
+            {
+                return true;
+            }
+            // Top Left
+            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y - 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
     }
 
     public enum Status
@@ -96,23 +146,35 @@ namespace Engine.Players
                     {
                         Console.WriteLine("Enemy took a spot that I wanted for later");
                         havePath = false;
-                    }
+                    } 
 
                 }
             }
 
+            if (!_memory.Any(x => x.Status == Status.Open))
+            {
+                // Grab a random opening hex
+                PathfinderNode startingHex = null;
+                startingHex = _isHorizontal
+                    ? _memory.OrderBy(x => Guid.NewGuid())
+                        .FirstOrDefault(y => y.Y == 0 && y.Owner == 0)
+                    : _memory.OrderBy(x => Guid.NewGuid())
+                        .FirstOrDefault(y => y.X == 0 && y.Owner == 0);
+
+                if (startingHex != null)
+                {
+                    startingHex.Status = Status.Open;
+                    startingHex.H = costPerNodeTillEnd * (_size - 1);
+                }
+            }
             if (!havePath)
             {
-                nodeIWant = null;
                 Console.WriteLine("I need a path...");
                 LookForPath();
             }
-            else
-            {
-                nodeIWant = _preferredPath.FirstOrDefault(x => x.Owner == 0);
-            }
 
-
+            nodeIWant = _preferredPath.FirstOrDefault();
+            
             if (nodeIWant != null)
             {
                 nodeIWant.Owner = PlayerNumber;
@@ -145,44 +207,52 @@ namespace Engine.Players
 
         private void LookForPath()
         {
-            // If we don't have any open hexes to start with we's boneded :)
-            if (!_memory.Any(x => x.Status == Status.Open))
-            {
-                if (!poppedMyMoveCherry)
-                {
-                    Console.WriteLine("I'm popping my cherry!");
-                    // Get a random starting node
-                    poppedMyMoveCherry = true;
-                    var node = _memory.Where(IsNodeAtBeginning).OrderBy(x => Guid.NewGuid())
-                        .FirstOrDefault(final => final.Owner == 0);
-                    if (node != null)
-                    {
-                        nodeIWant = node;
-                        nodeIWant.Owner = PlayerNumber;
-                        nodeIWant.G = 0;
-                        node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
+            PathfinderNode bestLookingNode = null;
+            Console.WriteLine("Looking...");
+            //if (!_memory.Any(x => x.Status == Status.Open))
+            //{
+   
+            //    var node = _memory
+            //        .Where(IsNodeAtBeginning)
+            //        .OrderBy(x => Guid.NewGuid())
+            //        .FirstOrDefault(final => final.Owner == 0);
+            //    if (node != null)
+            //    {
+            //        bestLookingNode = node;
+            //        bestLookingNode.Owner = PlayerNumber;
+            //        bestLookingNode.G = 0;
+            //        bestLookingNode.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
 
-                        return;
-                    }
-                }
-
-                return;
-            }
+            //    }
+            //}
+            //else
+            //{
+            //    // GEt the best looking node
+            //     bestLookingNode = _memory
+            //        .Where(z => z.Status == Status.Open)
+            //        .OrderBy(x => x.F)
+            //        .FirstOrDefault();
+            //}
 
             // GEt the best looking node
-            PathfinderNode bestLookingNode = _memory
-                .Where(z => z.Status == Status.Open)
+            bestLookingNode = _memory
                 .OrderBy(x => x.F)
-                .FirstOrDefault();
+                .FirstOrDefault(z => z.Status == Status.Open);
 
             if (bestLookingNode == null)
             {
                 return;
             }
 
+            Console.WriteLine("This node looks promising: [" + bestLookingNode.X + "," + bestLookingNode.Y + "]");
+
+            // CLOSE IT
             bestLookingNode.Status = Status.Closed;
+
             if (IsNodeAtEnd(bestLookingNode))
             {
+                _preferredPath = new List<PathfinderNode>();
+                Console.WriteLine("Aha!  I found me a path!");
                 var parent = bestLookingNode;
                 while (parent != null)
                 {
@@ -190,26 +260,21 @@ namespace Engine.Players
                     parent = parent.Parent;
                 }
 
-                nodeIWant = bestLookingNode;
                 havePath = true;
                 return;
             }
 
             var neighbours = _memory
-                .Where(node => node.Status == Status.Untested)
-                .Where(x => AreNeighbours(x, bestLookingNode));
+                .Where( bestLookingNode.CanWalkTo).ToList();
+
             foreach (var node in neighbours)
             {
                 if (node.Status == Status.Open)
                 {
-                    if (node.G > bestLookingNode.G + (IsMine(bestLookingNode)
-                            ? costToMoveToClaimedNode
-                            : costToMoveToUnclaimedNode))
+                    if (node.G > bestLookingNode.G + costToMoveToUnclaimedNode)
                     {
                         node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G + (IsMine(bestLookingNode)
-                                     ? costToMoveToClaimedNode
-                                     : costToMoveToUnclaimedNode);
+                        node.G = bestLookingNode.G +  costToMoveToUnclaimedNode;
                         node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
                     }
                 }
@@ -217,9 +282,7 @@ namespace Engine.Players
                 {
                     node.Status = Status.Open;
                     node.Parent = bestLookingNode;
-                    node.G = bestLookingNode.G + (IsMine(bestLookingNode)
-                                 ? costToMoveToClaimedNode
-                                 : costToMoveToUnclaimedNode);
+                    node.G = bestLookingNode.G + costToMoveToUnclaimedNode;
                     node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
                 }
 
@@ -233,62 +296,13 @@ namespace Engine.Players
             return node.Owner == PlayerNumber;
         }
 
-        private bool AreNeighbours(PathfinderNode node, PathfinderNode possibleNeighbour)
-        {
-            // Can't be a neighbour to itself
-            if (node.X == possibleNeighbour.X && node.Y == possibleNeighbour.Y)
-            {
-                return false;
-            }
-            //// is untested?
-            //if (possibleNeighbour.State == NodeState.Closed)
-            //{
-            //    return false;
-            //}
-            //// Only walkable if we own it
-            //if (neighbour.OwningPlayer != OwningPlayer)
-            //{
-            //    return false;
-            //}
-            // Top right
-            if (node.X == possibleNeighbour.X + 1 && node.Y == possibleNeighbour.Y - 1)
-            {
-                return true;
-            }
-            // Right
-            if (node.X == possibleNeighbour.X + 1 && node.Y == possibleNeighbour.Y)
-            {
-                return true;
-            }
-            // Bottom right
-            if (node.X == possibleNeighbour.X && node.Y == possibleNeighbour.Y + 1)
-            {
-                return true;
-            }
-            // Bottom left
-            if (node.X == possibleNeighbour.X - 1 && node.Y == possibleNeighbour.Y + 1)
-            {
-                return true;
-            }
-            // Left
-            if (node.X == possibleNeighbour.X - 1 && node.Y == possibleNeighbour.Y)
-            {
-                return true;
-            }
-            // Top Left
-            if (node.X == possibleNeighbour.X && node.Y == possibleNeighbour.Y - 1)
-            {
-                return true;
-            }
-            return false;
-        }
+       
         
 
         protected override void SetUpInMemoryBoard()
         {
+            Console.WriteLine("Ok, let's start this up!");
             _memory = new List<PathfinderNode>();
-            Random random = new Random();
-            int firstPickCoordinate = random.Next(_size);
 
             for (int x = 0; x < EndNodeLocation; x++)
             {
@@ -299,31 +313,8 @@ namespace Engine.Players
                         newNode.X = x;
                         newNode.Y = y;
                         newNode.Owner = 0;
+                        newNode.Status = Status.Untested;
 
-                        if (_isHorizontal)
-                        {
-                            if (newNode.X == firstPickCoordinate && newNode.Y == 0)
-                            {
-                                newNode.Status = Status.Open;
-                            }
-                            else
-                            {
-                                newNode.Status = Status.Untested;
-                            }
-                            newNode.H = EndNodeLocation - y;
-                        }
-                        else
-                        {
-                            if (newNode.X == 0 && newNode.Y == firstPickCoordinate)
-                            {
-                                newNode.Status = Status.Open;
-                            }
-                            else
-                            {
-                                newNode.Status = Status.Untested;
-                            }
-                            newNode.H = EndNodeLocation - x;
-                        }
                     }
                     _memory.Add(newNode);
                 }

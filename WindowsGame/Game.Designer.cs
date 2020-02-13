@@ -38,8 +38,7 @@
             this.labelXY.AutoSize = true;
             this.labelXY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelXY.ForeColor = System.Drawing.Color.Blue;
-            this.labelXY.Location = new System.Drawing.Point(1068, 32);
-            this.labelXY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelXY.Location = new System.Drawing.Point(801, 26);
             this.labelXY.Name = "labelXY";
             this.labelXY.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.labelXY.Size = new System.Drawing.Size(0, 17);
@@ -49,10 +48,9 @@
             // buttonTestBoard
             // 
             this.buttonTestBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonTestBoard.Location = new System.Drawing.Point(1086, 638);
-            this.buttonTestBoard.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonTestBoard.Location = new System.Drawing.Point(814, 518);
             this.buttonTestBoard.Name = "buttonTestBoard";
-            this.buttonTestBoard.Size = new System.Drawing.Size(109, 32);
+            this.buttonTestBoard.Size = new System.Drawing.Size(82, 26);
             this.buttonTestBoard.TabIndex = 3;
             this.buttonTestBoard.Text = "Play Game!";
             this.buttonTestBoard.UseVisualStyleBackColor = true;
@@ -61,20 +59,18 @@
             // textBoxHexBoardSize
             // 
             this.textBoxHexBoardSize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxHexBoardSize.Location = new System.Drawing.Point(1086, 558);
-            this.textBoxHexBoardSize.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxHexBoardSize.Location = new System.Drawing.Point(814, 453);
             this.textBoxHexBoardSize.Name = "textBoxHexBoardSize";
-            this.textBoxHexBoardSize.Size = new System.Drawing.Size(108, 22);
+            this.textBoxHexBoardSize.Size = new System.Drawing.Size(82, 20);
             this.textBoxHexBoardSize.TabIndex = 5;
             // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(1082, 538);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Location = new System.Drawing.Point(812, 437);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(77, 17);
+            this.label2.Size = new System.Drawing.Size(67, 15);
             this.label2.TabIndex = 8;
             this.label2.Text = "Board Size";
             // 
@@ -83,8 +79,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(1068, 11);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Location = new System.Drawing.Point(801, 9);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(85, 17);
             this.label4.TabIndex = 10;
@@ -96,22 +91,19 @@
             this.comboBoxPlayer2Type.FormattingEnabled = true;
             this.comboBoxPlayer2Type.Items.AddRange(new object[] {
             "Random AI",
-            "Dozer AI",
             "Human"});
-            this.comboBoxPlayer2Type.Location = new System.Drawing.Point(1086, 412);
-            this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBoxPlayer2Type.Location = new System.Drawing.Point(814, 335);
             this.comboBoxPlayer2Type.Name = "comboBoxPlayer2Type";
-            this.comboBoxPlayer2Type.Size = new System.Drawing.Size(119, 24);
+            this.comboBoxPlayer2Type.Size = new System.Drawing.Size(90, 21);
             this.comboBoxPlayer2Type.TabIndex = 14;
             // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(1086, 327);
-            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Location = new System.Drawing.Point(814, 266);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(60, 17);
+            this.label6.Size = new System.Drawing.Size(51, 15);
             this.label6.TabIndex = 15;
             this.label6.Text = "Player 1";
             // 
@@ -119,10 +111,9 @@
             // 
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(1082, 391);
-            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label7.Location = new System.Drawing.Point(812, 318);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(60, 17);
+            this.label7.Size = new System.Drawing.Size(51, 15);
             this.label7.TabIndex = 17;
             this.label7.Text = "Player 2";
             // 
@@ -131,20 +122,19 @@
             this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Items.AddRange(new object[] {
-            "Dozer AI",
             "Random AI",
             "Human"});
-            this.comboBoxPlayer1Type.Location = new System.Drawing.Point(1086, 363);
-            this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBoxPlayer1Type.Location = new System.Drawing.Point(814, 295);
             this.comboBoxPlayer1Type.Name = "comboBoxPlayer1Type";
-            this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
+            this.comboBoxPlayer1Type.Size = new System.Drawing.Size(90, 21);
             this.comboBoxPlayer1Type.TabIndex = 18;
             // 
             // lblWInner
             // 
             this.lblWInner.AutoSize = true;
             this.lblWInner.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWInner.Location = new System.Drawing.Point(320, 602);
+            this.lblWInner.Location = new System.Drawing.Point(240, 489);
+            this.lblWInner.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblWInner.Name = "lblWInner";
             this.lblWInner.Size = new System.Drawing.Size(177, 39);
             this.lblWInner.TabIndex = 19;
@@ -153,9 +143,10 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(926, 638);
+            this.btnSave.Location = new System.Drawing.Point(694, 518);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(82, 32);
+            this.btnSave.Size = new System.Drawing.Size(62, 26);
             this.btnSave.TabIndex = 20;
             this.btnSave.Text = "Save Game";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -164,9 +155,10 @@
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(794, 638);
+            this.btnLoad.Location = new System.Drawing.Point(596, 518);
+            this.btnLoad.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(82, 32);
+            this.btnLoad.Size = new System.Drawing.Size(62, 26);
             this.btnLoad.TabIndex = 21;
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
@@ -186,9 +178,9 @@
             // 
             // Game
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1214, 676);
+            this.ClientSize = new System.Drawing.Size(910, 549);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lblWInner);
@@ -202,7 +194,6 @@
             this.Controls.Add(this.textBoxHexBoardSize);
             this.Controls.Add(this.buttonTestBoard);
             this.DoubleBuffered = true;
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Game";
             this.Text = "HexGame";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_Closing);

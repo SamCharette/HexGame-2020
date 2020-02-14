@@ -115,6 +115,17 @@ namespace Engine
                     }
 
                     break;
+                case "Dozer AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new DozerPlayer(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new DozerPlayer(playerNumber, Size);
+                    }
+
+                    break;
                 default:
                     if (playerNumber == 1)
                     {

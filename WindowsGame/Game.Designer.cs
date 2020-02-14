@@ -91,6 +91,7 @@
             this.comboBoxPlayer2Type.FormattingEnabled = true;
             this.comboBoxPlayer2Type.Items.AddRange(new object[] {
             "Random AI",
+            "Dozer AI",
             "Pathfinder AI",
             "Human"});
             this.comboBoxPlayer2Type.Location = new System.Drawing.Point(814, 335);
@@ -124,6 +125,7 @@
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Items.AddRange(new object[] {
             "Pathfinder AI",
+            "Dozer AI",
             "Random AI",
             "Human"});
             this.comboBoxPlayer1Type.Location = new System.Drawing.Point(814, 295);

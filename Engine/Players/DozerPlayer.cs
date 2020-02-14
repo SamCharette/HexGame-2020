@@ -5,22 +5,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Engine.GameTypes;
-using Engine.Interfaces;
 
 namespace Engine.Players
 {
-    public class PathfinderNode : BaseNode
+    public class DozerNode : BaseNode
     {
        
         public Status Status;
         public int G;
         public int H;
-        public PathfinderNode Parent = null;
+        public DozerNode Parent = null;
         public Guid uniqueness;
 
         public int F => G + H;
 
-        public bool CanWalkTo(PathfinderNode possibleNeighbour)
+        public bool CanWalkTo(DozerNode possibleNeighbour)
         {
             // Can't be a neighbour to itself
             if (X == possibleNeighbour.X && Y == possibleNeighbour.Y)
@@ -72,12 +71,7 @@ namespace Engine.Players
 
     }
 
-    public enum Status
-    {
-        Open,
-        Closed,
-        Untested
-    };
+    
 
     /*
      *  PATH FINDER PLAYER
@@ -104,12 +98,12 @@ namespace Engine.Players
      * 2) React to the enemy in a thoughtful way
      */
 
-    public class PathFinderPlayer : Player
+    public class DozerPlayer : Player
     {
-        private List<PathfinderNode> _preferredPath;
-        private new List<PathfinderNode> _memory;
+        private List<DozerNode> _preferredPath;
+        private new List<DozerNode> _memory;
         private bool havePath = false;
-        private PathfinderNode nodeIWant;
+        private DozerNode nodeIWant;
         private int costToMoveToClaimedNode = 1;
         private int costToMoveToUnclaimedNode = 1;
         private int costPerNodeTillEnd = 1;
@@ -118,9 +112,9 @@ namespace Engine.Players
             get { return PlayerNumber == 1 ? 2 : 1; }
         }
       
-        public PathFinderPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+        public DozerPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
-            _preferredPath = new List<PathfinderNode>();
+            _preferredPath = new List<DozerNode>();
         }
 
         public string PlayerName()
@@ -147,8 +141,8 @@ namespace Engine.Players
             if (opponentMove != null)
             {
                 // Let's note the enemy's movement
-                PathfinderNode enemyHex =
-                    (PathfinderNode) _memory
+                DozerNode enemyHex =
+                    (DozerNode) _memory
                         .FirstOrDefault(hex => hex.X == opponentMove.Item1 
                                                && hex.Y == opponentMove.Item2);
 
@@ -201,14 +195,14 @@ namespace Engine.Players
 
             Console.WriteLine("Can't see any open hexes.  Let's make one.");
             // Grab a random opening hex
-            PathfinderNode startingHex = null;
+            DozerNode startingHex = null;
 
             // Get all the hexes that are unowned
             var availableHexes = _memory
                 .Where(x => x.Owner == 0);
 
             // Now of these hexes, we'd like to start at our board edge
-            IEnumerable<PathfinderNode> availableStartingHexes;
+            IEnumerable<DozerNode> availableStartingHexes;
             if (PlayerNumber == 1)
             {
                 availableStartingHexes = availableHexes.Where(hex => hex.X == 0);
@@ -229,7 +223,7 @@ namespace Engine.Players
             }
         }
 
-        private bool IsNodeAtBeginning(PathfinderNode node)
+        private bool IsNodeAtBeginning(DozerNode node)
         {
             if (_isHorizontal)
             {
@@ -239,7 +233,7 @@ namespace Engine.Players
             return node.X == 0;
         }
 
-        private bool IsNodeAtEnd(PathfinderNode node)
+        private bool IsNodeAtEnd(DozerNode node)
         {
             if (_isHorizontal)
             {
@@ -251,7 +245,7 @@ namespace Engine.Players
 
         private void LookForPath()
         {
-            PathfinderNode bestLookingNode = null;
+            DozerNode bestLookingNode = null;
             Console.WriteLine("Looking...");
             
             // GEt the best looking node
@@ -272,7 +266,7 @@ namespace Engine.Players
 
             if (IsNodeAtEnd(bestLookingNode))
             {
-                _preferredPath = new List<PathfinderNode>();
+                _preferredPath = new List<DozerNode>();
                 Console.WriteLine("Aha!  I found me a path!");
                 var parent = bestLookingNode;
                 while (parent != null)
@@ -312,7 +306,7 @@ namespace Engine.Players
 
         }
 
-        private bool IsMine(PathfinderNode node)
+        private bool IsMine(DozerNode node)
         {
             return node.Owner == PlayerNumber;
         }
@@ -323,13 +317,13 @@ namespace Engine.Players
         protected override void SetUpInMemoryBoard()
         {
             Console.WriteLine("Ok, let's start this up!");
-            _memory = new List<PathfinderNode>();
+            _memory = new List<DozerNode>();
 
             for (int x = 0; x < _size; x++)
             {
                 for (int y = 0; y < _size; y++)
                 {
-                    var newNode = new PathfinderNode();
+                    var newNode = new DozerNode();
                     {
                         newNode.X = x;
                         newNode.Y = y;

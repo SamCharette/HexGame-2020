@@ -134,6 +134,7 @@ namespace Engine.Players
         {
             if (!_memory.Any())
             {
+                
                 SetUpInMemoryBoard();
             }
             if (opponentMove != null)
@@ -149,12 +150,47 @@ namespace Engine.Players
                     enemyHex.Owner = EnemyPlayerNumber;
                     enemyHex.Status = Status.Closed;
                     enemyHex.Parent = null;
-
+                    Console.WriteLine("Enemy took hex [" + enemyHex.X + "," + enemyHex.Y + "]");
+                }
+                else
+                {
+                    Console.WriteLine("Hmm... No move from opponent?");
                 }
             }
 
-            if (!_memory.Any(x => x.Status == Status.Open))
+            
+
+            if (!havePath || _preferredPath.Any(x => x.Owner == EnemyPlayerNumber ))
             {
+                Console.WriteLine("I need a path...");
+                StartOver();
+                LookForPath();
+                _preferredPath.Reverse();
+            }
+
+            if (!_preferredPath.Any())
+            {
+                Console.WriteLine("Whelp.  Couldn't find a path.");
+            }
+            nodeIWant = _preferredPath.FirstOrDefault(x => x.Owner == 0);
+            
+            if (nodeIWant != null)
+            {
+                nodeIWant.Owner = PlayerNumber;
+                return new Tuple<int, int>(nodeIWant.X, nodeIWant.Y);
+            }
+
+            Console.WriteLine("Pfft.  I give up!");
+            return null;
+        }
+
+        private void StartOver()
+        {
+            // Clear the parents
+            _memory.ForEach(x =>x.Parent = null);
+            // Set everything to untested again
+            _memory.ForEach(x => x.Status = Status.Untested);
+
                 Console.WriteLine("Can't see any open hexes.  Let's make one.");
                 // Grab a random opening hex
                 PathfinderNode startingHex = null;
@@ -176,36 +212,13 @@ namespace Engine.Players
                 }
 
                 startingHex = availableStartingHexes.OrderBy(x => x.uniqueness)
-                        .FirstOrDefault();
+                    .FirstOrDefault();
 
                 if (startingHex != null)
                 {
                     startingHex.Status = Status.Open;
                     Console.WriteLine("We's gunna start with [" + startingHex.X + "," + startingHex.Y + "]");
                 }
-            }
-
-            if (!havePath || _preferredPath.Any(x => x.Owner == EnemyPlayerNumber ))
-            {
-                Console.WriteLine("I need a path...");
-                LookForPath();
-                _preferredPath.Reverse();
-            }
-
-            if (!_preferredPath.Any())
-            {
-                Console.WriteLine("Whelp.  Couldn't find a path.");
-            }
-            nodeIWant = _preferredPath.FirstOrDefault(x => x.Owner == 0);
-            
-            if (nodeIWant != null)
-            {
-                nodeIWant.Owner = PlayerNumber;
-                return new Tuple<int, int>(nodeIWant.X, nodeIWant.Y);
-            }
-
-            Console.WriteLine("Pfft.  I give up!");
-            return null;
         }
 
         private bool IsNodeAtBeginning(PathfinderNode node)
@@ -236,6 +249,7 @@ namespace Engine.Players
             // GEt the best looking node
             bestLookingNode = _memory
                 .OrderBy(x => x.F)
+                .ThenBy(x => x.uniqueness)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
             if (bestLookingNode == null)

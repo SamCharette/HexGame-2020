@@ -136,15 +136,20 @@ namespace Engine.Players
             {
                 // Let's note the enemy's movement
                 PathfinderNode enemyHex =
-                    (PathfinderNode) _memory.FirstOrDefault(hex => hex.X == opponentMove.Item1 && hex.Y == opponentMove.Item2);
+                    (PathfinderNode) _memory
+                        .FirstOrDefault(hex => hex.X == opponentMove.Item1 
+                                               && hex.Y == opponentMove.Item2);
 
                 if (enemyHex != null)
                 {
                     enemyHex.Owner = PlayerNumber == 1 ? 2 : 1;
                     enemyHex.Status = Status.Closed;
+                    enemyHex.Parent = null;
 
                     // If we have a preferred path, but this is on it, we will need to recalculate
-                    if (havePath && _preferredPath.Any(hex => hex.X == enemyHex.X && hex.Y == enemyHex.Y))
+                    if (havePath 
+                        && _preferredPath.Any(hex => hex.X == enemyHex.X 
+                                                              && hex.Y == enemyHex.Y))
                     {
                         Console.WriteLine("Enemy took a spot that I wanted for later");
                         havePath = false;

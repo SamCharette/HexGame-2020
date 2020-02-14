@@ -33,7 +33,7 @@ namespace Engine.Players
                 return false;
             }
             // Only walkable if we own it
-            if (possibleNeighbour.Owner != Owner && possibleNeighbour.Owner != 0)
+            if (possibleNeighbour.Owner != Owner && Owner != 0)
             {
                 return false;
             }
@@ -111,6 +111,10 @@ namespace Engine.Players
         private int costToMoveToClaimedNode = 1;
         private int costToMoveToUnclaimedNode = 1;
         private int costPerNodeTillEnd = 1;
+        private int EnemyPlayerNumber
+        {
+            get { return PlayerNumber == 1 ? 2 : 1; }
+        }
       
         public PathFinderPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
@@ -142,18 +146,9 @@ namespace Engine.Players
 
                 if (enemyHex != null)
                 {
-                    enemyHex.Owner = PlayerNumber == 1 ? 2 : 1;
+                    enemyHex.Owner = EnemyPlayerNumber;
                     enemyHex.Status = Status.Closed;
                     enemyHex.Parent = null;
-
-                    // If we have a preferred path, but this is on it, we will need to recalculate
-                    if (havePath 
-                        && _preferredPath.Any(hex => hex.X == enemyHex.X 
-                                                              && hex.Y == enemyHex.Y))
-                    {
-                        Console.WriteLine("Enemy took a spot that I wanted for later");
-                        havePath = false;
-                    } 
 
                 }
             }
@@ -190,7 +185,7 @@ namespace Engine.Players
                 }
             }
 
-            if (!havePath)
+            if (!havePath || _preferredPath.Any(x => x.Owner == EnemyPlayerNumber ))
             {
                 Console.WriteLine("I need a path...");
                 LookForPath();
@@ -269,7 +264,7 @@ namespace Engine.Players
             }
 
             var neighbours = _memory
-                .Where( bestLookingNode.CanWalkTo).ToList();
+                .Where(x => bestLookingNode.CanWalkTo(x)).ToList();
 
             foreach (var node in neighbours)
             {

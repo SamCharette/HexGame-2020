@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,7 @@ namespace Engine.Players
         public int G;
         public int H;
         public PathfinderNode Parent = null;
+        public Guid uniqueness;
 
         public int F => G + H;
 
@@ -107,7 +109,7 @@ namespace Engine.Players
         private bool poppedMyMoveCherry = false;
         private PathfinderNode nodeIWant;
         private int costToMoveToClaimedNode = 1;
-        private int costToMoveToUnclaimedNode = 2;
+        private int costToMoveToUnclaimedNode = 1;
         private int costPerNodeTillEnd = 1;
       
         public PathFinderPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
@@ -153,27 +155,48 @@ namespace Engine.Players
 
             if (!_memory.Any(x => x.Status == Status.Open))
             {
+                Console.WriteLine("Can't see any open hexes.  Let's make one.");
                 // Grab a random opening hex
                 PathfinderNode startingHex = null;
-                startingHex = _isHorizontal
-                    ? _memory.OrderBy(x => Guid.NewGuid())
-                        .FirstOrDefault(y => y.Y == 0 && y.Owner == 0)
-                    : _memory.OrderBy(x => Guid.NewGuid())
-                        .FirstOrDefault(y => y.X == 0 && y.Owner == 0);
+
+                // Get all the hexes that are unowned
+                var availableHexes = _memory
+                    .Where(x => x.Owner == 0);
+
+                // Now of these hexes, we'd like to start at our board edge
+                IEnumerable<PathfinderNode> availableStartingHexes;
+                if (PlayerNumber == 1)
+                {
+                    availableStartingHexes = availableHexes.Where(hex => hex.X == 0);
+                }
+                else
+                {
+                    availableStartingHexes = availableHexes.Where(hex => hex.Y == 0);
+
+                }
+
+                startingHex = availableStartingHexes.OrderBy(x => x.uniqueness)
+                        .FirstOrDefault();
 
                 if (startingHex != null)
                 {
                     startingHex.Status = Status.Open;
-                    startingHex.H = costPerNodeTillEnd * (_size - 1);
+                    Console.WriteLine("We's gunna start with [" + startingHex.X + "," + startingHex.Y + "]");
                 }
             }
+
             if (!havePath)
             {
                 Console.WriteLine("I need a path...");
                 LookForPath();
+                _preferredPath.Reverse();
             }
 
-            nodeIWant = _preferredPath.FirstOrDefault();
+            if (!_preferredPath.Any())
+            {
+                Console.WriteLine("Whelp.  Couldn't find a path.");
+            }
+            nodeIWant = _preferredPath.FirstOrDefault(x => x.Owner == 0);
             
             if (nodeIWant != null)
             {
@@ -209,31 +232,7 @@ namespace Engine.Players
         {
             PathfinderNode bestLookingNode = null;
             Console.WriteLine("Looking...");
-            //if (!_memory.Any(x => x.Status == Status.Open))
-            //{
-   
-            //    var node = _memory
-            //        .Where(IsNodeAtBeginning)
-            //        .OrderBy(x => Guid.NewGuid())
-            //        .FirstOrDefault(final => final.Owner == 0);
-            //    if (node != null)
-            //    {
-            //        bestLookingNode = node;
-            //        bestLookingNode.Owner = PlayerNumber;
-            //        bestLookingNode.G = 0;
-            //        bestLookingNode.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
-
-            //    }
-            //}
-            //else
-            //{
-            //    // GEt the best looking node
-            //     bestLookingNode = _memory
-            //        .Where(z => z.Status == Status.Open)
-            //        .OrderBy(x => x.F)
-            //        .FirstOrDefault();
-            //}
-
+            
             // GEt the best looking node
             bestLookingNode = _memory
                 .OrderBy(x => x.F)
@@ -304,9 +303,9 @@ namespace Engine.Players
             Console.WriteLine("Ok, let's start this up!");
             _memory = new List<PathfinderNode>();
 
-            for (int x = 0; x < EndNodeLocation; x++)
+            for (int x = 0; x < _size; x++)
             {
-                for (int y = 0; y < EndNodeLocation; y++)
+                for (int y = 0; y < _size; y++)
                 {
                     var newNode = new PathfinderNode();
                     {
@@ -314,6 +313,8 @@ namespace Engine.Players
                         newNode.Y = y;
                         newNode.Owner = 0;
                         newNode.Status = Status.Untested;
+                        newNode.H = PlayerNumber == 1 ? _size - 1 - x: _size - 1 - y;
+                        newNode.uniqueness = Guid.NewGuid();
 
                     }
                     _memory.Add(newNode);

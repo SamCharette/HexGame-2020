@@ -17,7 +17,6 @@ namespace Engine.GameTypes
         public int PlayerNumber { get; set; }
         private int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
         protected int _size;
-        protected int EndNodeLocation => _size - 1;
         protected bool _isHorizontal => PlayerNumber == 2;
         protected List<BaseNode> _memory;
         public int WaitTime = 50;
@@ -34,9 +33,9 @@ namespace Engine.GameTypes
         {
             _memory = new List<BaseNode>();
 
-            for (int x = 0; x <= EndNodeLocation; x++)
+            for (int x = 0; x < _size; x++)
             {
-                for (int y = 0; y <= EndNodeLocation; y++)
+                for (int y = 0; y < _size; y++)
                 {
                     var newNode = new BaseNode();
                     

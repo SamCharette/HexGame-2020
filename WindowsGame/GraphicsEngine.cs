@@ -52,7 +52,13 @@ namespace Engine.Hexagonal
 			this.boardYOffset = yOffset;
 		}
 
-		public void Draw(Graphics graphics)
+        public void Draw(Graphics graphics)
+        {
+            graphics.DrawImage(CreateImage(), new Point(this.boardXOffset, this.boardYOffset));
+			
+        }
+
+		public Bitmap CreateImage()
 		{
 
 			int width = Convert.ToInt32(System.Math.Ceiling(board.PixelWidth));
@@ -115,15 +121,9 @@ namespace Engine.Hexagonal
 			//
 			// Draw internal bitmap to screen
 			//
-			graphics.DrawImage(bitmap, new Point(this.boardXOffset, this.boardYOffset));
+            return bitmap;
 
-			//
-			// Release objects
-			//
-			bitmapGraphics.Dispose();
-			bitmap.Dispose();
-
-		}
+        }
 
 	}
 }

@@ -17,3 +17,5 @@
 /Engine.Tests/bin/Release/netcoreapp3.1
 /WindowsGame/bin/Release
 /WindowsGame/obj/Release
+/packages/AnimatedGif.1.0.5
+/packages/System.Drawing.Common.4.5.0

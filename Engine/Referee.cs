@@ -26,8 +26,8 @@ namespace Engine
         public Hex clickedHex;
         public List<Move> AllGameMoves;
 
-        public Player Player1 { get; private set; }
-        public Player Player2 { get; private set; }
+        public Player Player1 { get; set; }
+        public Player Player2 { get; set; }
 
 
         public Tuple<int,int> lastHexForPlayer1;
@@ -126,6 +126,18 @@ namespace Engine
                     }
 
                     break;
+                case "Replay AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new Playback(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new Playback(playerNumber, Size);
+                    }
+
+                    break;
+
                 default:
                     if (playerNumber == 1)
                     {

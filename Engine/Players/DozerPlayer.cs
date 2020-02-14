@@ -31,8 +31,8 @@ namespace Engine.Players
             {
                 return false;
             }
-            // Only walkable if we own it
-            if (possibleNeighbour.Owner != Owner && Owner != 0)
+            // Can't walk if enemy owned
+            if (possibleNeighbour.Owner != Owner && possibleNeighbour.Owner != 0)
             {
                 return false;
             }
@@ -104,9 +104,9 @@ namespace Engine.Players
         private new List<DozerNode> _memory;
         private bool havePath = false;
         private DozerNode nodeIWant;
-        private int costToMoveToClaimedNode = 1;
-        private int costToMoveToUnclaimedNode = 1;
-        private int costPerNodeTillEnd = 1;
+        private int costToMoveToClaimedNode = 5;
+        private int costToMoveToUnclaimedNode = 10;
+        private int costPerNodeTillEnd = 30;
         private int EnemyPlayerNumber
         {
             get { return PlayerNumber == 1 ? 2 : 1; }
@@ -286,10 +286,10 @@ namespace Engine.Players
             {
                 if (node.Status == Status.Open)
                 {
-                    if (node.G > bestLookingNode.G + costToMoveToUnclaimedNode)
+                    if (node.G > bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode))
                     {
                         node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G +  costToMoveToUnclaimedNode;
+                        node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode); ;
                         node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
                     }
                 }
@@ -297,7 +297,7 @@ namespace Engine.Players
                 {
                     node.Status = Status.Open;
                     node.Parent = bestLookingNode;
-                    node.G = bestLookingNode.G + costToMoveToUnclaimedNode;
+                    node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode);
                     node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
                 }
 

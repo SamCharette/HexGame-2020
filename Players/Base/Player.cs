@@ -80,7 +80,7 @@ namespace Players.Base
             return selectedNode;
         }
 
-        public string PlayerType()
+        public virtual string PlayerType()
         {
             return "Base Player";
         }
@@ -90,6 +90,10 @@ namespace Players.Base
             return false;
         }
 
+        public void Quip(string expressionToSay)
+        {
+            Console.WriteLine(PlayerType() + " (player " + PlayerNumber +") : " + expressionToSay);
+        }
 
     }
 }

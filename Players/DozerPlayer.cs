@@ -48,6 +48,7 @@ namespace Players
         public DozerPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
             _preferredPath = new List<BaseNode>();
+            SetUpInMemoryBoard();
         }
 
         public string PlayerName()
@@ -55,9 +56,9 @@ namespace Players
             return "Dumb Dozer";
         }
        
-        public string PlayerType()
+        public override string PlayerType()
         {
-            return "Pathfinder AI";
+            return "Dozer";
         }
         public bool IsAvailableToPlay()
         {
@@ -68,7 +69,10 @@ namespace Players
         {
             if (!_memory.Any())
             {
-                
+                if (opponentMove != null)
+                {
+                    Quip("What the hell?  Where'd my memory go?!?");
+                }
                 SetUpInMemoryBoard();
             }
             if (opponentMove != null)
@@ -84,11 +88,11 @@ namespace Players
                     enemyHex.Owner = EnemyPlayerNumber;
                     enemyHex.Status = Status.Closed;
                     enemyHex.Parent = null;
-                    Console.WriteLine("Enemy took hex [" + enemyHex.X + "," + enemyHex.Y + "]");
+                    Quip("Enemy took hex [" + enemyHex.X + "," + enemyHex.Y + "]");
                 }
                 else
                 {
-                    Console.WriteLine("Hmm... No move from opponent?");
+                    Quip("Hmm... No move from opponent?");
                 }
             }
 
@@ -96,7 +100,7 @@ namespace Players
 
             if (!havePath || _preferredPath.Any(x => x.Owner == EnemyPlayerNumber ))
             {
-                Console.WriteLine("I need a path...");
+                Quip("I need a path...");
                 StartOver();
                 LookForPath();
                 _preferredPath.Reverse();
@@ -104,7 +108,7 @@ namespace Players
 
             if (!_preferredPath.Any())
             {
-                Console.WriteLine("Whelp.  Couldn't find a path.");
+                Quip("Whelp.  Couldn't find a path.");
             }
             nodeIWant = _preferredPath.FirstOrDefault(x => x.Owner == 0);
             
@@ -114,8 +118,9 @@ namespace Players
                 return new Tuple<int, int>(nodeIWant.X, nodeIWant.Y);
             }
 
-            Console.WriteLine("Pfft.  I give up!");
-            return null;
+            Quip("Pfft.  I give up!  Let's just get a random hex");
+            var choice = JustGetARandomHex();
+            return new Tuple<int, int>(choice.X, choice.Y);
         }
 
         private void StartOver()
@@ -126,7 +131,7 @@ namespace Players
             // Set everything to untested again
             _memory.ForEach(x => x.Status = Status.Untested);
 
-            Console.WriteLine("Can't see any open hexes.  Let's make one.");
+            Quip("Can't see any open hexes.  Let's make one.");
             // Grab a random opening hex
             BaseNode startingHex = null;
 
@@ -152,7 +157,7 @@ namespace Players
             if (startingHex != null)
             {
                 startingHex.Status = Status.Open;
-                Console.WriteLine("We's gunna start with [" + startingHex.X + "," + startingHex.Y + "]");
+                Quip("We's gunna start with [" + startingHex.X + "," + startingHex.Y + "]");
             }
         }
 
@@ -179,7 +184,7 @@ namespace Players
         private void LookForPath()
         {
             BaseNode bestLookingNode = null;
-            Console.WriteLine("Looking...");
+            Quip("Looking...");
             
             // GEt the best looking node
             bestLookingNode = _memory
@@ -192,7 +197,7 @@ namespace Players
                 return;
             }
 
-            Console.WriteLine("This node looks promising: [" + bestLookingNode.X + "," + bestLookingNode.Y + "]");
+            Quip("This node looks promising: [" + bestLookingNode.X + "," + bestLookingNode.Y + "]");
 
             // CLOSE IT
             bestLookingNode.Status = Status.Closed;
@@ -200,7 +205,7 @@ namespace Players
             if (IsNodeAtEnd(bestLookingNode))
             {
                 _preferredPath = new List<BaseNode>();
-                Console.WriteLine("Aha!  I found me a path!");
+                Quip("Aha!  I found me a path!");
                 var parent = bestLookingNode;
                 while (parent != null)
                 {
@@ -247,9 +252,9 @@ namespace Players
        
         
 
-        protected override void SetUpInMemoryBoard()
+        protected sealed override void SetUpInMemoryBoard()
         {
-            Console.WriteLine("Ok, let's start this up!");
+            Quip("Ok, let's start this up!");
             _memory = new List<BaseNode>();
 
             for (int x = 0; x < _size; x++)

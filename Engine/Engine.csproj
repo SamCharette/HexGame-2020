@@ -5,11 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="GameTypes\" />
-    <Folder Include="Players\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Players\Players.csproj" />
   </ItemGroup>
 

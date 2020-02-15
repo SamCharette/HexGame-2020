@@ -37,9 +37,9 @@ namespace Players
         private new List<BaseNode> _memory;
         private bool havePath = false;
         private BaseNode nodeIWant;
-        private int costToMoveToClaimedNode = 5;
-        private int costToMoveToUnclaimedNode = 10;
-        private int costPerNodeTillEnd = 30;
+        private int costToMoveToClaimedNode = 10;
+        private int costToMoveToUnclaimedNode = 100;
+        private int costPerNodeTillEnd = 1000;
         private int EnemyPlayerNumber
         {
             get { return PlayerNumber == 1 ? 2 : 1; }
@@ -138,15 +138,15 @@ namespace Players
             IEnumerable<BaseNode> availableStartingHexes;
             if (PlayerNumber == 1)
             {
-                availableStartingHexes = availableHexes.Where(hex => hex.X == 0);
+                availableStartingHexes = availableHexes.Where(hex => hex.X == 0 || hex.Owner == PlayerNumber);
             }
             else
             {
-                availableStartingHexes = availableHexes.Where(hex => hex.Y == 0);
+                availableStartingHexes = availableHexes.Where(hex => hex.Y == 0 || hex.Owner == PlayerNumber);
 
             }
 
-            startingHex = availableStartingHexes.OrderBy(x => x.uniqueness)
+            startingHex = availableStartingHexes.OrderByDescending(x => x.Owner).ThenBy(x => x.uniqueness)
                 .FirstOrDefault();
 
             if (startingHex != null)

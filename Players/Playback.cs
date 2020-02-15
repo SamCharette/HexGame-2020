@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Players.Base;
 
 namespace Players
 {
-    public class Move
-    {
-        public int X;
-        public int Y;
-        public int MoveNumber;
-    }
     public class Playback : Player
     {
 

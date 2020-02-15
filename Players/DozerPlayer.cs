@@ -1,75 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Players.Base;
 
 namespace Players
 {
-    public class DozerNode : BaseNode
-    {
-       
-        public Status Status;
-        public int G;
-        public int H;
-        public DozerNode Parent = null;
-        public Guid uniqueness;
-
-        public int F => G + H;
-
-        public bool CanWalkTo(DozerNode possibleNeighbour)
-        {
-            // Can't be a neighbour to itself
-            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y)
-            {
-                return false;
-            }
-
-            if (possibleNeighbour.Status == Status.Closed)
-            {
-                return false;
-            }
-            // Can't walk if enemy owned
-            if (possibleNeighbour.Owner != Owner && possibleNeighbour.Owner != 0)
-            {
-                return false;
-            }
-            // Top right
-            if (X == possibleNeighbour.X + 1 && Y == possibleNeighbour.Y - 1)
-            {
-                return true;
-            }
-            // Right
-            if (X == possibleNeighbour.X + 1 && Y == possibleNeighbour.Y)
-            {
-                return true;
-            }
-            // Bottom right
-            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y + 1)
-            {
-                return true;
-            }
-            // Bottom left
-            if (X == possibleNeighbour.X - 1 && Y == possibleNeighbour.Y + 1)
-            {
-                return true;
-            }
-            // Left
-            if (X == possibleNeighbour.X - 1 && Y == possibleNeighbour.Y)
-            {
-                return true;
-            }
-            // Top Left
-            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y - 1)
-            {
-                return true;
-            }
-            return false;
-        }
-
-    }
-
-    
-
     /*
      *  PATH FINDER PLAYER
      *
@@ -97,10 +33,10 @@ namespace Players
 
     public class DozerPlayer : Player
     {
-        private List<DozerNode> _preferredPath;
-        private new List<DozerNode> _memory;
+        private List<BaseNode> _preferredPath;
+        private new List<BaseNode> _memory;
         private bool havePath = false;
-        private DozerNode nodeIWant;
+        private BaseNode nodeIWant;
         private int costToMoveToClaimedNode = 5;
         private int costToMoveToUnclaimedNode = 10;
         private int costPerNodeTillEnd = 30;
@@ -111,7 +47,7 @@ namespace Players
       
         public DozerPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
-            _preferredPath = new List<DozerNode>();
+            _preferredPath = new List<BaseNode>();
         }
 
         public string PlayerName()
@@ -138,8 +74,8 @@ namespace Players
             if (opponentMove != null)
             {
                 // Let's note the enemy's movement
-                DozerNode enemyHex =
-                    (DozerNode) _memory
+                BaseNode enemyHex =
+                    (BaseNode) _memory
                         .FirstOrDefault(hex => hex.X == opponentMove.Item1 
                                                && hex.Y == opponentMove.Item2);
 
@@ -192,14 +128,14 @@ namespace Players
 
             Console.WriteLine("Can't see any open hexes.  Let's make one.");
             // Grab a random opening hex
-            DozerNode startingHex = null;
+            BaseNode startingHex = null;
 
             // Get all the hexes that are unowned
             var availableHexes = _memory
                 .Where(x => x.Owner == 0);
 
             // Now of these hexes, we'd like to start at our board edge
-            IEnumerable<DozerNode> availableStartingHexes;
+            IEnumerable<BaseNode> availableStartingHexes;
             if (PlayerNumber == 1)
             {
                 availableStartingHexes = availableHexes.Where(hex => hex.X == 0);
@@ -220,7 +156,7 @@ namespace Players
             }
         }
 
-        private bool IsNodeAtBeginning(DozerNode node)
+        private bool IsNodeAtBeginning(BaseNode node)
         {
             if (_isHorizontal)
             {
@@ -230,7 +166,7 @@ namespace Players
             return node.X == 0;
         }
 
-        private bool IsNodeAtEnd(DozerNode node)
+        private bool IsNodeAtEnd(BaseNode node)
         {
             if (_isHorizontal)
             {
@@ -242,7 +178,7 @@ namespace Players
 
         private void LookForPath()
         {
-            DozerNode bestLookingNode = null;
+            BaseNode bestLookingNode = null;
             Console.WriteLine("Looking...");
             
             // GEt the best looking node
@@ -263,7 +199,7 @@ namespace Players
 
             if (IsNodeAtEnd(bestLookingNode))
             {
-                _preferredPath = new List<DozerNode>();
+                _preferredPath = new List<BaseNode>();
                 Console.WriteLine("Aha!  I found me a path!");
                 var parent = bestLookingNode;
                 while (parent != null)
@@ -303,7 +239,7 @@ namespace Players
 
         }
 
-        private bool IsMine(DozerNode node)
+        private bool IsMine(BaseNode node)
         {
             return node.Owner == PlayerNumber;
         }
@@ -314,13 +250,13 @@ namespace Players
         protected override void SetUpInMemoryBoard()
         {
             Console.WriteLine("Ok, let's start this up!");
-            _memory = new List<DozerNode>();
+            _memory = new List<BaseNode>();
 
             for (int x = 0; x < _size; x++)
             {
                 for (int y = 0; y < _size; y++)
                 {
-                    var newNode = new DozerNode();
+                    var newNode = new BaseNode();
                     {
                         newNode.X = x;
                         newNode.Y = y;

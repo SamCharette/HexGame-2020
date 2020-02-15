@@ -4,13 +4,6 @@ using System.Linq;
 
 namespace Players.Base
 {
-    public class BaseNode
-    {
-        public int X;
-        public int Y;
-        public int Owner = 0;
-    }
-   
     public abstract class Player
     {
         public string Name { get; set; }

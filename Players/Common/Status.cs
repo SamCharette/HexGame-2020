@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Players.Common
 {
     public enum Status
     {

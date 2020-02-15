@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common;
 using Players.Base;
+using Players.Common;
 
 namespace Players
 {

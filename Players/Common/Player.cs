@@ -2,22 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Engine.GameTypes
+namespace Players.Base
 {
-    public class BaseNode
-    {
-        public int X;
-        public int Y;
-        public int Owner = 0;
-    }
-   
     public abstract class Player
     {
         public string Name { get; set; }
         public int PlayerNumber { get; set; }
         private int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
         protected int _size;
-        protected int EndNodeLocation => _size - 1;
         protected bool _isHorizontal => PlayerNumber == 2;
         protected List<BaseNode> _memory;
         public int WaitTime = 50;
@@ -34,9 +26,9 @@ namespace Engine.GameTypes
         {
             _memory = new List<BaseNode>();
 
-            for (int x = 0; x <= EndNodeLocation; x++)
+            for (int x = 0; x < _size; x++)
             {
-                for (int y = 0; y <= EndNodeLocation; y++)
+                for (int y = 0; y < _size; y++)
                 {
                     var newNode = new BaseNode();
                     
@@ -88,7 +80,7 @@ namespace Engine.GameTypes
             return selectedNode;
         }
 
-        public string PlayerType()
+        public virtual string PlayerType()
         {
             return "Base Player";
         }
@@ -98,6 +90,10 @@ namespace Engine.GameTypes
             return false;
         }
 
+        public void Quip(string expressionToSay)
+        {
+            Console.WriteLine(PlayerType() + " (player " + PlayerNumber +") : " + expressionToSay);
+        }
 
     }
 }

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
 using WindowsGame.Hexagonal;
+using AnimatedGif;
 using Engine;
 using Engine.Hexagonal;
-using Engine.Players;
+using Players;
 using Board = WindowsGame.Hexagonal.Board;
 using Hex = WindowsGame.Hexagonal.Hex;
 
@@ -17,6 +21,7 @@ namespace WindowsGame
 		Board board;
 		GraphicsEngine graphicsEngine;
         private Referee referee;
+        private List<Bitmap> playThrough;
         private Color emptyColor = Color.White;
         private Color emptyBlueSide = Color.Azure;
         private Color emptyRedSide = Color.MistyRose;
@@ -51,6 +56,7 @@ namespace WindowsGame
             int boardSize = referee.Size;
             this.lblWInner.Visible = false;
             this.btnSave.Visible = false;
+            playThrough = new List<Bitmap>();
 			
 			board = new Board(boardSize,
                 boardSize,
@@ -69,6 +75,7 @@ namespace WindowsGame
 
             graphicsEngine = new GraphicsEngine(board, 20, 20);
 
+            playThrough.Add(graphicsEngine.CreateImage());
 
             // make the edges colourful!
             foreach (var hex in board.Hexes)
@@ -96,7 +103,7 @@ namespace WindowsGame
                 while (referee.WinningPlayer == null)
                 {
 
-                    Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+                    //Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
 
 					if (referee.lastHexForPlayer1 != null && referee.lastHexForPlayer2 != null)
 					{
@@ -118,7 +125,7 @@ namespace WindowsGame
 
                     if (hexTaken != null)
                     {
-                        Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
+                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
 
                         var boardHex = board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
@@ -126,7 +133,7 @@ namespace WindowsGame
                             ? lastTakenByPlayer1
                             : lastTakenByPlayer2);
 
-                        
+                        playThrough.Add(graphicsEngine.CreateImage());
                     }
 
                     this.Refresh();
@@ -145,6 +152,7 @@ namespace WindowsGame
                 this.btnSave.Visible = true;
 				this.Refresh();
 				Console.WriteLine("The winner is player #" + referee.WinningPlayer.PlayerNumber);
+                playThrough.Add(graphicsEngine.CreateImage());
             }
             catch (Exception e)
             {
@@ -153,6 +161,21 @@ namespace WindowsGame
             }
         }
 
+        private void MakeGif(List<Bitmap> frames, string fileName)
+        {
+            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 175))
+            {
+                Bitmap lastFrame = frames.FirstOrDefault();
+                gif.AddFrame(lastFrame, 750, GifQuality.Bit8);
+                foreach (var frame in frames)
+                {
+                    gif.AddFrame(frame, -1, GifQuality.Bit8);
+                    lastFrame = frame;
+                }
+
+                gif.AddFrame(lastFrame, 1000, GifQuality.Bit8);
+            }
+        }
 		private Hex GetBoardHexFromCoordinates(int X, int Y)
         {
             return board.Hexes[X, Y];
@@ -214,13 +237,13 @@ namespace WindowsGame
 				//
 				Point mouseClick = new Point(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
 
-				Console.WriteLine("Click in Board bounding rectangle: {0}", board.PointInBoardRectangle(e.Location));
+				//Console.WriteLine("Click in Board bounding rectangle: {0}", board.PointInBoardRectangle(e.Location));
 
 				Hex clickedHex = board.FindHexMouseClick(mouseClick);
 
 				if (clickedHex == null)
 				{
-					Console.WriteLine("No hex was clicked.");
+					//Console.WriteLine("No hex was clicked.");
 					board.BoardState.ActiveHex = null;
 
 				}
@@ -284,6 +307,8 @@ namespace WindowsGame
                     writer.WriteEndDocument();
                     writer.Flush();
                 }
+                MakeGif(playThrough, saveFileDialog1.FileName);
+
 
                 btnSave.Enabled = false;
             }
@@ -343,8 +368,9 @@ namespace WindowsGame
                             player2Turn++;
                         }
                     }
-                    referee.AddPlayer("Replay AI", 1);
-                    referee.AddPlayer("Replay AI", 2);
+
+                    referee.Player1 = firstPlayer;
+                    referee.Player2 = otherPlayer;
 
                     // and feed it the moves
                     StartGame();

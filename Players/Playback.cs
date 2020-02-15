@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Xml;
-using Engine.GameTypes;
-using Engine.Interfaces;
+using Players.Base;
+using Players.Common;
 
-namespace Engine.Players
+namespace Players
 {
-    public class Move
-    {
-        public int X;
-        public int Y;
-        public int MoveNumber;
-    }
     public class Playback : Player
     {
 

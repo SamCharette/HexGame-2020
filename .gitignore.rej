@@ -1,0 +1,9 @@
+diff a/.gitignore b/.gitignore	(rejected hunks)
+@@ -13,3 +13,7 @@
+ /HexGame/obj/Debug
+ /Game/bin/Debug/netcoreapp3.1
+ /Game/obj
++/Engine/bin/Release/netstandard2.0
++/Engine.Tests/bin/Release/netcoreapp3.1
++/WindowsGame/bin/Release
++/WindowsGame/obj/Release

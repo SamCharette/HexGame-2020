@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
-using Engine.Interfaces;
 
-namespace Engine.GameTypes
+namespace Common
 {
 
     public class Hex

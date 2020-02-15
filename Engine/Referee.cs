@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Engine.GameTypes;
-using Engine.Interfaces;
-using Engine.Players;
+using Players;
+using Players.Base;
 
 namespace Engine
 {
@@ -26,8 +25,8 @@ namespace Engine
         public Hex clickedHex;
         public List<Move> AllGameMoves;
 
-        public Player Player1 { get; private set; }
-        public Player Player2 { get; private set; }
+        public Player Player1 { get; set; }
+        public Player Player2 { get; set; }
 
 
         public Tuple<int,int> lastHexForPlayer1;
@@ -41,7 +40,10 @@ namespace Engine
             return Player1 == _lastPlayer ? Player2 : Player1;
         }
 
-      
+        public void Quip(string expressionToSay)
+        {
+            Console.WriteLine("Referee: " + expressionToSay);
+        }
 
         public Player LastPlayer()
         {
@@ -104,7 +106,7 @@ namespace Engine
                     }
                    
                     break;
-                case "Dozer AI":
+                case "Pathfinder AI":
                     if (playerNumber == 1)
                     {
                         Player1 = new PathFinderPlayer(playerNumber, Size);
@@ -115,6 +117,29 @@ namespace Engine
                     }
 
                     break;
+                case "Dozer AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new DozerPlayer(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new DozerPlayer(playerNumber, Size);
+                    }
+
+                    break;
+                case "Replay AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new Playback(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new Playback(playerNumber, Size);
+                    }
+
+                    break;
+
                 default:
                     if (playerNumber == 1)
                     {
@@ -131,17 +156,21 @@ namespace Engine
         
         public async Task<Tuple<int,int>> TakeTurn(Player player)
         {
+            Quip(player.PlayerType() + " take your turn!");
             hexWanted = null;
 
             // First, check to see if the player is empty
             if (player == null)
             {
+                Quip("Non player trying to take a turn?");
                 throw new Exception("Cannot take a turn as a non-player");
             }
 
             // Next, check to see if the player is the same as the last one
             if (player == _lastPlayer)
             {
+                Quip("FOUL!  Taking a second turn!");
+                WinningPlayer = (player == Player1 ? Player2 : Player1);
                 throw new Exception("Cannot play twice in a row");
             }
 
@@ -149,7 +178,7 @@ namespace Engine
 
             if (hexWanted == null)
             {
-                Console.WriteLine("Referee calls foul!  No hex was selected.  Player LOSES.");
+                Quip("FOUL!  No hex was selected.  Player LOSES.");
                 WinningPlayer = LastPlayer();
                 return null;
             }
@@ -196,11 +225,12 @@ namespace Engine
                 return true;
             }
 
-            var horizontal = CurrentPlayer().PlayerNumber != 1;
+            var isHorizontal = CurrentPlayer().PlayerNumber != 1;
             
-            if (CheckForWinningPath(horizontal))
+            if (CheckForWinningPath(isHorizontal))
             {
                 WinningPlayer = CurrentPlayer();
+                Quip("The winner is player #" + WinningPlayer.PlayerNumber + ", " + WinningPlayer.PlayerType() + "!");
                 return true;
             }
 

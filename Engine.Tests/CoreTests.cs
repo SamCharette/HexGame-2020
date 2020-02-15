@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Engine.Players;
 using NUnit.Framework;
 
 namespace Engine.Tests

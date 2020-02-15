@@ -17,3 +17,12 @@
 /Engine.Tests/bin/Release/netcoreapp3.1
 /WindowsGame/bin/Release
 /WindowsGame/obj/Release
+<<<<<<< HEAD
+=======
+/packages/AnimatedGif.1.0.5
+/packages/System.Drawing.Common.4.5.0
+/Common/bin/Debug/netstandard2.0
+/Common/obj
+/Players/bin/Debug/netstandard2.0
+/Players/obj
+>>>>>>> Further-Separation

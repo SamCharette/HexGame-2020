@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Engine.GameTypes;
-using Engine.Interfaces;
-using System.Threading.Tasks;
+﻿using Players.Base;
 
-namespace Engine.Players
+namespace Players
 {
     public class RandomPlayer : Player
     {

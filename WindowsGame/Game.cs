@@ -103,7 +103,7 @@ namespace WindowsGame
                 while (referee.WinningPlayer == null)
                 {
 
-                    Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+                    //Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
 
 					if (referee.lastHexForPlayer1 != null && referee.lastHexForPlayer2 != null)
 					{
@@ -125,7 +125,7 @@ namespace WindowsGame
 
                     if (hexTaken != null)
                     {
-                        Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
+                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
 
                         var boardHex = board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
@@ -237,13 +237,13 @@ namespace WindowsGame
 				//
 				Point mouseClick = new Point(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
 
-				Console.WriteLine("Click in Board bounding rectangle: {0}", board.PointInBoardRectangle(e.Location));
+				//Console.WriteLine("Click in Board bounding rectangle: {0}", board.PointInBoardRectangle(e.Location));
 
 				Hex clickedHex = board.FindHexMouseClick(mouseClick);
 
 				if (clickedHex == null)
 				{
-					Console.WriteLine("No hex was clicked.");
+					//Console.WriteLine("No hex was clicked.");
 					board.BoardState.ActiveHex = null;
 
 				}

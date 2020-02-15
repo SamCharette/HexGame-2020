@@ -34,7 +34,7 @@ namespace Players
     public class DozerPlayer : Player
     {
         private List<BaseNode> _preferredPath;
-        private new List<BaseNode> _memory;
+//        private new List<BaseNode> _memory;
         private bool havePath = false;
         private BaseNode nodeIWant;
         private int costToMoveToClaimedNode = 10;

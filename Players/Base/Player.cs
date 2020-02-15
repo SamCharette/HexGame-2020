@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Engine.GameTypes
+namespace Players.Base
 {
     public class BaseNode
     {

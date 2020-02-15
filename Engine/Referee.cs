@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Engine.GameTypes;
 using Engine.Interfaces;
-using Engine.Players;
+using Players;
+using Players.Base;
 
 namespace Engine
 {

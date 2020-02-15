@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Engine.GameTypes;
-using Engine.Interfaces;
-using System.Timers;
-using System.Xml;
+using Players.Base;
 using Timer = System.Timers.Timer;
 
-namespace Engine.Players
+namespace Players
 {
     public class HumanPlayer : Player
     {

@@ -100,6 +100,10 @@
       <Project>{3A81126F-59DB-4088-AFCA-69ACBDB814EA}</Project>
       <Name>Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Players\Players.csproj">
+      <Project>{4CE1B85D-B268-4CFF-8C8A-820040374010}</Project>
+      <Name>Players</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

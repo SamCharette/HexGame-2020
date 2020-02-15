@@ -6,8 +6,23 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Tests", "Engine.Tests\Engine.Tests.csproj", "{49541404-157C-4D50-AFAC-5EAFAC111945}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine", "Engine\Engine.csproj", "{3A81126F-59DB-4088-AFCA-69ACBDB814EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8} = {0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}
+		{4CE1B85D-B268-4CFF-8C8A-820040374010} = {4CE1B85D-B268-4CFF-8C8A-820040374010}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsGame", "WindowsGame\WindowsGame.csproj", "{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8} = {0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}
+		{4CE1B85D-B268-4CFF-8C8A-820040374010} = {4CE1B85D-B268-4CFF-8C8A-820040374010}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Players", "Players\Players.csproj", "{4CE1B85D-B268-4CFF-8C8A-820040374010}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8} = {0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +42,14 @@ Global
 		{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D35C20A-2FC4-467B-83A1-E5C7DBC912F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

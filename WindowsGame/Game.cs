@@ -9,7 +9,7 @@ using WindowsGame.Hexagonal;
 using AnimatedGif;
 using Engine;
 using Engine.Hexagonal;
-using Engine.Players;
+using Players;
 using Board = WindowsGame.Hexagonal.Board;
 using Hex = WindowsGame.Hexagonal.Hex;
 

@@ -45,15 +45,14 @@ namespace HexLibrary
             { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
         };
 
-        // TO DO This isn't set up correctly for the appropriate value changes
         public Dictionary<AxialDiagonalDirections, Tuple<int, int>> DiagonalDirections = new Dictionary<AxialDiagonalDirections, Tuple<int, int>>()
         {
-            { AxialDiagonalDirections.Top, new Tuple<int, int>(0, -1) },
-            { AxialDiagonalDirections.TopRight, new Tuple<int, int>(+1, -1) },
-            { AxialDiagonalDirections.BottomRight, new Tuple<int, int>(+1, 0) },
-            { AxialDiagonalDirections.Bottom, new Tuple<int, int>(0, +1) },
-            { AxialDiagonalDirections.BottomLeft, new Tuple<int, int>(-1, +1) },
-            { AxialDiagonalDirections.TopLeft, new Tuple<int, int>(-1, 0) }
+            { AxialDiagonalDirections.Top,  new Tuple<int, int>(+1, -2) },
+            { AxialDiagonalDirections.TopRight, new Tuple<int, int>(+2, -1) },
+            { AxialDiagonalDirections.BottomRight, new Tuple<int, int>(+1, +1) },
+            { AxialDiagonalDirections.Bottom, new Tuple<int, int>(-1, +2) },
+            { AxialDiagonalDirections.BottomLeft, new Tuple<int, int>(-2, +1) },
+            { AxialDiagonalDirections.TopLeft, new Tuple<int, int>(-1, -1) }
         };
         public Hex()
         {
@@ -70,6 +69,7 @@ namespace HexLibrary
         {
             return (Math.Abs(q + hex.q) + Math.Abs(r - hex.r) + Math.Abs(q + r - hex.q - hex.r)) / 2;
         }
+
         public Hex Neighbour(AxialDirections direction)
         {
             var (deltaQ, deltaR) = Directions[direction];
@@ -77,8 +77,6 @@ namespace HexLibrary
             return neighbour;
 
         }
-
-        
         public Hex Neighbour(AxialDiagonalDirections direction)
         {
             var (deltaQ, deltaR) = DiagonalDirections[direction];

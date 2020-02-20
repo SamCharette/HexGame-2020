@@ -30,7 +30,7 @@ namespace HexLibrary
         public int q; // column
         public int r; // row
         public int s; // z coordinate, if using cube coordinates
-
+        public int OwnerNumber = 0;
         public int Column => q;
         public int Row => r;
         public int Height => s;

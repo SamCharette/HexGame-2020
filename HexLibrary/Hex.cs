@@ -77,11 +77,25 @@ namespace HexLibrary
             return neighbour;
 
         }
+
         public Hex Neighbour(AxialDiagonalDirections direction)
         {
             var (deltaQ, deltaR) = DiagonalDirections[direction];
             var neighbour = new Hex { q = q + deltaQ, r = r + deltaR };
             return neighbour;
+        }
+
+        public bool IsANeighbourOf(Hex a)
+        {
+            foreach (var direction in Directions)
+            {
+                if (direction.Value.Item1 == a.Row && direction.Value.Item2 == a.Column)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

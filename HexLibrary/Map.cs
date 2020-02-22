@@ -10,10 +10,12 @@ namespace HexLibrary
     {
         public Hex[,] Grid;
         public int Size;
+        public List<Hex> LastPathChecked = null;
 
         public Map(int size)
         {
             Size = size;
+            Grid = new Hex[Size, Size];
             for (var row = 0; row < size; row++)
             {
                 for (var column = 0; column < size; column++)
@@ -33,12 +35,15 @@ namespace HexLibrary
             return 1;
         }
 
-        public void TakeHex(Hex a, int playerNumber)
+        public bool TakeHex(Hex a, int playerNumber)
         {
             if (!IsBlocked(a, OpponentNumber(playerNumber)))
             {
-                a.OwnerNumber = playerNumber;
+                Grid[a.Row, a.Column].OwnerNumber = playerNumber;
+                return true;
             }
+
+            return false;
         }
 
         public bool AreNeighbours(Hex a, Hex b)
@@ -139,9 +144,11 @@ namespace HexLibrary
             var visited = new List<Hex>();
             visited.Add(a);
             var fringes = new List<Hex>[Size * Size];
+            fringes[0] = new List<Hex>();
             fringes[0].Add(a);
             for (int step = 1; step < (Size * Size); step++)
             {
+                fringes[step] = new List<Hex>();
                 foreach (var fringe in fringes[step - 1])
                 {
                     for (var direction = 0; direction < 6; direction++)
@@ -149,11 +156,12 @@ namespace HexLibrary
                         var hex = fringe.Neighbour((AxialDirections) direction);
                         if (AlreadyBelongsTo(hex, a.OwnerNumber) && !visited.Any(x => x.q == a.q && x.r == a.r))
                         {
+                            visited.Add(hex);
                             if (hex.q == b.q && hex.r == b.r)
                             {
+                                LastPathChecked = visited;
                                 return true;
                             }
-                            visited.Add(hex);
                             fringes[step].Add(hex);
                         }
                     }

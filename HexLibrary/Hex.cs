@@ -65,6 +65,12 @@ namespace HexLibrary
             q = column;
         }
 
+        public Hex(Tuple<int, int> coordinates)
+        {
+            r = coordinates.Item1;
+            q = coordinates.Item2;
+        }
+
         public int DistanceTo(Hex hex)
         {
             return (Math.Abs(q + hex.q) + Math.Abs(r - hex.r) + Math.Abs(q + r - hex.q - hex.r)) / 2;

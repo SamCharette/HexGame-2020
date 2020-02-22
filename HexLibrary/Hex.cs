@@ -35,25 +35,7 @@ namespace HexLibrary
         public int Row => r;
         public int Height => s;
 
-        public Dictionary<AxialDirections,Tuple<int,int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
-        {
-            { AxialDirections.TopLeft, new Tuple<int, int>(0, -1) },
-            { AxialDirections.TopRight, new Tuple<int, int>(+1, -1) },
-            { AxialDirections.Right, new Tuple<int, int>(+1, 0) },
-            { AxialDirections.BottomRight, new Tuple<int, int>(0, +1) },
-            { AxialDirections.BottomLeft, new Tuple<int, int>(-1, +1) },
-            { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
-        };
-
-        public Dictionary<AxialDiagonalDirections, Tuple<int, int>> DiagonalDirections = new Dictionary<AxialDiagonalDirections, Tuple<int, int>>()
-        {
-            { AxialDiagonalDirections.Top,  new Tuple<int, int>(+1, -2) },
-            { AxialDiagonalDirections.TopRight, new Tuple<int, int>(+2, -1) },
-            { AxialDiagonalDirections.BottomRight, new Tuple<int, int>(+1, +1) },
-            { AxialDiagonalDirections.Bottom, new Tuple<int, int>(-1, +2) },
-            { AxialDiagonalDirections.BottomLeft, new Tuple<int, int>(-2, +1) },
-            { AxialDiagonalDirections.TopLeft, new Tuple<int, int>(-1, -1) }
-        };
+        
         public Hex()
         {
          
@@ -71,37 +53,17 @@ namespace HexLibrary
             q = coordinates.Item2;
         }
 
+        public Tuple<int,int> ToTuple()
+        {
+            return new Tuple<int, int>(Row, Column);
+        }
+
         public int DistanceTo(Hex hex)
         {
             return (Math.Abs(q + hex.q) + Math.Abs(r - hex.r) + Math.Abs(q + r - hex.q - hex.r)) / 2;
         }
 
-        public Hex Neighbour(AxialDirections direction)
-        {
-            var (deltaQ, deltaR) = Directions[direction];
-            var neighbour = new Hex {q = q + deltaQ, r = r + deltaR};
-            return neighbour;
 
-        }
-
-        public Hex Neighbour(AxialDiagonalDirections direction)
-        {
-            var (deltaQ, deltaR) = DiagonalDirections[direction];
-            var neighbour = new Hex { q = q + deltaQ, r = r + deltaR };
-            return neighbour;
-        }
-
-        public bool IsANeighbourOf(Hex a)
-        {
-            foreach (var direction in Directions)
-            {
-                if (direction.Value.Item1 == a.Row && direction.Value.Item2 == a.Column)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        
     }
 }

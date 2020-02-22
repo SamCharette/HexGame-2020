@@ -234,7 +234,7 @@ namespace Engine
 
             var isHorizontal = CurrentPlayer().PlayerNumber != 1;
             
-            if (CheckForWinningPath(isHorizontal))
+            if (CheckForWinningPath(CurrentPlayer().PlayerNumber))
             {
                 WinningPlayer = CurrentPlayer();
                 Quip("The winner is player #" + WinningPlayer.PlayerNumber + ", " + WinningPlayer.PlayerType() + "!");
@@ -247,10 +247,10 @@ namespace Engine
 
      
 
-        private bool CheckForWinningPath(bool isHorizontal)
+        private bool CheckForWinningPath(int playerNumber)
         {
 
-            if (Board.DoesWinningPathExistFor(CurrentPlayer().PlayerNumber))
+            if (Board.DoesWinningPathExistFor(playerNumber))
             {
                 winningPath = Board.LastPathChecked;
                 return true;

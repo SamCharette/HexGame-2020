@@ -117,6 +117,7 @@ namespace HexLibrary
                     }
                 }
             }
+
             // TO DO should probably dry this up a bit
             if (playerNumber == 2)
             {

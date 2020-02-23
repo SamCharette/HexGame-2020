@@ -26,3 +26,6 @@
 /Players/bin/Debug/netstandard2.0
 /Players/obj
 >>>>>>> Further-Separation
+/HexLibrary/obj/Debug/netstandard2.0
+/HexLibrary/obj
+/HexLibrary/bin/Debug/netstandard2.0

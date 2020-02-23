@@ -143,7 +143,7 @@ namespace WindowsGame
                 var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? lastTakenByPlayer1 : lastTakenByPlayer2;
 				foreach (var hex in referee.winningPath)
 				{
-					ChangeHexColor(GetBoardHexFromCoordinates(hex.X, hex.Y), colorForWinningPath);
+					ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
 				}
 
                 this.lblWInner.Text = "The winner is: Player #" + referee.WinningPlayer.PlayerNumber;

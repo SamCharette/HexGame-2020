@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HexLibrary;
 using Players;
 using Players.Base;
 
@@ -17,7 +19,7 @@ namespace Engine
     {
         // Board size must be equal in both directions
         public int Size;
-        public Board Board;
+        public Map Board;
         private Player _lastPlayer;
         private Tuple<int, int> _lastPlay;
         public List<Hex> winningPath;
@@ -61,7 +63,6 @@ namespace Engine
                 HumanPlayer player = (HumanPlayer)CurrentPlayer();
                 player.ClickMadeOn(new Tuple<int, int>(x, y));
             }
-            Board.ClickedHex = Board.CheckHex(x, y) ? Board.HexAt(x, y) : null;
         }
 
        
@@ -82,10 +83,9 @@ namespace Engine
         public void NewGame(int size = 11)
         {
             Size = size;
-            Board = new Board(size);
+            Board = new Map(size);
             winningPath = new List<Hex>();
             WinningPlayer = null;
-            Board.ClickedHex = null;
             AllGameMoves = new List<Move>();
             _lastPlayer = Player2;
         }
@@ -184,7 +184,14 @@ namespace Engine
             }
             else
             {
-                Board.TakeHex(hexWanted.Item1, hexWanted.Item2, CurrentPlayer().PlayerNumber);
+                var success = Board.TakeHex(new Hex(hexWanted),CurrentPlayer().PlayerNumber);
+
+                if (!success)
+                {
+                    Quip("FOUL!  Player tried to take a hex that was blocked!");
+                    WinningPlayer = (player == Player1 ? Player2 : Player1);
+                    throw new Exception("Can't pick a blocked hex");
+                }
 
                 if (CurrentPlayer().PlayerNumber == 1)
                 {
@@ -212,7 +219,7 @@ namespace Engine
         {
             foreach (var hex in path)
             {
-                Console.Write("[" + hex.X + "," + hex.Y + "] ");
+                Console.Write("[" + hex.Row + "," + hex.Column + "] ");
             }
             Console.WriteLine("");
         }
@@ -227,7 +234,7 @@ namespace Engine
 
             var isHorizontal = CurrentPlayer().PlayerNumber != 1;
             
-            if (CheckForWinningPath(isHorizontal))
+            if (CheckForWinningPath(CurrentPlayer().PlayerNumber))
             {
                 WinningPlayer = CurrentPlayer();
                 Quip("The winner is player #" + WinningPlayer.PlayerNumber + ", " + WinningPlayer.PlayerType() + "!");
@@ -240,14 +247,12 @@ namespace Engine
 
      
 
-        private bool CheckForWinningPath(bool isHorizontal)
+        private bool CheckForWinningPath(int playerNumber)
         {
 
-            Board.FindBestPath(isHorizontal);
-            if (Board.BestPath.Any())
+            if (Board.DoesWinningPathExistFor(playerNumber))
             {
-                PrintPath(Board.BestPath);
-                winningPath = Board.BestPath;
+                winningPath = Board.LastPathChecked;
                 return true;
             }
 

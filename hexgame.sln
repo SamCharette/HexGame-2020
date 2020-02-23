@@ -6,14 +6,18 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine", "Engine\Engine.csproj", "{3A81126F-59DB-4088-AFCA-69ACBDB814EA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4CE1B85D-B268-4CFF-8C8A-820040374010} = {4CE1B85D-B268-4CFF-8C8A-820040374010}
+		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4} = {8EB73B78-A2D3-4064-B4F9-99C86210B0A4}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsGame", "WindowsGame\WindowsGame.csproj", "{15DDCB85-7D17-49D3-A255-A9D08D4D81B5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4CE1B85D-B268-4CFF-8C8A-820040374010} = {4CE1B85D-B268-4CFF-8C8A-820040374010}
+		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4} = {8EB73B78-A2D3-4064-B4F9-99C86210B0A4}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Players", "Players\Players.csproj", "{4CE1B85D-B268-4CFF-8C8A-820040374010}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Players", "Players\Players.csproj", "{4CE1B85D-B268-4CFF-8C8A-820040374010}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HexLibrary", "HexLibrary\HexLibrary.csproj", "{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,10 @@ Global
 		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CE1B85D-B268-4CFF-8C8A-820040374010}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

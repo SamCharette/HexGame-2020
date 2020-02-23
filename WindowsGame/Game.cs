@@ -75,7 +75,6 @@ namespace WindowsGame
 
             graphicsEngine = new GraphicsEngine(board, 20, 20);
 
-            playThrough.Add(graphicsEngine.CreateImage());
 
             // make the edges colourful!
             foreach (var hex in board.Hexes)
@@ -99,7 +98,9 @@ namespace WindowsGame
 
 			try
             {
-                
+
+                playThrough.Add(graphicsEngine.CreateImage());
+
                 while (referee.WinningPlayer == null)
                 {
 
@@ -129,17 +130,27 @@ namespace WindowsGame
 
                         var boardHex = board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
-                        ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 2
-                            ? lastTakenByPlayer1
-                            : lastTakenByPlayer2);
+                        if (referee.WinningPlayer == null)
+                        {
+                            ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 2
+                                ? lastTakenByPlayer1
+                                : lastTakenByPlayer2);
+                        } else
+                        {
+                            ChangeHexColor(boardHex, referee.WinningPlayer.PlayerNumber == 1
+                                ? lastTakenByPlayer1
+                                : lastTakenByPlayer2);
+                        }
 
-                        playThrough.Add(graphicsEngine.CreateImage());
                     }
 
                     this.Refresh();
+
+                    playThrough.Add(graphicsEngine.CreateImage());
+
                 }
 
-				// Show the winning path
+                // Show the winning path
                 var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? lastTakenByPlayer1 : lastTakenByPlayer2;
 				foreach (var hex in referee.winningPath)
 				{

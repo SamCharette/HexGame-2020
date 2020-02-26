@@ -10,6 +10,7 @@ namespace HexLibrary
         public Hex[,] Grid;
         public int Size;
         public List<Hex> LastPathChecked;
+        public List<Hex> GridAsList = new List<Hex>();
 
         public Map(int size)
         {
@@ -155,33 +156,35 @@ namespace HexLibrary
 
         private List<Hex> LookForBestPathBetween(Hex start, Hex end)
         {
-            var openList = new List<Hex>();
-            var closedList = new List<Hex>();
-            var untestedList = new List<Hex>();
-            foreach (var hex in Grid)
+            GridAsList = new List<Hex>();
+            for (var row = 0; row < Size; row++)
             {
-                if (hex != start)
+                for (var column = 0; column < Size; column++)
                 {
-                    untestedList.Add(hex);
+                    var hex = Grid[row, column];
+                    hex.Status = Status.Untested;
+                    GridAsList.Add(Grid[row, column]);
                 }
             }
-            openList.Add(start);
 
-            var bestList = KeepLooking(openList, closedList, untestedList, end);
+            start.Status = Status.Open;
+
+            var bestList = KeepLooking(end);
             LastPathChecked = bestList;
             return bestList;
         }
 
-        private List<Hex> KeepLooking(List<Hex> openList, List<Hex> closedList, List<Hex> untestedList, Hex goalHex)
+        private List<Hex> KeepLooking(Hex goalHex)
         {
-            var bestHex = openList.OrderBy(x => x.F).FirstOrDefault();
+            
+            var bestHex = GridAsList.OrderBy(x => x.F).FirstOrDefault(x => x.Status == Status.Open);
+            
             if (bestHex == null)
             {
                 return null;
             }
 
-            closedList.Add(bestHex);
-            openList.Remove(bestHex);
+            bestHex.Status = Status.Closed;
 
             if (bestHex == goalHex)
             {
@@ -199,37 +202,35 @@ namespace HexLibrary
             }
 
             // If we aren't yet at the goal, look at the neighbours
-            var testedNeighbours = openList.Where(x => AreNeighbours(x, bestHex));
-            foreach (var neighbour in testedNeighbours)
+            var neighbours 
+                = GridAsList.Where(x => x.Status != Status.Closed 
+                                        && AreNeighbours(x, bestHex));
+
+            foreach (var neighbour in neighbours)
             {
-                // If we get there faster this way, change the parent.
-                if (neighbour.G > bestHex.G + 1)
+                if (neighbour.Status == Status.Open)
                 {
+                    if (neighbour.G > bestHex.G + 1)
+                    {
+                        neighbour.Parent = bestHex;
+                        neighbour.G = bestHex.G + 1;
+                        neighbour.H = DistanceBetween(neighbour, goalHex);
+                    }
+                }
+                else if (neighbour.OwnerNumber == bestHex.OwnerNumber && neighbour.Status == Status.Untested)
+                {
+                    neighbour.Status = Status.Open;
                     neighbour.Parent = bestHex;
                     neighbour.G = bestHex.G + 1;
                     neighbour.H = DistanceBetween(neighbour, goalHex);
-                }
-            }
-
-            var untestedNeighbours =  untestedList.Where(x => AreNeighbours(x, bestHex)).ToList();
-            foreach (var neighbour in untestedNeighbours)
-            {
-                if (!AlreadyBelongsTo(neighbour, goalHex.OwnerNumber))
-                {
-                    untestedList.Remove(neighbour);
-                    closedList.Add(neighbour);
                 }
                 else
                 {
-                    neighbour.Parent = bestHex;
-                    neighbour.G = bestHex.G + 1;
-                    neighbour.H = DistanceBetween(neighbour, goalHex);
-                    untestedList.Remove(neighbour);
-                    openList.Add(neighbour);
+                    neighbour.Status = Status.Closed;
                 }
             }
 
-            return KeepLooking(openList, closedList, untestedList, goalHex);
+            return KeepLooking(goalHex);
         }
 
 

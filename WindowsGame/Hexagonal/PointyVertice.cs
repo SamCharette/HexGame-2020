@@ -7,6 +7,6 @@
         BottomRight = 2,
         Bottom = 3,
         BottomLeft = 4,
-        TopLeft = 5,
+        TopLeft = 5
     }
 }

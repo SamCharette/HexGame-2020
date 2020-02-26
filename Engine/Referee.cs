@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+
 using System.Threading;
 using System.Threading.Tasks;
 using HexLibrary;
@@ -184,7 +183,7 @@ namespace Engine
             }
             else
             {
-                var success = Board.TakeHex(new Hex(hexWanted),CurrentPlayer().PlayerNumber);
+                var success = Board.TakeHex(new Hex(hexWanted.Item1, hexWanted.Item2), CurrentPlayer().PlayerNumber);
 
                 if (!success)
                 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
@@ -10,55 +9,52 @@ using AnimatedGif;
 using Engine;
 using Engine.Hexagonal;
 using Players;
-using Board = WindowsGame.Hexagonal.Board;
-using Hex = WindowsGame.Hexagonal.Hex;
 
 namespace WindowsGame
 {
-	public partial class Game : Form
-	{
+    public partial class Game : Form
+    {
+        private readonly Color _backgroundColor = Color.Green;
 
-		Board board;
-		GraphicsEngine graphicsEngine;
-        private Referee referee;
-        private List<Bitmap> playThrough;
-        private Color emptyColor = Color.White;
-        private Color emptyBlueSide = Color.Azure;
-        private Color emptyRedSide = Color.MistyRose;
-        private Color emptyCorner = Color.Plum;
-        private Color takenBeforeByPlayer1 = Color.DeepSkyBlue;
-        private Color lastTakenByPlayer1 = Color.Blue;
-        private Color takenBeforeByPlayer2 = Color.LightCoral;
-        private Color lastTakenByPlayer2 = Color.Red;
-        private Color backgroundColor = Color.Green;
+        private Board _board;
+        private GraphicsEngine _graphicsEngine;
+        private List<Bitmap> _playThrough;
+        private Referee _referee;
+        private readonly Color _takenBeforeByPlayer1 = Color.DeepSkyBlue;
+        private readonly Color _takenBeforeByPlayer2 = Color.LightCoral;
+        private readonly Color _emptyBlueSide = Color.Azure;
+        private readonly Color _emptyCorner = Color.Plum;
+        private readonly Color _emptyRedSide = Color.MistyRose;
+        private readonly Color _lastTakenByPlayer1 = Color.Blue;
+        private readonly Color _lastTakenByPlayer2 = Color.Red;
 
 
         public Game()
-		{
-			InitializeComponent();
+        {
+            InitializeComponent();
 
-			textBoxHexBoardSize.Text = "11";
+            textBoxHexBoardSize.Text = @"11";
             comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[0];
             comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
-		}
+        }
 
-        public async void Play()
+        public void Play()
         {
-            referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
-			referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
-            referee.AddPlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
-            referee.AddPlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
+            _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
+            _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
+            _referee.AddPlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
+            _referee.AddPlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
             StartGame();
         }
 
-		public async void StartGame()
+        public async void StartGame()
         {
-            int boardSize = referee.Size;
-            this.lblWInner.Visible = false;
-            this.btnSave.Visible = false;
-            playThrough = new List<Bitmap>();
-			
-			board = new Board(boardSize,
+            var boardSize = _referee.Size;
+            lblWInner.Visible = false;
+            btnSave.Visible = false;
+            _playThrough = new List<Bitmap>();
+
+            _board = new Board(boardSize,
                 boardSize,
                 25,
                 HexOrientation.Pointy
@@ -66,109 +62,92 @@ namespace WindowsGame
             {
                 BoardState =
                 {
-                    BackgroundColor = backgroundColor,
+                    BackgroundColor = _backgroundColor,
                     GridPenWidth = 2,
                     ActiveHexBorderColor = Color.Red,
                     ActiveHexBorderWidth = 2
                 }
             };
 
-            graphicsEngine = new GraphicsEngine(board, 20, 20);
+            _graphicsEngine = new GraphicsEngine(_board, 20, 20);
 
 
             // make the edges colourful!
-            foreach (var hex in board.Hexes)
+            foreach (var hex in _board.Hexes)
             {
-                if (hex.Row == 0 || hex.Row == boardSize - 1)
-                {
-                    ChangeHexColor(hex, emptyBlueSide);
-                }
-                if (hex.Column == 0 || hex.Column == boardSize - 1)
-                {
-                    ChangeHexColor(hex, emptyRedSide);
-                }
+                if (hex.Row == 0 || hex.Row == boardSize - 1) ChangeHexColor(hex, _emptyBlueSide);
+                if (hex.Column == 0 || hex.Column == boardSize - 1) ChangeHexColor(hex, _emptyRedSide);
                 if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
-                    || hex.Column == boardSize -1 && hex.Row == 0 || hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
-                {
-                    ChangeHexColor(hex, emptyCorner);
-                }
+                                                    || hex.Column == boardSize - 1 && hex.Row == 0 ||
+                                                    hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
+                    ChangeHexColor(hex, _emptyCorner);
             }
 
-            this.Refresh();
+            Refresh();
 
-			try
+            try
             {
+                _playThrough.Add(_graphicsEngine.CreateImage());
 
-                playThrough.Add(graphicsEngine.CreateImage());
-
-                while (referee.WinningPlayer == null)
+                while (_referee.WinningPlayer == null)
                 {
-
                     //Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
 
-					if (referee.lastHexForPlayer1 != null && referee.lastHexForPlayer2 != null)
-					{
-                        var lastHex = board.Hexes[
-                        referee.CurrentPlayer().PlayerNumber == 1
-                            ? referee.lastHexForPlayer1.Item1
-                            : referee.lastHexForPlayer2.Item1,
-                        referee.CurrentPlayer().PlayerNumber == 1
-                            ? referee.lastHexForPlayer1.Item2
-                            : referee.lastHexForPlayer2.Item2];
+                    if (_referee.lastHexForPlayer1 != null && _referee.lastHexForPlayer2 != null)
+                    {
+                        var lastHex = _board.Hexes[
+                            _referee.CurrentPlayer().PlayerNumber == 1
+                                ? _referee.lastHexForPlayer1.Item1
+                                : _referee.lastHexForPlayer2.Item1,
+                            _referee.CurrentPlayer().PlayerNumber == 1
+                                ? _referee.lastHexForPlayer1.Item2
+                                : _referee.lastHexForPlayer2.Item2];
 
                         ChangeHexColor(lastHex,
-                            referee.CurrentPlayer().PlayerNumber == 1 ? takenBeforeByPlayer1 : takenBeforeByPlayer2);
-                    
-					}
+                            _referee.CurrentPlayer().PlayerNumber == 1 ? _takenBeforeByPlayer1 : _takenBeforeByPlayer2);
+                    }
 
 
-                    var hexTaken = await (referee.TakeTurn(referee.CurrentPlayer()));
+                    var hexTaken = await _referee.TakeTurn(_referee.CurrentPlayer());
 
                     if (hexTaken != null)
                     {
                         //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
 
-                        var boardHex = board.Hexes[hexTaken.Item1, hexTaken.Item2];
+                        var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
-                        if (referee.WinningPlayer == null)
-                        {
-                            ChangeHexColor(boardHex, referee.CurrentPlayer().PlayerNumber == 2
-                                ? lastTakenByPlayer1
-                                : lastTakenByPlayer2);
-                        } else
-                        {
-                            ChangeHexColor(boardHex, referee.WinningPlayer.PlayerNumber == 1
-                                ? lastTakenByPlayer1
-                                : lastTakenByPlayer2);
-                        }
-
+                        if (_referee.WinningPlayer == null)
+                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
+                                ? _lastTakenByPlayer1
+                                : _lastTakenByPlayer2);
+                        else
+                            ChangeHexColor(boardHex, _referee.WinningPlayer.PlayerNumber == 1
+                                ? _lastTakenByPlayer1
+                                : _lastTakenByPlayer2);
                     }
 
-                    this.Refresh();
+                    Refresh();
 
-                    playThrough.Add(graphicsEngine.CreateImage());
-
+                    _playThrough.Add(_graphicsEngine.CreateImage());
                 }
 
                 // Show the winning path
-                var colorForWinningPath = referee.CurrentPlayer().PlayerNumber == 1 ? lastTakenByPlayer1 : lastTakenByPlayer2;
-				foreach (var hex in referee.winningPath)
-				{
-					ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
-				}
+                var colorForWinningPath =
+                    _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1 : _lastTakenByPlayer2;
+                foreach (var hex in _referee.winningPath)
+                    ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
 
-                this.lblWInner.Text = "The winner is: Player #" + referee.WinningPlayer.PlayerNumber;
-                this.lblWInner.Visible = true;
-                this.btnSave.Enabled = true;
-                this.btnSave.Visible = true;
-				this.Refresh();
-				Console.WriteLine("The winner is player #" + referee.WinningPlayer.PlayerNumber);
-                playThrough.Add(graphicsEngine.CreateImage());
+                lblWInner.Text = @"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
+                lblWInner.Visible = true;
+                btnSave.Enabled = true;
+                btnSave.Visible = true;
+                Refresh();
+                Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
+                _playThrough.Add(_graphicsEngine.CreateImage());
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine("No winner today!");
-
+                Console.WriteLine(@"No winner today!");
             }
         }
 
@@ -176,7 +155,7 @@ namespace WindowsGame
         {
             using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 175))
             {
-                Bitmap lastFrame = frames.FirstOrDefault();
+                var lastFrame = frames.FirstOrDefault();
                 gif.AddFrame(lastFrame, 750, GifQuality.Bit8);
                 foreach (var frame in frames)
                 {
@@ -187,97 +166,88 @@ namespace WindowsGame
                 gif.AddFrame(lastFrame, 1000, GifQuality.Bit8);
             }
         }
-		private Hex GetBoardHexFromCoordinates(int X, int Y)
-        {
-            return board.Hexes[X, Y];
-		}
 
-		private void ChangeHexColor(Hex hex, Color color)
-		{
-			if (hex != null )
-			{
-				hex.HexState.BackgroundColor = color;
-			}
-		}
-
-		private void Form_MouseMove(object sender, MouseEventArgs e)
+        private Hex GetBoardHexFromCoordinates(int x, int y)
         {
-            if (board != null)
+            return _board.Hexes[x, y];
+        }
+
+        private void ChangeHexColor(Hex hex, Color color)
+        {
+            if (hex != null) hex.HexState.BackgroundColor = color;
+        }
+
+        private void Form_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_board != null)
             {
-                var hexHoveringOver = board.FindHexMouseClick(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
+                var hexHoveringOver = _board.FindHexMouseClick(e.X - _graphicsEngine.BoardXOffset,
+                    e.Y - _graphicsEngine.BoardYOffset);
                 if (hexHoveringOver != null)
                 {
                     var label = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
-                    if (hexHoveringOver.HexState.BackgroundColor == lastTakenByPlayer1 || hexHoveringOver.HexState.BackgroundColor == takenBeforeByPlayer1)
-                    {
+                    if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer1 ||
+                        hexHoveringOver.HexState.BackgroundColor == _takenBeforeByPlayer1)
                         label += " Player 1";
-                    }
-                    else if(hexHoveringOver.HexState.BackgroundColor == lastTakenByPlayer2 || hexHoveringOver.HexState.BackgroundColor == takenBeforeByPlayer2)
-                    {
+                    else if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer2 ||
+                             hexHoveringOver.HexState.BackgroundColor == _takenBeforeByPlayer2)
                         label += " Player 2";
-                    }
                     else
-                    {
                         label += " not owned";
-                    }
-                    labelXY.Text =label;
+                    labelXY.Text = label;
                 }
-			    else
+                else
                 {
                     labelXY.Text = "";
                 }
             }
-           
-
-		}
-        private void buttonTestBoard_Click(object sender, EventArgs e)
-		{
-			Play();
-		}
-
-
-		private void Form_MouseClick(object sender, MouseEventArgs e)
-		{
-
-			Console.WriteLine("Mouse Click " + e.Location.ToString());
-
-			if (board != null && graphicsEngine != null)
-			{
-				//
-				// need to account for any offset
-				//
-				Point mouseClick = new Point(e.X - graphicsEngine.BoardXOffset, e.Y - graphicsEngine.BoardYOffset);
-
-				//Console.WriteLine("Click in Board bounding rectangle: {0}", board.PointInBoardRectangle(e.Location));
-
-				Hex clickedHex = board.FindHexMouseClick(mouseClick);
-
-				if (clickedHex == null)
-				{
-					//Console.WriteLine("No hex was clicked.");
-					board.BoardState.ActiveHex = null;
-
-				}
-				else
-				{
-					Console.WriteLine("Hex was clicked: [" + clickedHex.Row + "," + clickedHex.Column + "]");
-
-                    referee.ClickOnHexCoords(clickedHex.Row, clickedHex.Column);
-                }
-
-			}
-		}
-
-		private void Form_Paint(object sender, PaintEventArgs e)
-        {
-            //Draw the graphics/GUI
-            graphicsEngine?.Draw(e.Graphics);
         }
 
-		private void Form_Closing(object sender, FormClosingEventArgs e)
-		{
-			graphicsEngine = null;
-			board = null;
+        private void buttonTestBoard_Click(object sender, EventArgs e)
+        {
+            Play();
+        }
+
+
+        private void Form_MouseClick(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine(@"Mouse Click " + e.Location);
+
+            if (_board != null && _graphicsEngine != null)
+            {
+                //
+                // need to account for any offset
+                //
+                var mouseClick = new Point(e.X - _graphicsEngine.BoardXOffset, e.Y - _graphicsEngine.BoardYOffset);
+
+                //Console.WriteLine("Click in Board bounding rectangle: {0}", board.PointInBoardRectangle(e.Location));
+
+                var clickedHex = _board.FindHexMouseClick(mouseClick);
+
+                if (clickedHex == null)
+                {
+                    //Console.WriteLine("No hex was clicked.");
+                    _board.BoardState.ActiveHex = null;
+                }
+                else
+                {
+                    Console.WriteLine(@"Hex was clicked: [" + clickedHex.Row + @"," + clickedHex.Column + @"]");
+
+                    _referee.ClickOnHexCoords(clickedHex.Row, clickedHex.Column);
+                }
+            }
+        }
+
+        private void Form_Paint(object sender, PaintEventArgs e)
+        {
+            //Draw the graphics/GUI
+            _graphicsEngine?.Draw(e.Graphics);
+        }
+
+        private void Form_Closing(object sender, FormClosingEventArgs e)
+        {
+            _graphicsEngine = null;
+            _board = null;
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -285,25 +255,25 @@ namespace WindowsGame
             // Save the game and the moves.
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                using (XmlWriter writer = XmlWriter.Create(saveFileDialog1.FileName))
+                using (var writer = XmlWriter.Create(saveFileDialog1.FileName))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Match");
                     writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
                     writer.WriteElementString("Size", textBoxHexBoardSize.Text);
                     writer.WriteStartElement("Players");
-                        writer.WriteStartElement("Player");
-                            writer.WriteElementString("Type", referee.Player1.GetType().Name);
-                            writer.WriteElementString("Number", "1");
-                        writer.WriteEndElement();
-                        writer.WriteStartElement("Player");
-                            writer.WriteElementString("Type", referee.Player2.GetType().Name);
-                            writer.WriteElementString("Number", "2");
-                        writer.WriteEndElement();
+                    writer.WriteStartElement("Player");
+                    writer.WriteElementString("Type", _referee.Player1.GetType().Name);
+                    writer.WriteElementString("Number", "1");
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Player");
+                    writer.WriteElementString("Type", _referee.Player2.GetType().Name);
+                    writer.WriteElementString("Number", "2");
+                    writer.WriteEndElement();
                     writer.WriteEndElement();
                     writer.WriteStartElement("Moves");
-                    int moveNumber = 1;
-                    foreach (var move in referee.AllGameMoves)
+                    var moveNumber = 1;
+                    foreach (var move in _referee.AllGameMoves)
                     {
                         writer.WriteStartElement("Move");
                         writer.WriteElementString("Number", moveNumber.ToString());
@@ -313,28 +283,25 @@ namespace WindowsGame
                         writer.WriteEndElement();
                         moveNumber++;
                     }
+
                     writer.WriteEndElement();
                     writer.WriteEndElement();
                     writer.WriteEndDocument();
                     writer.Flush();
                 }
-                MakeGif(playThrough, saveFileDialog1.FileName);
+
+                MakeGif(_playThrough, saveFileDialog1.FileName);
 
 
                 btnSave.Enabled = false;
             }
-            
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
-
-         
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
                 try
                 {
-
                     var doc = new XmlDocument();
 
                     //Load the document with the last book node.
@@ -352,13 +319,14 @@ namespace WindowsGame
 
                     if (sizeNode == null)
                     {
-                        Console.WriteLine("The file was not in the proper format.");
+                        Console.WriteLine(@"The file was not in the proper format.");
                         return;
                     }
-                    referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
 
-                    var firstPlayer = new Playback(1, referee.Size);
-                    var otherPlayer = new Playback(2, referee.Size);
+                    _referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
+
+                    var firstPlayer = new Playback(1, _referee.Size);
+                    var otherPlayer = new Playback(2, _referee.Size);
                     var player1Turn = 1;
                     var player2Turn = 1;
                     var moves = doc.GetElementsByTagName("Move");
@@ -367,7 +335,6 @@ namespace WindowsGame
                         var player = Convert.ToInt32(move["Player"]?.InnerText);
                         var x = Convert.ToInt32(move["X"]?.InnerText);
                         var y = Convert.ToInt32(move["Y"]?.InnerText);
-                        var turnNumber = move["Number"];
                         if (player == 1)
                         {
                             firstPlayer.AddMove(x, y, player1Turn);
@@ -380,19 +347,16 @@ namespace WindowsGame
                         }
                     }
 
-                    referee.Player1 = firstPlayer;
-                    referee.Player2 = otherPlayer;
+                    _referee.Player1 = firstPlayer;
+                    _referee.Player2 = otherPlayer;
 
                     // and feed it the moves
                     StartGame();
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine("Game couldn't be loaded properly : " + exception.Message);
-                    
+                    Console.WriteLine(@"Game couldn't be loaded properly : " + exception.Message);
                 }
-  
-            }
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 
 
 namespace HexLibrary
@@ -10,15 +9,15 @@ namespace HexLibrary
     {
         public Hex[,] Grid;
         public int Size;
-        public List<Hex> LastPathChecked = null;
+        public List<Hex> LastPathChecked;
 
         public Map(int size)
         {
             Size = size;
             Grid = new Hex[Size, Size];
-            for (var column = 0; column < size; column++)
+            for (var row = 0; row < size; row++)
             {
-                for (var row = 0; row < size; row++)
+                for (var column = 0; column < size; column++)
                 {
                     Grid[row, column] = new Hex(row, column);
                 }
@@ -51,7 +50,7 @@ namespace HexLibrary
             for (int direction = 0; direction < 6; direction++)
             {
                 var neighbour = NeighbourAt(a, (AxialDirections)direction);
-                if (neighbour.Row == b.Row && neighbour.Column == b.Column)
+                if (neighbour != null && neighbour.Row == b.Row && neighbour.Column == b.Column)
                 {
                     return true;
                 }
@@ -118,36 +117,121 @@ namespace HexLibrary
                 }
             }
 
+            List<Hex> startingHexes;
+            List<Hex> endingHexes;
             // TO DO should probably dry this up a bit
             if (playerNumber == 2)
             {
-                foreach (var startingHex in leftMost)
-                {
-                    foreach (var endingHex in rightMost)
-                    {
-                        if (DoesPathExistBetween(startingHex, endingHex))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                startingHexes = leftMost;
+                endingHexes = rightMost;
             }
             else
             {
-                foreach (var startingHex in topMost)
+                startingHexes = topMost;
+                endingHexes = bottomMost;
+               
+            }
+            var currentBestPath = new List<Hex>();
+
+            foreach (var startingHex in startingHexes)
+            {
+                foreach (var endingHex in endingHexes)
                 {
-                    foreach (var endingHex in bottomMost)
+                    if (DoesPathExistBetween(startingHex, endingHex))
                     {
-                        if (DoesPathExistBetween(startingHex, endingHex))
+                        var bestPathFound = LookForBestPathBetween(startingHex, endingHex);
+                        if (bestPathFound.Count < currentBestPath.Count || !currentBestPath.Any())
                         {
-                            return true;
+                            currentBestPath = bestPathFound;
                         }
+
                     }
                 }
             }
+           
 
-            return false;
+            return currentBestPath.Any();
         }
+
+        private List<Hex> LookForBestPathBetween(Hex start, Hex end)
+        {
+            var openList = new List<Hex>();
+            var closedList = new List<Hex>();
+            var untestedList = new List<Hex>();
+            foreach (var hex in Grid)
+            {
+                if (hex != start)
+                {
+                    untestedList.Add(hex);
+                }
+            }
+            openList.Add(start);
+
+            var bestList = KeepLooking(openList, closedList, untestedList, end);
+            LastPathChecked = bestList;
+            return bestList;
+        }
+
+        private List<Hex> KeepLooking(List<Hex> openList, List<Hex> closedList, List<Hex> untestedList, Hex goalHex)
+        {
+            var bestHex = openList.OrderBy(x => x.F).FirstOrDefault();
+            if (bestHex == null)
+            {
+                return null;
+            }
+
+            closedList.Add(bestHex);
+            openList.Remove(bestHex);
+
+            if (bestHex == goalHex)
+            {
+                // We found our goal, return it.
+                var parent = bestHex.Parent;
+                var path = new List<Hex>();
+                path.Add(bestHex);
+                while (parent != null)
+                {
+                    path.Add(parent);
+                    parent = parent.Parent;
+                }
+
+                return path;
+            }
+
+            // If we aren't yet at the goal, look at the neighbours
+            var testedNeighbours = openList.Where(x => AreNeighbours(x, bestHex));
+            foreach (var neighbour in testedNeighbours)
+            {
+                // If we get there faster this way, change the parent.
+                if (neighbour.G > bestHex.G + 1)
+                {
+                    neighbour.Parent = bestHex;
+                    neighbour.G = bestHex.G + 1;
+                    neighbour.H = DistanceBetween(neighbour, goalHex);
+                }
+            }
+
+            var untestedNeighbours =  untestedList.Where(x => AreNeighbours(x, bestHex)).ToList();
+            foreach (var neighbour in untestedNeighbours)
+            {
+                if (!AlreadyBelongsTo(neighbour, goalHex.OwnerNumber))
+                {
+                    untestedList.Remove(neighbour);
+                    closedList.Add(neighbour);
+                }
+                else
+                {
+                    neighbour.Parent = bestHex;
+                    neighbour.G = bestHex.G + 1;
+                    neighbour.H = DistanceBetween(neighbour, goalHex);
+                    untestedList.Remove(neighbour);
+                    openList.Add(neighbour);
+                }
+            }
+
+            return KeepLooking(openList, closedList, untestedList, goalHex);
+        }
+
 
         public bool DoesPathExistBetween(Hex a, Hex b)
         {
@@ -182,6 +266,7 @@ namespace HexLibrary
             return false;
 
         }
+     
 
         public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
         {

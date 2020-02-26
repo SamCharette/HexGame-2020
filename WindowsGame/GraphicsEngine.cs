@@ -1,129 +1,108 @@
 ﻿using System;
 using System.Drawing;
+using WindowsGame.Hexagonal;
+using Math = System.Math;
 
 namespace Engine.Hexagonal
 {
-	public class GraphicsEngine
-	{
-		private WindowsGame.Hexagonal.Board board;
-		private float boardPixelWidth;
-		private float boardPixelHeight;
-		private int boardXOffset;
-		private int boardYOffset;
+    public class GraphicsEngine
+    {
+        private Board _board;
+        private float _boardPixelHeight;
+        private float _boardPixelWidth;
+        private int _boardXOffset;
+        private int _boardYOffset;
 
-		public GraphicsEngine(WindowsGame.Hexagonal.Board board)
-		{
-			this.Initialize(board, 0, 0);
-		}
+        public GraphicsEngine(Board board)
+        {
+            Initialize(board, 0, 0);
+        }
 
-		public GraphicsEngine(WindowsGame.Hexagonal.Board board, int xOffset, int yOffset)
-		{
-			this.Initialize(board, xOffset, yOffset);
-		}
+        public GraphicsEngine(Board board, int xOffset, int yOffset)
+        {
+            Initialize(board, xOffset, yOffset);
+        }
 
-		public int BoardXOffset
-		{
-			get
-			{
-				return boardXOffset;
-			}
-			set
-			{
-				throw new System.NotImplementedException();
-			}
-		}
+        public int BoardXOffset
+        {
+            get => _boardXOffset;
+            set => throw new NotImplementedException();
+        }
 
-		public int BoardYOffset
-		{
-			get
-			{
-				return boardYOffset;
-			}
-			set
-			{
-				throw new System.NotImplementedException();
-			}
-		}
+        public int BoardYOffset
+        {
+            get => _boardYOffset;
+            set => throw new NotImplementedException();
+        }
 
-		private void Initialize(WindowsGame.Hexagonal.Board board, int xOffset, int yOffset)
-		{
-			this.board = board;
-			this.boardXOffset = xOffset;
-			this.boardYOffset = yOffset;
-		}
+        private void Initialize(Board board, int xOffset, int yOffset)
+        {
+            this._board = board;
+            _boardXOffset = xOffset;
+            _boardYOffset = yOffset;
+        }
 
         public void Draw(Graphics graphics)
         {
-            graphics.DrawImage(CreateImage(), new Point(this.boardXOffset, this.boardYOffset));
-			
+            graphics.DrawImage(CreateImage(), new Point(_boardXOffset, _boardYOffset));
         }
 
-		public Bitmap CreateImage()
-		{
+        public Bitmap CreateImage()
+        {
+            var width = Convert.ToInt32(Math.Ceiling(_board.PixelWidth));
+            var height = Convert.ToInt32(Math.Ceiling(_board.PixelHeight));
+            // seems to be needed to avoid bottom and right from being chopped off
+            width += 1;
+            height += 1;
 
-			int width = Convert.ToInt32(System.Math.Ceiling(board.PixelWidth));
-			int height = Convert.ToInt32(System.Math.Ceiling(board.PixelHeight));
-			// seems to be needed to avoid bottom and right from being chopped off
-			width += 1;
-			height += 1;
-
-			//
-			// Create drawing objects
-			//
-			Bitmap bitmap = new Bitmap(width, height);
-			Graphics bitmapGraphics = Graphics.FromImage(bitmap);
-			Pen p = new Pen(Color.Black);
-			SolidBrush sb = new SolidBrush(Color.Black);
-
-
-			//
-			// Draw Board background
-			//
-			sb = new SolidBrush(board.BoardState.BackgroundColor);
-			bitmapGraphics.FillRectangle(sb, 0, 0, width, height);
-
-			//
-			// Draw Hex Background 
-			//
-			for (int i = 0; i < board.Hexes.GetLength(0); i++)
-			{
-				for (int j = 0; j < board.Hexes.GetLength(1); j++)
-				{
-					//bitmapGraphics.DrawPolygon(p, board.Hexes[i, j].Points);
-					bitmapGraphics.FillPolygon(new SolidBrush(board.Hexes[i, j].HexState.BackgroundColor), board.Hexes[i, j].Points);
-				}
-			}
+            //
+            // Create drawing objects
+            //
+            var bitmap = new Bitmap(width, height);
+            var bitmapGraphics = Graphics.FromImage(bitmap);
+            var p = new Pen(Color.Black);
+            var sb = new SolidBrush(Color.Black);
 
 
-			//
-			// Draw Hex Grid
-			//
-			p.Color = board.BoardState.GridColor;
-			p.Width = board.BoardState.GridPenWidth;
-			for (int i = 0; i < board.Hexes.GetLength(0); i++)
-			{
-				for (int j = 0; j < board.Hexes.GetLength(1); j++)
-				{
-					bitmapGraphics.DrawPolygon(p, board.Hexes[i, j].Points);
-				}
-			}
+            //
+            // Draw Board background
+            //
+            sb = new SolidBrush(_board.BoardState.BackgroundColor);
+            bitmapGraphics.FillRectangle(sb, 0, 0, width, height);
 
-			//
-			// Draw Active Hex, if present
-			//
-			if (board.BoardState.ActiveHex != null)
-			{
-				p.Color = board.BoardState.ActiveHexBorderColor;
-				p.Width = board.BoardState.ActiveHexBorderWidth;
-				bitmapGraphics.DrawPolygon(p, board.BoardState.ActiveHex.Points);
-			}
+            //
+            // Draw Hex Background 
+            //
+            for (var i = 0; i < _board.Hexes.GetLength(0); i++)
+            for (var j = 0; j < _board.Hexes.GetLength(1); j++)
+                //bitmapGraphics.DrawPolygon(p, board.Hexes[i, j].Points);
+                bitmapGraphics.FillPolygon(new SolidBrush(_board.Hexes[i, j].HexState.BackgroundColor),
+                    _board.Hexes[i, j].Points);
 
-			//
-			// Draw internal bitmap to screen
-			//
+
+            //
+            // Draw Hex Grid
+            //
+            p.Color = _board.BoardState.GridColor;
+            p.Width = _board.BoardState.GridPenWidth;
+            for (var i = 0; i < _board.Hexes.GetLength(0); i++)
+            for (var j = 0; j < _board.Hexes.GetLength(1); j++)
+                bitmapGraphics.DrawPolygon(p, _board.Hexes[i, j].Points);
+
+            //
+            // Draw Active Hex, if present
+            //
+            if (_board.BoardState.ActiveHex != null)
+            {
+                p.Color = _board.BoardState.ActiveHexBorderColor;
+                p.Width = _board.BoardState.ActiveHexBorderWidth;
+                bitmapGraphics.DrawPolygon(p, _board.BoardState.ActiveHex.Points);
+            }
+
+            //
+            // Draw internal bitmap to screen
+            //
             return bitmap;
-
         }
-
-	}
+    }
 }

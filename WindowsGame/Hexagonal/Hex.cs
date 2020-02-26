@@ -1,167 +1,131 @@
 ﻿using System;
 using System.Drawing;
-using Engine.Hexagonal;
 
 namespace WindowsGame.Hexagonal
 {
-	public class Hex
-	{
-		private System.Drawing.PointF[] points;
-		private float side;
-		private float h;
-		private float r;
-		private HexOrientation orientation;
-		private float x;
-		private float y;
-		private HexState hexState;
-        public int Row;
+    public class Hex
+    {
         public int Column;
+        private float _h;
+        private HexState _hexState;
+        private HexOrientation _orientation;
+        private PointF[] _points;
+        private float _r;
+        public int Row;
+        private float _side;
 
-		public Hex(int x, int y, int side, HexOrientation orientation)
-		{
-			Initialize(Math.ConvertToFloat(x), Math.ConvertToFloat(y), Math.ConvertToFloat(side), orientation);
-		}
-
-		public Hex(float x, float y, float side, HexOrientation orientation)
-		{
-			Initialize(x, y, side, orientation);
-		}
-
-		public Hex(PointF point, float side, HexOrientation orientation)
-		{
-			Initialize(point.X, point.Y, side, orientation);
-		}
-
-		public Hex()
-		{ }
-
-		/// <summary>
-		/// Sets internal fields and calls CalculateVertices()
-		/// </summary>
-		private void Initialize(float x, float y, float side, HexOrientation orientation)
-		{
-			this.x = x;
-			this.y = y;
-			this.side = side;
-			this.orientation = orientation;
-			this.hexState = new HexState();
-			CalculateVertices();
-		}
-
-		/// <summary>
-		/// Calculates the vertices of the hex based on orientation. Assumes that points[0] contains a value.
-		/// </summary>
-		private void CalculateVertices()
-		{
-			//  
-			//  h = short length (outside)
-			//  r = long length (outside)
-			//  side = length of a side of the hexagon, all 6 are equal length
-			//
-			//  h = sin (30 degrees) x side
-			//  r = cos (30 degrees) x side
-			//
-			//		 h
-			//	     ---
-			//   ----     |r
-			//  /    \    |          
-			// /      \   |
-			// \      /
-			//  \____/
-			//
-			// Flat orientation (scale is off)
-			//
-			//     /\
-			//    /  \
-			//   /    \
-			//   |    |
-			//   |    |
-			//   |    |
-			//   \    /
-			//    \  /
-			//     \/
-			// Pointy orientation (scale is off)
-
-			h = Math.CalculateH(side);
-			r = Math.CalculateR(side);
-
-            //x,y coordinates are top center point
-			points = new System.Drawing.PointF[6];
-			points[0] = new PointF(x, y);
-			points[1] = new PointF(x + r, y + h);
-			points[2] = new PointF(x + r, y + side + h);
-			points[3] = new PointF(x, y + side + h + h);
-			points[4] = new PointF(x - r, y + side + h);
-			points[5] = new PointF(x - r, y + h);
-
-		}
-
-
-		public System.Drawing.PointF[] Points
-		{
-			get
-			{
-				return points;
-			}
-			set
-			{
-			}
-		}
-
-		public float Side
-		{
-			get
-			{
-				return side;
-			}
-			set
-			{
-			}
-		}
-
-		public float H
-		{
-			get
-			{
-				return h;
-			}
-			set
-			{
-			}
-		}
-
-		public float R
-		{
-			get
-			{
-				return r;
-			}
-			set
-			{
-			}
-		}
-
-        public float X
+        public Hex(int x, int y, int side, HexOrientation orientation)
         {
-            get { return x; }
+            Initialize(Math.ConvertToFloat(x), Math.ConvertToFloat(y), Math.ConvertToFloat(side), orientation);
         }
 
-        public float Y
+        public Hex(float x, float y, float side, HexOrientation orientation)
         {
-            get { return y; }
+            Initialize(x, y, side, orientation);
         }
+
+        public Hex(PointF point, float side, HexOrientation orientation)
+        {
+            Initialize(point.X, point.Y, side, orientation);
+        }
+
+        public Hex()
+        {
+        }
+
+
+        public PointF[] Points
+        {
+            get => _points;
+            set { }
+        }
+
+        public float Side
+        {
+            get => _side;
+            set { }
+        }
+
+        public float H
+        {
+            get => _h;
+            set { }
+        }
+
+        public float R
+        {
+            get => _r;
+            set { }
+        }
+
+        public float X { get; private set; }
+
+        public float Y { get; private set; }
 
         public HexState HexState
-		{
-			get
-			{
-				return hexState;
-			}
-			set
-			{
-				throw new System.NotImplementedException();
-			}
-		}
+        {
+            get => _hexState;
+            set => throw new NotImplementedException();
+        }
 
-	}
+        /// <summary>
+        ///     Sets internal fields and calls CalculateVertices()
+        /// </summary>
+        private void Initialize(float x, float y, float side, HexOrientation orientation)
+        {
+            X = x;
+            Y = y;
+            this._side = side;
+            this._orientation = orientation;
+            _hexState = new HexState();
+            CalculateVertices();
+        }
+
+        /// <summary>
+        ///     Calculates the vertices of the hex based on orientation. Assumes that points[0] contains a value.
+        /// </summary>
+        private void CalculateVertices()
+        {
+            //  
+            //  h = short length (outside)
+            //  r = long length (outside)
+            //  side = length of a side of the hexagon, all 6 are equal length
+            //
+            //  h = sin (30 degrees) x side
+            //  r = cos (30 degrees) x side
+            //
+            //		 h
+            //	     ---
+            //   ----     |r
+            //  /    \    |          
+            // /      \   |
+            // \      /
+            //  \____/
+            //
+            // Flat orientation (scale is off)
+            //
+            //     /\
+            //    /  \
+            //   /    \
+            //   |    |
+            //   |    |
+            //   |    |
+            //   \    /
+            //    \  /
+            //     \/
+            // Pointy orientation (scale is off)
+
+            _h = Math.CalculateH(_side);
+            _r = Math.CalculateR(_side);
+
+            //x,y coordinates are top center point
+            _points = new PointF[6];
+            _points[0] = new PointF(X, Y);
+            _points[1] = new PointF(X + _r, Y + _h);
+            _points[2] = new PointF(X + _r, Y + _side + _h);
+            _points[3] = new PointF(X, Y + _side + _h + _h);
+            _points[4] = new PointF(X - _r, Y + _side + _h);
+            _points[5] = new PointF(X - _r, Y + _h);
+        }
+    }
 }

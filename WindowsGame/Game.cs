@@ -142,8 +142,10 @@ namespace WindowsGame
                 btnSave.Enabled = true;
                 btnSave.Visible = true;
                 Refresh();
+                // Clear up the memory for the ref
                 Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
+                _referee.Dispose();
             }
             catch (Exception)
             {

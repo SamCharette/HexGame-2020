@@ -43,7 +43,21 @@ namespace Players
         {
             get { return PlayerNumber == 1 ? 2 : 1; }
         }
-      
+
+        public new void GameOver(int winningPlayerNumber)
+        {
+            base.GameOver(winningPlayerNumber);
+            if (winningPlayerNumber == PlayerNumber)
+            {
+                Quip("Aww yeah, I win again!");
+            } else
+            {
+                Quip("Did NOT see that coming.  Probably because I can't think ahead.  Thanks for that, SAM.");
+            }
+
+            _preferredPath = null;
+        }
+
         public DozerPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
             _preferredPath = new List<BaseNode>();
@@ -134,9 +148,9 @@ namespace Players
             // Grab a random opening hex
             BaseNode startingHex = null;
 
-            // Get all the hexes that are unowned
+            // Get all the hexes that are friendly
             var availableHexes = _memory
-                .Where(x => x.Owner == 0);
+                .Where(x => x.Owner != EnemyPlayerNumber);
 
             // Now of these hexes, we'd like to start at our board edge
             IEnumerable<BaseNode> availableStartingHexes;

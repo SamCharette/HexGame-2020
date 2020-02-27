@@ -64,13 +64,6 @@ namespace Engine
             }
         }
 
-       
-        // We need a way to get input from a player
-
-        // We need a way to send the new board and game state to a player
-
-
-        // functions
         public Referee(int size = 11)
         {
             NewGame(size);
@@ -104,17 +97,6 @@ namespace Engine
                         Player2 = new HumanPlayer(playerNumber, Size);
                     }
                    
-                    break;
-                case "Pathfinder AI":
-                    if (playerNumber == 1)
-                    {
-                        Player1 = new PathFinderPlayer(playerNumber, Size);
-                    }
-                    else
-                    {
-                        Player2 = new PathFinderPlayer(playerNumber, Size);
-                    }
-
                     break;
                 case "Dozer AI":
                     if (playerNumber == 1)
@@ -213,6 +195,16 @@ namespace Engine
 
         }
 
+        public void Dispose()
+        {
+            Size = 0;
+            Board = null;
+            Player1.GameOver(WinningPlayer.PlayerNumber);
+            Player2.GameOver(WinningPlayer.PlayerNumber);
+            winningPath = null;
+            WinningPlayer = null;
+            _lastPlayer = null;
+        }
 
         private void PrintPath(List<Hex> path)
         {

@@ -1,10 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Runtime.InteropServices;
+
 
 namespace HexLibrary
 {
+    public enum Status
+    {
+        Open,
+        Closed,
+        Untested
+    }
     public enum AxialDirections
     {
         TopLeft,
@@ -30,10 +34,17 @@ namespace HexLibrary
         public int q; // column
         public int r; // row
         public int s; // z coordinate, if using cube coordinates
+        public int G; // Cost to get to this node
+        public int H; // Estimated cost to path end
+        public Hex Parent;
+        public Status Status = Status.Untested;
+
         public int OwnerNumber = 0;
         public int Column => q;
         public int Row => r;
         public int Height => s;
+
+        public int F => G + H; 
 
         
         public Hex()
@@ -53,6 +64,7 @@ namespace HexLibrary
             q = coordinates.Item2;
         }
 
+   
         public Tuple<int,int> ToTuple()
         {
             return new Tuple<int, int>(Row, Column);

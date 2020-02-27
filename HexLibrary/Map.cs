@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 
 
 namespace HexLibrary
@@ -10,15 +9,16 @@ namespace HexLibrary
     {
         public Hex[,] Grid;
         public int Size;
-        public List<Hex> LastPathChecked = null;
+        public List<Hex> LastPathChecked;
+        public List<Hex> GridAsList = new List<Hex>();
 
         public Map(int size)
         {
             Size = size;
             Grid = new Hex[Size, Size];
-            for (var column = 0; column < size; column++)
+            for (var row = 0; row < size; row++)
             {
-                for (var row = 0; row < size; row++)
+                for (var column = 0; column < size; column++)
                 {
                     Grid[row, column] = new Hex(row, column);
                 }
@@ -51,7 +51,7 @@ namespace HexLibrary
             for (int direction = 0; direction < 6; direction++)
             {
                 var neighbour = NeighbourAt(a, (AxialDirections)direction);
-                if (neighbour.Row == b.Row && neighbour.Column == b.Column)
+                if (neighbour != null && neighbour.Row == b.Row && neighbour.Column == b.Column)
                 {
                     return true;
                 }
@@ -118,36 +118,122 @@ namespace HexLibrary
                 }
             }
 
+            List<Hex> startingHexes;
+            List<Hex> endingHexes;
             // TO DO should probably dry this up a bit
             if (playerNumber == 2)
             {
-                foreach (var startingHex in leftMost)
-                {
-                    foreach (var endingHex in rightMost)
-                    {
-                        if (DoesPathExistBetween(startingHex, endingHex))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                startingHexes = leftMost;
+                endingHexes = rightMost;
             }
             else
             {
-                foreach (var startingHex in topMost)
+                startingHexes = topMost;
+                endingHexes = bottomMost;
+               
+            }
+            var currentBestPath = new List<Hex>();
+
+            foreach (var startingHex in startingHexes)
+            {
+                foreach (var endingHex in endingHexes)
                 {
-                    foreach (var endingHex in bottomMost)
+                    if (DoesPathExistBetween(startingHex, endingHex))
                     {
-                        if (DoesPathExistBetween(startingHex, endingHex))
+                        var bestPathFound = LookForBestPathBetween(startingHex, endingHex);
+                        if (bestPathFound.Count < currentBestPath.Count || !currentBestPath.Any())
                         {
-                            return true;
+                            currentBestPath = bestPathFound;
                         }
+
                     }
                 }
             }
+           
 
-            return false;
+            return currentBestPath.Any();
         }
+
+        private List<Hex> LookForBestPathBetween(Hex start, Hex end)
+        {
+            GridAsList = new List<Hex>();
+            for (var row = 0; row < Size; row++)
+            {
+                for (var column = 0; column < Size; column++)
+                {
+                    var hex = Grid[row, column];
+                    hex.Status = Status.Untested;
+                    hex.Parent = null;
+                    GridAsList.Add(Grid[row, column]);
+                }
+            }
+
+            start.Status = Status.Open;
+
+            var bestList = KeepLooking(end);
+            LastPathChecked = bestList;
+            return bestList;
+        }
+
+        private List<Hex> KeepLooking(Hex goalHex)
+        {
+            
+            var bestHex = GridAsList.OrderBy(x => x.F).FirstOrDefault(x => x.Status == Status.Open);
+            
+            if (bestHex == null)
+            {
+                return null;
+            }
+
+            bestHex.Status = Status.Closed;
+
+            if (bestHex == goalHex)
+            {
+                // We found our goal, return it.
+                var parent = bestHex.Parent;
+                var path = new List<Hex>();
+                path.Add(bestHex);
+                while (parent != null)
+                {
+                    path.Add(parent);
+                    parent = parent.Parent;
+                }
+
+                return path;
+            }
+
+            // If we aren't yet at the goal, look at the neighbours
+            var neighbours 
+                = GridAsList.Where(x => x.Status != Status.Closed 
+                                        && AreNeighbours(x, bestHex));
+
+            foreach (var neighbour in neighbours)
+            {
+                if (neighbour.Status == Status.Open)
+                {
+                    if (neighbour.G > bestHex.G + 1)
+                    {
+                        neighbour.Parent = bestHex;
+                        neighbour.G = bestHex.G + 1;
+                        neighbour.H = DistanceBetween(neighbour, goalHex);
+                    }
+                }
+                else if (neighbour.OwnerNumber == bestHex.OwnerNumber && neighbour.Status == Status.Untested)
+                {
+                    neighbour.Status = Status.Open;
+                    neighbour.Parent = bestHex;
+                    neighbour.G = bestHex.G + 1;
+                    neighbour.H = DistanceBetween(neighbour, goalHex);
+                }
+                else
+                {
+                    neighbour.Status = Status.Closed;
+                }
+            }
+
+            return KeepLooking(goalHex);
+        }
+
 
         public bool DoesPathExistBetween(Hex a, Hex b)
         {
@@ -182,6 +268,7 @@ namespace HexLibrary
             return false;
 
         }
+     
 
         public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
         {

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using Engine.Hexagonal;
-using Math = WindowsGame.Hexagonal.Math;
 
 namespace WindowsGame.Hexagonal
 {
@@ -42,19 +40,19 @@ namespace WindowsGame.Hexagonal
         /// <summary>
         ///     Sets internal fields and creates board
         /// </summary>
-        /// <param name="width">Board width</param>
-        /// <param name="height">Board height</param>
+        /// <param name="columns">Board width</param>
+        /// <param name="rows">Board height</param>
         /// <param name="side">Hexagon side length</param>
         /// <param name="orientation">Orientation of the hexagons</param>
         /// <param name="xOffset">X coordinate offset</param>
         /// <param name="yOffset">Y coordinate offset</param>
-        private void Initialize(int width, int height, int side, HexOrientation orientation, int xOffset, int yOffset)
+        private void Initialize(int columns, int rows, int side, HexOrientation orientation, int xOffset, int yOffset)
         {
-            this._width = width;
-            this._height = height;
-            this._xOffset = xOffset;
-            this._yOffset = yOffset;
-            _hexes = new Hex[height, width]; //opposite of what we'd expect
+            _width = columns;
+            _height = rows;
+            _xOffset = xOffset;
+            _yOffset = yOffset;
+            _hexes = new Hex[rows, columns]; //opposite of what we'd expect
             _boardState = new BoardState();
 
             var h = Math.CalculateH(side); // short side
@@ -68,54 +66,49 @@ namespace WindowsGame.Hexagonal
 
             hexWidth = r + r;
             hexHeight = side + h;
-            _pixelWidth = width * hexWidth + width * r;
-            _pixelHeight = height * hexHeight + h;
-
-
-            var inTopRow = false;
-            var inBottomRow = false;
-            var inLeftColumn = false;
-            var inRightColumn = false;
-            var isTopLeft = false;
-            var isTopRight = false;
-            var isBotomLeft = false;
-            var isBottomRight = false;
-
+            _pixelWidth = columns * hexWidth + columns * r;
+            _pixelHeight = rows * hexHeight + h;
 
             // i = y coordinate (rows), j = x coordinate (columns) of the hex tiles 2D plane
-            for (var i = 0; i < height; i++)
+            for (var i = 0; i < rows; i++)
             {
-                for (var j = 0; j < width; j++)
+                for (var j = 0; j < columns; j++)
                 {
                     // Set position booleans
-                    inTopRow = i == 0;
+                    var inTopRow = i == 0;
 
-                    inBottomRow = i == height - 1;
+                    var inBottomRow = i == rows - 1;
 
-                    inLeftColumn = j == 0;
+                    var inLeftColumn = j == 0;
 
-                    inRightColumn = j == width - 1;
+                    var inRightColumn = j == columns - 1;
 
+                    bool isTopLeft;
                     if (inTopRow && inLeftColumn)
                         isTopLeft = true;
                     else
                         isTopLeft = false;
 
                     if (inTopRow && inRightColumn)
-                        isTopRight = true;
+                    {
+                    }
                     else
-                        isTopRight = false;
+                    {
+                    }
 
                     if (inBottomRow && inLeftColumn)
-                        isBotomLeft = true;
+                    {
+                    }
                     else
-                        isBotomLeft = false;
+                    {
+                    }
 
                     if (inBottomRow && inRightColumn)
-                        isBottomRight = true;
+                    {
+                    }
                     else
-                        isBottomRight = false;
-
+                    {
+                    }
 
 
                     //
@@ -127,30 +120,26 @@ namespace WindowsGame.Hexagonal
                     }
                     else
                     {
-
                         if (inLeftColumn)
                         {
-       
-                            var hex = new Hex(_hexes[i - 1, j].Points[(int) PointyVertice.BottomRight],
+                            var hex = new Hex(_hexes[i - 1, j].Points[(int)PointyVertice.BottomRight],
                                     side, orientation)
-                                {Row = i, Column = j};
+                            { Row = i, Column = j };
                             _hexes[i, j] = hex;
-
                         }
                         else
                         {
                             // Calculate from Hex to the left
-                            var x = _hexes[i, j - 1].Points[(int) PointyVertice.UpperRight].X;
-                            var y = _hexes[i, j - 1].Points[(int) PointyVertice.UpperRight].Y;
+                            var x = _hexes[i, j - 1].Points[(int)PointyVertice.UpperRight].X;
+                            var y = _hexes[i, j - 1].Points[(int)PointyVertice.UpperRight].Y;
                             x += r;
                             y -= h;
-                            var hex = new Hex(x, y, side, orientation) {Row = i, Column = j};
+                            var hex = new Hex(x, y, side, orientation) { Row = i, Column = j };
                             _hexes[i, j] = hex;
                         }
-
                     }
-
                 }
+
             }
         }
 

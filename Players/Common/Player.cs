@@ -32,8 +32,8 @@ namespace Players.Base
                 {
                     var newNode = new BaseNode();
                     
-                    newNode.X = x;
-                    newNode.Y = y;
+                    newNode.Row = x;
+                    newNode.Column = y;
                     newNode.Owner = 0;
                     _memory.Add(newNode);
                 }
@@ -49,14 +49,14 @@ namespace Players.Base
             var choice = MakeChoice();
             if (choice != null)
             {
-                UpdateBoard(PlayerNumber, choice.X, choice.Y);
+                UpdateBoard(PlayerNumber, choice.Row, choice.Column);
             }
-            return choice == null ? null : new Tuple<int, int>(choice.X, choice.Y);
+            return choice == null ? null : new Tuple<int, int>(choice.Row, choice.Column);
         }
 
         private void UpdateBoard(int playerNumber, int x, int y)
         {
-            var playerChoice = _memory.FirstOrDefault(node => node.X == x && node.Y == y);
+            var playerChoice = _memory.FirstOrDefault(node => node.Row == x && node.Column == y);
             if (playerChoice != null)
             {
                 playerChoice.Owner = playerNumber;

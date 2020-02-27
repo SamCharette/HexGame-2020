@@ -34,10 +34,9 @@ namespace Players
     public class DozerPlayer : Player
     {
         private List<BaseNode> _preferredPath;
-//        private new List<BaseNode> _memory;
         private bool havePath = false;
         private BaseNode nodeIWant;
-        private int costToMoveToClaimedNode = 10;
+        private int costToMoveToClaimedNode = 0;
         private int costToMoveToUnclaimedNode = 100;
         private int costPerNodeTillEnd = 1000;
         private int EnemyPlayerNumber
@@ -80,15 +79,15 @@ namespace Players
                 // Let's note the enemy's movement
                 BaseNode enemyHex =
                     (BaseNode) _memory
-                        .FirstOrDefault(hex => hex.X == opponentMove.Item1 
-                                               && hex.Y == opponentMove.Item2);
+                        .FirstOrDefault(hex => hex.Row == opponentMove.Item1 
+                                               && hex.Column == opponentMove.Item2);
 
                 if (enemyHex != null)
                 {
                     enemyHex.Owner = EnemyPlayerNumber;
                     enemyHex.Status = Status.Closed;
                     enemyHex.Parent = null;
-                    Quip("Enemy took hex [" + enemyHex.X + "," + enemyHex.Y + "]");
+                    Quip("Enemy took hex [" + enemyHex.Row + "," + enemyHex.Column + "]");
                 }
                 else
                 {
@@ -115,12 +114,12 @@ namespace Players
             if (nodeIWant != null)
             {
                 nodeIWant.Owner = PlayerNumber;
-                return new Tuple<int, int>(nodeIWant.X, nodeIWant.Y);
+                return new Tuple<int, int>(nodeIWant.Row, nodeIWant.Column);
             }
 
             Quip("Pfft.  I give up!  Let's just get a random hex");
             var choice = JustGetARandomHex();
-            return new Tuple<int, int>(choice.X, choice.Y);
+            return new Tuple<int, int>(choice.Row, choice.Column);
         }
 
         private void StartOver()
@@ -143,11 +142,11 @@ namespace Players
             IEnumerable<BaseNode> availableStartingHexes;
             if (PlayerNumber == 1)
             {
-                availableStartingHexes = availableHexes.Where(hex => hex.X == 0 || hex.Owner == PlayerNumber);
+                availableStartingHexes = availableHexes.Where(hex => hex.Row == 0 || hex.Owner == PlayerNumber);
             }
             else
             {
-                availableStartingHexes = availableHexes.Where(hex => hex.Y == 0 || hex.Owner == PlayerNumber);
+                availableStartingHexes = availableHexes.Where(hex => hex.Column == 0 || hex.Owner == PlayerNumber);
 
             }
 
@@ -157,7 +156,7 @@ namespace Players
             if (startingHex != null)
             {
                 startingHex.Status = Status.Open;
-                Quip("We's gunna start with [" + startingHex.X + "," + startingHex.Y + "]");
+                Quip("We's gunna start with [" + startingHex.Row + "," + startingHex.Column + "]");
             }
         }
 
@@ -165,20 +164,20 @@ namespace Players
         {
             if (_isHorizontal)
             {
-                return node.Y == 0;
+                return node.Column == 0;
             }
 
-            return node.X == 0;
+            return node.Row == 0;
         }
 
         private bool IsNodeAtEnd(BaseNode node)
         {
             if (_isHorizontal)
             {
-                return node.Y == _size - 1;
+                return node.Column == _size - 1;
             }
 
-            return node.X == _size - 1;
+            return node.Row == _size - 1;
         }
 
         private void LookForPath()
@@ -197,7 +196,7 @@ namespace Players
                 return;
             }
 
-            Quip("This node looks promising: [" + bestLookingNode.X + "," + bestLookingNode.Y + "]");
+            Quip("This node looks promising: [" + bestLookingNode.Row + "," + bestLookingNode.Column + "]");
 
             // CLOSE IT
             bestLookingNode.Status = Status.Closed;
@@ -222,22 +221,26 @@ namespace Players
 
             foreach (var node in neighbours)
             {
-                if (node.Status == Status.Open)
+                if (node.Owner != bestLookingNode.EnemyPlayerNumber())
                 {
-                    if (node.G > bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode))
+                    if (node.Status == Status.Open)
                     {
+                        if (node.G > bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode))
+                        {
+                            node.Parent = bestLookingNode;
+                            node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode); ;
+                            node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                        }
+                    }
+                    else if (node.Status == Status.Untested)
+                    {
+                        node.Status = Status.Open;
                         node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode); ;
-                        node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
+                        node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode);
+                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
                     }
                 }
-                else
-                {
-                    node.Status = Status.Open;
-                    node.Parent = bestLookingNode;
-                    node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode);
-                    node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
-                }
+                
 
             }
             LookForPath();
@@ -257,17 +260,17 @@ namespace Players
             Quip("Ok, let's start this up!");
             _memory = new List<BaseNode>();
 
-            for (int x = 0; x < _size; x++)
+            for (int row = 0; row < _size; row++)
             {
-                for (int y = 0; y < _size; y++)
+                for (int column = 0; column < _size; column++)
                 {
                     var newNode = new BaseNode();
                     {
-                        newNode.X = x;
-                        newNode.Y = y;
+                        newNode.Row = row;
+                        newNode.Column = column;
                         newNode.Owner = 0;
                         newNode.Status = Status.Untested;
-                        newNode.H = PlayerNumber == 1 ? _size - 1 - x: _size - 1 - y;
+                        newNode.H = PlayerNumber == 1 ? _size - 1 - column : _size - 1 - row;
                         newNode.uniqueness = Guid.NewGuid();
 
                     }

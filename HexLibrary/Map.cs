@@ -163,6 +163,7 @@ namespace HexLibrary
                 {
                     var hex = Grid[row, column];
                     hex.Status = Status.Untested;
+                    hex.Parent = null;
                     GridAsList.Add(Grid[row, column]);
                 }
             }

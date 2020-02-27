@@ -5,8 +5,8 @@ namespace Players.Base
 {
     public class BaseNode
     {
-        public int X;
-        public int Y;
+        public int Row;
+        public int Column;
         public Status Status;
         public int G;
         public int H;
@@ -16,10 +16,14 @@ namespace Players.Base
 
         public int F => G + H;
 
+        public int EnemyPlayerNumber()
+        {
+            return Owner == 1 ? 2 : 1;
+        }
         public bool CanWalkTo(BaseNode possibleNeighbour)
         {
             // Can't be a neighbour to itself
-            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y)
+            if (Row == possibleNeighbour.Row && Column == possibleNeighbour.Column)
             {
                 return false;
             }
@@ -29,37 +33,37 @@ namespace Players.Base
                 return false;
             }
             // Can't walk if enemy owned
-            if (possibleNeighbour.Owner != Owner && possibleNeighbour.Owner != 0)
+            if (possibleNeighbour.Owner == EnemyPlayerNumber())
             {
                 return false;
             }
             // Top right
-            if (X == possibleNeighbour.X + 1 && Y == possibleNeighbour.Y - 1)
+            if (Row == possibleNeighbour.Row + 1 && Column == possibleNeighbour.Column - 1)
             {
                 return true;
             }
             // Right
-            if (X == possibleNeighbour.X + 1 && Y == possibleNeighbour.Y)
+            if (Row == possibleNeighbour.Row + 1 && Column == possibleNeighbour.Column)
             {
                 return true;
             }
             // Bottom right
-            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y + 1)
+            if (Row == possibleNeighbour.Row && Column == possibleNeighbour.Column + 1)
             {
                 return true;
             }
             // Bottom left
-            if (X == possibleNeighbour.X - 1 && Y == possibleNeighbour.Y + 1)
+            if (Row == possibleNeighbour.Row - 1 && Column == possibleNeighbour.Column + 1)
             {
                 return true;
             }
             // Left
-            if (X == possibleNeighbour.X - 1 && Y == possibleNeighbour.Y)
+            if (Row == possibleNeighbour.Row - 1 && Column == possibleNeighbour.Column)
             {
                 return true;
             }
             // Top Left
-            if (X == possibleNeighbour.X && Y == possibleNeighbour.Y - 1)
+            if (Row == possibleNeighbour.Row && Column == possibleNeighbour.Column - 1)
             {
                 return true;
             }

@@ -76,15 +76,15 @@ namespace Players
                 // Let's note the enemy's movement
                 BaseNode enemyHex =
                     (BaseNode) _memory
-                        .FirstOrDefault(hex => hex.X == opponentMove.Item1 
-                                               && hex.Y == opponentMove.Item2);
+                        .FirstOrDefault(hex => hex.Row == opponentMove.Item1 
+                                               && hex.Column == opponentMove.Item2);
 
                 if (enemyHex != null)
                 {
                     enemyHex.Owner = EnemyPlayerNumber;
                     enemyHex.Status = Status.Closed;
                     enemyHex.Parent = null;
-                    Console.WriteLine("Enemy took hex [" + enemyHex.X + "," + enemyHex.Y + "]");
+                    Console.WriteLine("Enemy took hex [" + enemyHex.Row + "," + enemyHex.Column + "]");
                 }
                 else
                 {
@@ -111,7 +111,7 @@ namespace Players
             if (nodeIWant != null)
             {
                 nodeIWant.Owner = PlayerNumber;
-                return new Tuple<int, int>(nodeIWant.X, nodeIWant.Y);
+                return new Tuple<int, int>(nodeIWant.Row, nodeIWant.Column);
             }
 
             Console.WriteLine("Pfft.  I give up!");
@@ -138,11 +138,11 @@ namespace Players
             IEnumerable<BaseNode> availableStartingHexes;
             if (PlayerNumber == 1)
             {
-                availableStartingHexes = availableHexes.Where(hex => hex.X == 0);
+                availableStartingHexes = availableHexes.Where(hex => hex.Row == 0);
             }
             else
             {
-                availableStartingHexes = availableHexes.Where(hex => hex.Y == 0);
+                availableStartingHexes = availableHexes.Where(hex => hex.Column == 0);
 
             }
 
@@ -152,7 +152,7 @@ namespace Players
             if (startingHex != null)
             {
                 startingHex.Status = Status.Open;
-                Console.WriteLine("We's gunna start with [" + startingHex.X + "," + startingHex.Y + "]");
+                Console.WriteLine("We's gunna start with [" + startingHex.Row + "," + startingHex.Column + "]");
             }
         }
 
@@ -160,20 +160,20 @@ namespace Players
         {
             if (_isHorizontal)
             {
-                return node.Y == 0;
+                return node.Column == 0;
             }
 
-            return node.X == 0;
+            return node.Row == 0;
         }
 
         private bool IsNodeAtEnd(BaseNode node)
         {
             if (_isHorizontal)
             {
-                return node.Y == _size - 1;
+                return node.Column == _size - 1;
             }
 
-            return node.X == _size - 1;
+            return node.Row == _size - 1;
         }
 
         private void LookForPath()
@@ -192,7 +192,7 @@ namespace Players
                 return;
             }
 
-            Console.WriteLine("This node looks promising: [" + bestLookingNode.X + "," + bestLookingNode.Y + "]");
+            Console.WriteLine("This node looks promising: [" + bestLookingNode.Row + "," + bestLookingNode.Column + "]");
 
             // CLOSE IT
             bestLookingNode.Status = Status.Closed;
@@ -223,7 +223,7 @@ namespace Players
                     {
                         node.Parent = bestLookingNode;
                         node.G = bestLookingNode.G +  costToMoveToUnclaimedNode;
-                        node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
+                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
                     }
                 }
                 else
@@ -231,7 +231,7 @@ namespace Players
                     node.Status = Status.Open;
                     node.Parent = bestLookingNode;
                     node.G = bestLookingNode.G + costToMoveToUnclaimedNode;
-                    node.H = (_isHorizontal ? _size - 1 - node.Y : _size - 1 - node.X) * costPerNodeTillEnd;
+                    node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
                 }
 
             }
@@ -258,8 +258,8 @@ namespace Players
                 {
                     var newNode = new BaseNode();
                     {
-                        newNode.X = x;
-                        newNode.Y = y;
+                        newNode.Row = x;
+                        newNode.Column = y;
                         newNode.Owner = 0;
                         newNode.Status = Status.Untested;
                         newNode.H = PlayerNumber == 1 ? _size - 1 - x: _size - 1 - y;

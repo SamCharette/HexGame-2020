@@ -22,6 +22,12 @@ namespace Players.Base
             SetUpInMemoryBoard();
         }
 
+        public void GameOver(int winningPlayerNumber)
+        {
+            _memory = null;
+
+        }
+
         protected virtual void SetUpInMemoryBoard()
         {
             _memory = new List<BaseNode>();

@@ -31,7 +31,7 @@ namespace Players.Base
 
         protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
         {
-            var setting = playerConfig?.settings?.FirstOrDefault(x => x.key == "costPerNodeTillEnd");
+            var setting = playerConfig?.settings?.FirstOrDefault(x => x.key == settingName);
             var parseWorked = Int32.TryParse(setting?.value, out var value);
             if (parseWorked)
             {

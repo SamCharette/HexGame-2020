@@ -11,16 +11,15 @@ namespace Players.Minimax
         private new MinimaxMap _memory;
         private int Size;
         private int _maxLevels;
-        private int _maxSeconds;
         private readonly MinimaxGamePlayer _me;
         private int _nodesChecked;
         private MinimaxGamePlayer Opponent => _me == MinimaxGamePlayer.Blue ? MinimaxGamePlayer.Red : MinimaxGamePlayer.Blue;
 
         public MinimaxPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
+            Size = boardSize;
             PlayerNumber = playerNumber;
             _me = PlayerNumber == 1 ? MinimaxGamePlayer.Blue : MinimaxGamePlayer.Red;
-            Size = boardSize;
             _maxLevels = GetDefault(playerConfig, "maxLevels", 20);
             Name = playerConfig.name;
 
@@ -34,6 +33,7 @@ namespace Players.Minimax
 
         public void Startup()
         {
+            Quip("Only looking " + _maxLevels + " deep.");
             _memory = new MinimaxMap(Size);
         }
 

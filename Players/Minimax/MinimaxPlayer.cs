@@ -41,7 +41,7 @@ namespace Players.Minimax
                 var opponentHex = _memory.Board.FirstOrDefault(x => x.Row == opponentMove.Item1 && x.Column == opponentMove.Item2);
                 if (opponentHex != null)
                 {
-                    opponentHex.Owner = Opponent;
+                    _memory.TakeHex(Opponent, opponentMove.Item1, opponentMove.Item2);
                 }
             }
             MinimaxNode  choice = null;
@@ -67,12 +67,14 @@ namespace Players.Minimax
             // Any path with fewer hexes needed to get to an edge, for instance, is better
             if (_memory.Board.Count(x => x.Owner != MinimaxGamePlayer.White) > 2)
             {
-                var myScore = _memory.Board.Where(x => x.Owner == Opponent).OrderBy(y => y.RemainingDistance())
+                var myScore = _memory.Board.Where(x => x.Owner == _me)
+                    .OrderBy(y => y.RemainingDistance())
                     .FirstOrDefault();
-                var notMyScore = _memory.Board.Where(x => x.Owner == _me).OrderBy(y => y.RemainingDistance())
+                var notMyScore = _memory.Board.Where(x => x.Owner == Opponent)
+                    .OrderBy(y => y.RemainingDistance())
                     .FirstOrDefault();
 
-                var finalScore = myScore.RemainingDistance() - notMyScore.RemainingDistance();
+                var finalScore = notMyScore.RemainingDistance() - myScore.RemainingDistance();
                 Quip("Score is " + finalScore);
                 return finalScore;
             }

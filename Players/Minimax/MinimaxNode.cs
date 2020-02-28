@@ -90,22 +90,22 @@ namespace Players.Minimax
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToTop)
-                .FirstOrDefault(x => x.RawDistanceToTop < RawDistanceToTop);
-            return bestNode?.RawDistanceToTop ?? RawDistanceToTop;
+                .FirstOrDefault();
+            return bestNode.RawDistanceToTop;
         }
         public int GetDistanceToLeft()
         {
             var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToLeft)
-                .FirstOrDefault(x => x.RawDistanceToLeft < RawDistanceToLeft);
-            return bestNode?.RawDistanceToLeft ?? RawDistanceToLeft;
+                .FirstOrDefault();
+            return bestNode.RawDistanceToLeft;
         }
         public int GetDistanceToBottom()
         {
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToBottom)
-                .FirstOrDefault(x => x.RawDistanceToBottom < RawDistanceToBottom);
-            return bestNode?.RawDistanceToBottom ?? RawDistanceToBottom;
+                .FirstOrDefault();
+            return bestNode.RawDistanceToBottom;
         }
 
         public int GetDistanceToRight()
@@ -113,8 +113,8 @@ namespace Players.Minimax
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToRight)
-                .FirstOrDefault(x => x.RawDistanceToRight < RawDistanceToRight);
-            return bestNode?.RawDistanceToRight ?? RawDistanceToRight;
+                .FirstOrDefault();
+            return bestNode.RawDistanceToRight;
         }
 
        

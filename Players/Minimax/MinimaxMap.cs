@@ -25,6 +25,8 @@ namespace Players.Minimax
 
         }
 
+
+
         public MinimaxMap(int size)
         {
             Size = size;
@@ -37,6 +39,28 @@ namespace Players.Minimax
                 }
             }
         }
+
+        public MinimaxMap(MinimaxMap mapToClone)
+        {
+            Size = mapToClone.Size;
+            Board = new List<MinimaxNode>(Size * Size);
+            foreach (var node in mapToClone.Board)
+            {
+                var newNode = new MinimaxNode(Size, node.Row, node.Column);
+                Board.Add(newNode);
+            }
+            foreach (var node in mapToClone.Board)
+            {
+                var clonedNode = Board.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                foreach (var adjacentNode in node.AdjacencyList)
+                {
+                    var adjacentClonedNode =
+                        Board.FirstOrDefault(x => x.Row == adjacentNode.Row && x.Column == adjacentNode.Column);
+                    clonedNode.AdjacencyList.Add(adjacentClonedNode);
+                }
+            }
+        }
+
         public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
         {
             { AxialDirections.TopLeft, new Tuple<int, int>(0, -1) },

@@ -49,6 +49,7 @@ namespace WindowsGame
 
         public async void StartGame()
         {
+            buttonTestBoard.Enabled = false;
             var boardSize = _referee.Size;
             lblWInner.Visible = false;
             btnSave.Visible = false;
@@ -146,6 +147,7 @@ namespace WindowsGame
                 Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
                 _referee.Dispose();
+                buttonTestBoard.Enabled = true;
             }
             catch (Exception)
             {

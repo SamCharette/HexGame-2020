@@ -36,9 +36,9 @@ namespace Players
         private List<BaseNode> _preferredPath;
         private bool havePath = false;
         private BaseNode nodeIWant;
-        private int costToMoveToClaimedNode = 0;
-        private int costToMoveToUnclaimedNode = 100;
-        private int costPerNodeTillEnd = 1000;
+        private int costToMoveToClaimedNode;
+        private int costToMoveToUnclaimedNode;
+        private int costPerNodeTillEnd;
         private int EnemyPlayerNumber
         {
             get { return PlayerNumber == 1 ? 2 : 1; }
@@ -57,17 +57,17 @@ namespace Players
 
             _preferredPath = null;
         }
-
-        public DozerPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+       
+        public DozerPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             _preferredPath = new List<BaseNode>();
+            costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
+            costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
+            costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
+            Name = playerConfig.name;
             SetUpInMemoryBoard();
         }
 
-        public string PlayerName()
-        {
-            return "Dumb Dozer";
-        }
        
         public override string PlayerType()
         {

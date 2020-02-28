@@ -1,5 +1,6 @@
 ﻿using System;
 using Players.Base;
+using Players.Common;
 using Timer = System.Timers.Timer;
 
 namespace Players
@@ -37,9 +38,10 @@ namespace Players
             _hasReceivedInput = true;
         }
 
-        public HumanPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+        public HumanPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             base.SetUpInMemoryBoard();
+            Name = "Human Player";
         }
     }
 }

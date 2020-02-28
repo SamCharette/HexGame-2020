@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HexLibrary;
 using Players;
 using Players.Base;
+using Players.Common;
 using Players.Minimax;
 
 namespace Engine
@@ -73,8 +74,8 @@ namespace Engine
         public Referee(int size = 11)
         {
             NewGame(size);
-            AddPlayer("", 1);
-            AddPlayer("", 2);
+            AddPlayer(new Config(), 1);
+            AddPlayer(new Config(), 2);
             
         }
 
@@ -88,41 +89,41 @@ namespace Engine
             _lastPlayer = Player2;
         }
 
-        public void AddPlayer(string playerType, int playerNumber)
+        public void AddPlayer(Config playerConfig, int playerNumber)
         {
         
-            switch (playerType)
+            switch (playerConfig.type)
             {
                 case "Human":
                     if (playerNumber == 1)
                     {
-                        Player1 = new HumanPlayer(playerNumber, Size);
+                        Player1 = new HumanPlayer(playerNumber, Size, playerConfig);
                     }
                     else
                     {
-                        Player2 = new HumanPlayer(playerNumber, Size);
+                        Player2 = new HumanPlayer(playerNumber, Size, playerConfig);
                     }
                    
                     break;
                 case "Dozer AI":
                     if (playerNumber == 1)
                     {
-                        Player1 = new DozerPlayer(playerNumber, Size);
+                        Player1 = new DozerPlayer(playerNumber, Size, playerConfig);
                     }
                     else
                     {
-                        Player2 = new DozerPlayer(playerNumber, Size);
+                        Player2 = new DozerPlayer(playerNumber, Size, playerConfig);
                     }
 
                     break;
                 case "Minimax AI":
                     if (playerNumber == 1)
                     {
-                        Player1 = new MinimaxPlayer(playerNumber, Size);
+                        Player1 = new MinimaxPlayer(playerNumber, Size, playerConfig);
                     }
                     else
                     {
-                        Player2 = new MinimaxPlayer(playerNumber, Size);
+                        Player2 = new MinimaxPlayer(playerNumber, Size, playerConfig);
                     }
 
                     break;
@@ -130,11 +131,11 @@ namespace Engine
                 case "Replay AI":
                     if (playerNumber == 1)
                     {
-                        Player1 = new Playback(playerNumber, Size);
+                        Player1 = new Playback(playerNumber, Size, playerConfig);
                     }
                     else
                     {
-                        Player2 = new Playback(playerNumber, Size);
+                        Player2 = new Playback(playerNumber, Size, playerConfig);
                     }
 
                     break;
@@ -142,11 +143,11 @@ namespace Engine
                 default:
                     if (playerNumber == 1)
                     {
-                        Player1 = new RandomPlayer(playerNumber, Size);
+                        Player1 = new RandomPlayer(playerNumber, Size, null);
                     }
                     else
                     {
-                        Player2 = new RandomPlayer(playerNumber, Size);
+                        Player2 = new RandomPlayer(playerNumber, Size, null);
                     }
                     break;
             }

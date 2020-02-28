@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Players.Base;
+using Players.Common;
 
 namespace Players.Minimax
 {
@@ -9,23 +10,26 @@ namespace Players.Minimax
     {
         private new MinimaxMap _memory;
         private int Size;
-        private int _maxLevels = 30;
-        private int _maxSeconds = 20;
+        private int _maxLevels;
+        private int _maxSeconds;
         private readonly MinimaxGamePlayer _me;
         private int _nodesChecked;
         private MinimaxGamePlayer Opponent => _me == MinimaxGamePlayer.Blue ? MinimaxGamePlayer.Red : MinimaxGamePlayer.Blue;
 
-        public MinimaxPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+        public MinimaxPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             PlayerNumber = playerNumber;
             _me = PlayerNumber == 1 ? MinimaxGamePlayer.Blue : MinimaxGamePlayer.Red;
             Size = boardSize;
+            _maxLevels = GetDefault(playerConfig, "maxLevels", 20);
+            Name = playerConfig.name;
+
             Startup();
         }
 
         public override string PlayerType()
         {
-            return "MiniMax AI";
+            return "MiniMax AI (" + _maxLevels + ")";
         }
 
         public void Startup()

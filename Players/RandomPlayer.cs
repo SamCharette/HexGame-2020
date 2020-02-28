@@ -1,4 +1,5 @@
 ﻿using Players.Base;
+using Players.Common;
 
 namespace Players
 {
@@ -13,8 +14,9 @@ namespace Players
         {
             return true;
         }
-        public RandomPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+        public RandomPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
+            Name = playerConfig?.name ?? "Random";
         }
     }
 }

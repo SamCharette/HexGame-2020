@@ -9,7 +9,7 @@ namespace Players.Minimax
     {
         private new MinimaxMap _memory;
         private int Size;
-        private int _maxLevels = 30;
+        private int _maxLevels = 100;
         private int _maxSeconds = 20;
         private readonly MinimaxGamePlayer _me;
         private int _nodesChecked;

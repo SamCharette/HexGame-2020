@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HexLibrary;
 using Players;
 using Players.Base;
+using Players.Minimax;
 
 namespace Engine
 {
@@ -39,6 +40,11 @@ namespace Engine
         public Player CurrentPlayer()
         {
             return Player1 == _lastPlayer ? Player2 : Player1;
+        }
+
+        public Player OpponentPlayer()
+        {
+            return Player1 == _lastPlayer ? Player1 : Player2;
         }
 
         public void Quip(string expressionToSay)
@@ -109,6 +115,18 @@ namespace Engine
                     }
 
                     break;
+                case "Minimax AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new MinimaxPlayer(playerNumber, Size);
+                    }
+                    else
+                    {
+                        Player2 = new MinimaxPlayer(playerNumber, Size);
+                    }
+
+                    break;
+
                 case "Replay AI":
                     if (playerNumber == 1)
                     {

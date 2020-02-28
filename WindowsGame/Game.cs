@@ -149,7 +149,7 @@ namespace WindowsGame
             }
             catch (Exception)
             {
-                Console.WriteLine(@"No winner today!");
+                Console.WriteLine(@"The winner, because of a foul, is player #" + _referee.OpponentPlayer().PlayerNumber + "!");
             }
         }
 

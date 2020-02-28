@@ -1,0 +1,121 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace Players.Minimax
+{
+
+    public class MinimaxNode
+    {
+        public int Row;
+        public int Column;
+        public int BoardSize;
+        public Guid RandomValue;
+        public List<MinimaxNode> AdjacencyList;
+        public MinimaxGamePlayer Owner = MinimaxGamePlayer.White;
+
+        public int RawDistanceToLeft => Column;
+        public int RawDistanceToRight => BoardSize - 1 - Column;
+
+        public int RawDistanceToTop => Row;
+
+        public int RawDistanceToBottom => BoardSize - 1 - Row;
+
+        
+
+        public MinimaxNode(int Size, int row, int column)
+        {
+            BoardSize = Size;
+            Row = row;
+            Column = column;
+            RandomValue = new Guid();
+            ResetAdjacencies();
+        }
+
+        public void ResetAdjacencies()
+        {
+            AdjacencyList = new List<MinimaxNode>(BoardSize * BoardSize);
+            AdjacencyList.Add(this);
+        }
+
+        public void UpdateAdjacencyList(List<MinimaxNode> adjacentNodes)
+        {
+            AdjacencyList.Clear();
+            AdjacencyList.AddRange(adjacentNodes);
+        }
+
+        public int RemainingDistance()
+        {
+            var bestStartNode = AdjacencyList.OrderBy(x => x.GetDistanceToStart())
+                .FirstOrDefault();
+            var bestEndNode = AdjacencyList.OrderBy(x => x.GetDistanceToEnd()).FirstOrDefault();
+            return bestStartNode.GetDistanceToStart() + bestEndNode.GetDistanceToEnd();
+        }
+
+        public int GetDistanceToStart()
+        {
+            if (Owner == MinimaxGamePlayer.Blue)
+            {
+                return GetDistanceToTop();
+            }
+
+            if (Owner == MinimaxGamePlayer.Red)
+            {
+                return GetDistanceToLeft();
+            }
+
+            return -1;
+        }
+
+        public int GetDistanceToEnd()
+        {
+            if (Owner == MinimaxGamePlayer.Blue)
+            {
+                return GetDistanceToBottom();
+            }
+
+            if (Owner == MinimaxGamePlayer.Red)
+            {
+                return GetDistanceToRight();
+            }
+
+            return -1;
+        }
+
+        public int GetDistanceToTop()
+        {
+            // Using the adjacency graph, let's find the node connected that is closest 
+            // to the top, as we are essentially that close from here because we are connected
+            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToTop)
+                .FirstOrDefault(x => x.RawDistanceToTop < RawDistanceToTop);
+            return bestNode?.RawDistanceToTop ?? RawDistanceToTop;
+        }
+        public int GetDistanceToLeft()
+        {
+            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToLeft)
+                .FirstOrDefault(x => x.RawDistanceToLeft < RawDistanceToLeft);
+            return bestNode?.RawDistanceToLeft ?? RawDistanceToLeft;
+        }
+        public int GetDistanceToBottom()
+        {
+            // Using the adjacency graph, let's find the node connected that is closest 
+            // to the top, as we are essentially that close from here because we are connected
+            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToBottom)
+                .FirstOrDefault(x => x.RawDistanceToBottom < RawDistanceToBottom);
+            return bestNode?.RawDistanceToBottom ?? RawDistanceToBottom;
+        }
+
+        public int GetDistanceToRight()
+        {
+            // Using the adjacency graph, let's find the node connected that is closest 
+            // to the top, as we are essentially that close from here because we are connected
+            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToRight)
+                .FirstOrDefault(x => x.RawDistanceToRight < RawDistanceToRight);
+            return bestNode?.RawDistanceToRight ?? RawDistanceToRight;
+        }
+
+       
+    }
+}

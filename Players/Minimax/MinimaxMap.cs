@@ -47,6 +47,7 @@ namespace Players.Minimax
             foreach (var node in mapToClone.Board)
             {
                 var newNode = new MinimaxNode(Size, node.Row, node.Column);
+                newNode.Owner = node.Owner;
                 Board.Add(newNode);
             }
             foreach (var node in mapToClone.Board)

@@ -50,7 +50,7 @@
             // 
             this.buttonTestBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonTestBoard.Location = new System.Drawing.Point(1085, 638);
-            this.buttonTestBoard.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonTestBoard.Margin = new System.Windows.Forms.Padding(4);
             this.buttonTestBoard.Name = "buttonTestBoard";
             this.buttonTestBoard.Size = new System.Drawing.Size(109, 32);
             this.buttonTestBoard.TabIndex = 3;
@@ -62,7 +62,7 @@
             // 
             this.textBoxHexBoardSize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxHexBoardSize.Location = new System.Drawing.Point(1085, 558);
-            this.textBoxHexBoardSize.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxHexBoardSize.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxHexBoardSize.Name = "textBoxHexBoardSize";
             this.textBoxHexBoardSize.Size = new System.Drawing.Size(108, 22);
             this.textBoxHexBoardSize.TabIndex = 5;
@@ -99,7 +99,7 @@
             "Dozer AI",
             "Human"});
             this.comboBoxPlayer2Type.Location = new System.Drawing.Point(1085, 412);
-            this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer2Type.Name = "comboBoxPlayer2Type";
             this.comboBoxPlayer2Type.Size = new System.Drawing.Size(119, 24);
             this.comboBoxPlayer2Type.TabIndex = 14;
@@ -131,11 +131,12 @@
             this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Items.AddRange(new object[] {
+            "Minimax AI",
             "Dozer AI",
             "Random AI",
             "Human"});
             this.comboBoxPlayer1Type.Location = new System.Drawing.Point(1085, 363);
-            this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer1Type.Name = "comboBoxPlayer1Type";
             this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
             this.comboBoxPlayer1Type.TabIndex = 18;
@@ -204,7 +205,7 @@
             this.Controls.Add(this.textBoxHexBoardSize);
             this.Controls.Add(this.buttonTestBoard);
             this.DoubleBuffered = true;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Game";
             this.Text = "HexGame";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_Closing);

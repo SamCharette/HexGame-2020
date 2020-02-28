@@ -37,7 +37,7 @@ namespace HexLibrary
 
         public bool TakeHex(Hex a, int playerNumber)
         {
-            if (!IsBlocked(a, OpponentNumber(playerNumber)))
+            if (!IsBlocked(Grid[a.Row, a.Column], OpponentNumber(playerNumber)) && Grid[a.Row, a.Column].OwnerNumber == 0)
             {
                 Grid[a.Row, a.Column].OwnerNumber = playerNumber;
                 return true;

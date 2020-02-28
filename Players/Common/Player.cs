@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Players.Common;
 
 namespace Players.Base
 {
@@ -15,7 +16,7 @@ namespace Players.Base
         public int WaitTime = 50;
 
 
-        protected Player(int playerNumber, int boardSize)
+        protected Player(int playerNumber, int boardSize, Config playerConfig)
         {
             PlayerNumber = playerNumber;
             _size = boardSize;
@@ -25,6 +26,22 @@ namespace Players.Base
         public void GameOver(int winningPlayerNumber)
         {
             _memory = null;
+
+        }
+
+        protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
+        {
+            var setting = playerConfig?.settings?.FirstOrDefault(x => x.key == "costPerNodeTillEnd");
+            var parseWorked = Int32.TryParse(setting?.value, out var value);
+            if (parseWorked)
+            {
+                return value;
+            }
+            else
+            {
+                return defaultValue;
+
+            }
 
         }
 

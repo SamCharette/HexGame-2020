@@ -37,7 +37,7 @@ namespace Players
             return new Tuple<int, int>(moveToMake.X, moveToMake.Y);
         }
 
-        public Playback(int playerNumber, int boardSize) : base(playerNumber, boardSize)
+        public Playback(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
         }
     }

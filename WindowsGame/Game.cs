@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
@@ -9,6 +10,8 @@ using AnimatedGif;
 using Engine;
 using Engine.Hexagonal;
 using Players;
+using Newtonsoft.Json;
+using Players.Common;
 
 namespace WindowsGame
 {
@@ -27,11 +30,21 @@ namespace WindowsGame
         private readonly Color _emptyRedSide = Color.MistyRose;
         private readonly Color _lastTakenByPlayer1 = Color.Blue;
         private readonly Color _lastTakenByPlayer2 = Color.Red;
+        private List<Config> _playerConfigs;
 
 
         public Game()
         {
             InitializeComponent();
+            var appPath = Application.StartupPath;
+            var configPath = Path.Combine(appPath, "Config\\players.json");
+            _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
+
+            foreach (var player in _playerConfigs)
+            {
+                comboBoxPlayer1Type.Items.Add(player.name);
+                comboBoxPlayer2Type.Items.Add(player.name);
+            }
 
             textBoxHexBoardSize.Text = @"11";
             comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[0];
@@ -42,8 +55,8 @@ namespace WindowsGame
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
-            _referee.AddPlayer(comboBoxPlayer1Type.GetItemText(comboBoxPlayer1Type.SelectedItem), 1);
-            _referee.AddPlayer(comboBoxPlayer2Type.GetItemText(comboBoxPlayer2Type.SelectedItem), 2);
+            _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
+            _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
             StartGame();
         }
 
@@ -329,8 +342,8 @@ namespace WindowsGame
 
                     _referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
 
-                    var firstPlayer = new Playback(1, _referee.Size);
-                    var otherPlayer = new Playback(2, _referee.Size);
+                    var firstPlayer = new Playback(1, _referee.Size, new Config());
+                    var otherPlayer = new Playback(2, _referee.Size, new Config());
                     var player1Turn = 1;
                     var player2Turn = 1;
                     var moves = doc.GetElementsByTagName("Move");

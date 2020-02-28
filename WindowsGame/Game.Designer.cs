@@ -30,6 +30,7 @@
             this.btnLoad = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.buttonReloadConfig = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // labelXY
@@ -145,10 +146,10 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(925, 638);
+            this.btnSave.Location = new System.Drawing.Point(960, 638);
             this.btnSave.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(83, 32);
+            this.btnSave.Size = new System.Drawing.Size(94, 32);
             this.btnSave.TabIndex = 20;
             this.btnSave.Text = "Save Game";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -157,12 +158,12 @@
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(795, 638);
+            this.btnLoad.Location = new System.Drawing.Point(844, 638);
             this.btnLoad.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(83, 32);
+            this.btnLoad.Size = new System.Drawing.Size(96, 32);
             this.btnLoad.TabIndex = 21;
-            this.btnLoad.Text = "Load";
+            this.btnLoad.Text = "Load Game";
             this.btnLoad.UseVisualStyleBackColor = true;
             this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
             // 
@@ -178,11 +179,22 @@
             this.saveFileDialog1.FileName = "game.xml";
             this.saveFileDialog1.InitialDirectory = "C:\\GameFiles";
             // 
+            // buttonReloadConfig
+            // 
+            this.buttonReloadConfig.Location = new System.Drawing.Point(690, 638);
+            this.buttonReloadConfig.Name = "buttonReloadConfig";
+            this.buttonReloadConfig.Size = new System.Drawing.Size(144, 32);
+            this.buttonReloadConfig.TabIndex = 22;
+            this.buttonReloadConfig.Text = "Reload Config";
+            this.buttonReloadConfig.UseVisualStyleBackColor = true;
+            this.buttonReloadConfig.Click += new System.EventHandler(this.buttonReloadConfig_Click);
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1213, 676);
+            this.Controls.Add(this.buttonReloadConfig);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lblWInner);
@@ -224,5 +236,6 @@
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Button buttonReloadConfig;
     }
 }

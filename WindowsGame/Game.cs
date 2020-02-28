@@ -36,6 +36,13 @@ namespace WindowsGame
         public Game()
         {
             InitializeComponent();
+            SetUpPlayers();
+        }
+
+        private void SetUpPlayers()
+        {
+            comboBoxPlayer1Type.Items.Clear();
+            comboBoxPlayer2Type.Items.Clear();
             var appPath = Application.StartupPath;
             var configPath = Path.Combine(appPath, "Config\\players.json");
             _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
@@ -49,6 +56,7 @@ namespace WindowsGame
             textBoxHexBoardSize.Text = @"11";
             comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[0];
             comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
+
         }
 
         public void Play()
@@ -374,6 +382,11 @@ namespace WindowsGame
                 {
                     Console.WriteLine(@"Game couldn't be loaded properly : " + exception.Message);
                 }
+        }
+
+        private void buttonReloadConfig_Click(object sender, EventArgs e)
+        {
+            SetUpPlayers();
         }
     }
 }

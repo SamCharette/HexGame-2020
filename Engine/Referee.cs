@@ -156,7 +156,7 @@ namespace Engine
         
         public async Task<Tuple<int,int>> TakeTurn(Player player)
         {
-            Quip(player.PlayerType() + " take your turn!");
+            Quip(player.Name + " " + player.PlayerType() + " take your turn!");
             hexWanted = null;
 
             // First, check to see if the player is empty

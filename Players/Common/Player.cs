@@ -115,7 +115,7 @@ namespace Players.Base
 
         public void Quip(string expressionToSay)
         {
-            Console.WriteLine(PlayerType() + " (player " + PlayerNumber +") : " + expressionToSay);
+            Console.WriteLine(Name + " " + PlayerType() + " (player " + PlayerNumber +") : " + expressionToSay);
         }
 
     }

@@ -11,15 +11,20 @@ namespace Players.Minimax
         private int Size;
         private int _maxLevels = 10;
         private int _maxSeconds = 20;
-        private MinimaxGamePlayer Me;
-        private MinimaxGamePlayer Opponent => Me == MinimaxGamePlayer.Blue ? MinimaxGamePlayer.Red : MinimaxGamePlayer.Blue;
+        private readonly MinimaxGamePlayer _me;
+        private MinimaxGamePlayer Opponent => _me == MinimaxGamePlayer.Blue ? MinimaxGamePlayer.Red : MinimaxGamePlayer.Blue;
 
         public MinimaxPlayer(int playerNumber, int boardSize) : base(playerNumber, boardSize)
         {
             PlayerNumber = playerNumber;
-            Me = PlayerNumber == 1 ? MinimaxGamePlayer.Blue : MinimaxGamePlayer.Red;
+            _me = PlayerNumber == 1 ? MinimaxGamePlayer.Blue : MinimaxGamePlayer.Red;
             Size = boardSize;
             Startup();
+        }
+
+        public override string PlayerType()
+        {
+            return "MiniMax AI";
         }
 
         public void Startup()
@@ -42,7 +47,7 @@ namespace Players.Minimax
             MinimaxNode  choice = null;
             // Next we need to take a look at the board state, evaluate it, and start looking
             // for good choices
-            var score = ScoreFromBoard(Me);
+            var score = ScoreFromBoard(_me);
             // And when in doubt, get a random one
             if (choice == null)
             {
@@ -50,7 +55,7 @@ namespace Players.Minimax
                     .FirstOrDefault(x => x.Owner == MinimaxGamePlayer.White);
             }
 
-            _memory.TakeHex(Me, choice.Row, choice.Column);
+            _memory.TakeHex(_me, choice.Row, choice.Column);
             return new Tuple<int, int>(choice.Row, choice.Column);
         }
 
@@ -64,7 +69,7 @@ namespace Players.Minimax
             {
                 var myScore = _memory.Board.Where(x => x.Owner == Opponent).OrderBy(y => y.RemainingDistance())
                     .FirstOrDefault();
-                var notMyScore = _memory.Board.Where(x => x.Owner == Me).OrderBy(y => y.RemainingDistance())
+                var notMyScore = _memory.Board.Where(x => x.Owner == _me).OrderBy(y => y.RemainingDistance())
                     .FirstOrDefault();
 
                 var finalScore = myScore.RemainingDistance() - notMyScore.RemainingDistance();

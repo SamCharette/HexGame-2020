@@ -30,7 +30,7 @@ namespace Players.Minimax
             BoardSize = Size;
             Row = row;
             Column = column;
-            RandomValue = new Guid();
+            RandomValue = Guid.NewGuid();
             ResetAdjacencies();
         }
 
@@ -51,6 +51,7 @@ namespace Players.Minimax
             var bestStartNode = AdjacencyList.OrderBy(x => x.GetDistanceToStart())
                 .FirstOrDefault();
             var bestEndNode = AdjacencyList.OrderBy(x => x.GetDistanceToEnd()).FirstOrDefault();
+            
             return bestStartNode.GetDistanceToStart() + bestEndNode.GetDistanceToEnd();
         }
 

@@ -51,7 +51,8 @@ namespace Players.Minimax
 
         public bool TakeHex(MinimaxGamePlayer owner, int row, int column)
         {
-            var node = Board.FirstOrDefault(x => x.Row == row && x.Column == column && x.Owner == MinimaxGamePlayer.White);
+            var node = Board.FirstOrDefault(x =>
+                x.Row == row && x.Column == column && x.Owner == MinimaxGamePlayer.White);
             if (node == null)
             {
                 return false;
@@ -66,8 +67,8 @@ namespace Players.Minimax
             {
                 var delta = Directions[(AxialDirections) i];
                 var neighbourNode =
-                    Board.FirstOrDefault(x => x.Row == x.Row + delta.Item1 
-                                              && x.Column == x.Column + delta.Item2);
+                    Board.FirstOrDefault(x => x.Row == row + delta.Item1 
+                                              && x.Column == column + delta.Item2);
 
                 if (neighbourNode != null && neighbourNode.Owner == node.Owner)
                 {

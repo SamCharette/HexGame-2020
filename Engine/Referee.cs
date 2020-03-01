@@ -47,8 +47,6 @@ namespace Engine
 
         protected virtual void OnGameEnd(GameOverArgs e)
         {
-            Player1 = null;
-            Player2 = null;
             GameOver?.Invoke(this, e);
         }
 
@@ -196,19 +194,12 @@ namespace Engine
             Quip(player.Name + " " + player.PlayerType() + " take your turn!");
             hexWanted = null;
 
-            // First, check to see if the player is empty
-            if (player == null)
-            {
-                Quip("Non player trying to take a turn?");
-                throw new Exception("Cannot take a turn as a non-player");
-            }
 
             // Next, check to see if the player is the same as the last one
             if (player == _lastPlayer)
             {
                 Quip("FOUL!  Taking a second turn!");
-                WinningPlayer = (player == Player1 ? Player2 : Player1);
-                throw new Exception("Cannot play twice in a row");
+                GameEndsOnFoul();
             }
 
             hexWanted = player.SelectHex(_lastPlay);
@@ -216,13 +207,7 @@ namespace Engine
             if (hexWanted == null)
             {
                 Quip("FOUL!  No hex was selected.  Player LOSES.");
-                WinningPlayer = LastPlayer();
-                var args = new GameOverArgs()
-                {
-                    WinningPlayerNumber = WinningPlayer.PlayerNumber,
-                    WinningPath = null
-                };
-                OnGameEnd(args);
+                GameEndsOnFoul();
             }
             else
             {
@@ -231,52 +216,62 @@ namespace Engine
                 if (!success)
                 {
                     Quip("FOUL!  Player tried to take a hex that was blocked!");
-                    WinningPlayer = (player == Player1 ? Player2 : Player1);
-                    var args = new GameOverArgs()
-                    {
-                        WinningPlayerNumber = WinningPlayer.PlayerNumber,
-                        WinningPath = null
-                    };
-                    OnGameEnd(args);
-                }
-
-                if (CurrentPlayer().PlayerNumber == 1)
-                {
-                    lastHexForPlayer1 = hexWanted;
+                    GameEndsOnFoul();
                 }
                 else
                 {
-                    lastHexForPlayer2 = hexWanted;
+                    if (CurrentPlayer().PlayerNumber == 1)
+                    {
+                        lastHexForPlayer1 = hexWanted;
+                    }
+                    else
+                    {
+                        lastHexForPlayer2 = hexWanted;
+                    }
+
+                    _lastPlay = hexWanted;
+                    var playerMove = new Move
+                    {
+                        player = CurrentPlayer(),
+                        hex = hexWanted
+                    };
+                    AllGameMoves.Add(playerMove);
+                    var moveArgs = new PlayerMadeMoveArgs
+                    {
+                        player = CurrentPlayer().PlayerNumber,
+                        move = new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2)
+                    };
+                    OnPlayerMadeMove(moveArgs);
+
+                    LookForWinner();
                 }
 
-                _lastPlay = hexWanted;
-                var playerMove = new Move
-                {
-                    player = CurrentPlayer(), 
-                    hex = hexWanted
-                };
-                AllGameMoves.Add(playerMove);
-                LookForWinner();
-                var moveArgs = new PlayerMadeMoveArgs
-                {
-                    player = CurrentPlayer().PlayerNumber,
-                    move = new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2)
-                };
-                OnPlayerMadeMove(moveArgs);
+              
             }
            
 
         }
 
+        private void GameEndsOnFoul()
+        {
+            WinningPlayer = OpponentPlayer();
+            var args = new GameOverArgs()
+            {
+                WinningPlayerNumber = WinningPlayer.PlayerNumber,
+                WinningPath = null
+            };
+            OnGameEnd(args);
+        }
+
         public void Dispose()
         {
-            Size = 0;
-            Board = null;
-            Player1.GameOver(WinningPlayer.PlayerNumber);
-            Player2.GameOver(WinningPlayer.PlayerNumber);
-            winningPath = null;
-            WinningPlayer = null;
-            _lastPlayer = null;
+            //Size = 0;
+            //Board = null;
+            //Player1.GameOver(WinningPlayer.PlayerNumber);
+            //Player2.GameOver(WinningPlayer.PlayerNumber);
+            //winningPath = null;
+            //WinningPlayer = null;
+            //_lastPlayer = null;
         }
 
         private void PrintPath(List<Hex> path)

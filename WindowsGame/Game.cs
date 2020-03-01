@@ -23,13 +23,15 @@ namespace WindowsGame
         private GraphicsEngine _graphicsEngine;
         private List<Bitmap> _playThrough;
         private Referee _referee;
+        private Hex _lastTakenByPlayer1;
+        private Hex _lastTakenByPlayer2;
         private readonly Color _takenBeforeByPlayer1 = Color.DeepSkyBlue;
         private readonly Color _takenBeforeByPlayer2 = Color.LightCoral;
         private readonly Color _emptyBlueSide = Color.Azure;
         private readonly Color _emptyCorner = Color.Plum;
         private readonly Color _emptyRedSide = Color.MistyRose;
-        private readonly Color _lastTakenByPlayer1 = Color.Blue;
-        private readonly Color _lastTakenByPlayer2 = Color.Red;
+        private readonly Color _lastTakenByPlayer1Colour = Color.Blue;
+        private readonly Color _lastTakenByPlayer2Colour = Color.Red;
         private List<Config> _playerConfigs;
 
 
@@ -109,41 +111,10 @@ namespace WindowsGame
             }
 
             Refresh();
+            _playThrough.Add(_graphicsEngine.CreateImage());
+            _referee.StartGame();
 
-            try
-            {
-                _playThrough.Add(_graphicsEngine.CreateImage());
-
-                while (_referee.WinningPlayer == null)
-                {
-                    //Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
-
-                    if (_referee.lastHexForPlayer1 != null && _referee.lastHexForPlayer2 != null)
-                    {
-                        var lastHex = _board.Hexes[
-                            _referee.CurrentPlayer().PlayerNumber == 1
-                                ? _referee.lastHexForPlayer1.Item1
-                                : _referee.lastHexForPlayer2.Item1,
-                            _referee.CurrentPlayer().PlayerNumber == 1
-                                ? _referee.lastHexForPlayer1.Item2
-                                : _referee.lastHexForPlayer2.Item2];
-
-                        ChangeHexColor(lastHex,
-                            _referee.CurrentPlayer().PlayerNumber == 1 ? _takenBeforeByPlayer1 : _takenBeforeByPlayer2);
-                    }
-
-
-                    _referee.StartGame();
-
-                   
-                }
-
-                
-            }
-            catch (Exception)
-            {
-                Console.WriteLine(@"The winner, because of a foul, is player #" + _referee.OpponentPlayer().PlayerNumber + "!");
-            }
+            
         }
          
         public void PlayerMadeMove(object sender, EventArgs args)
@@ -152,26 +123,42 @@ namespace WindowsGame
             if (moveArgs != null)
             {
                 var boardHex = _board.Hexes[moveArgs.move.Item1, moveArgs.move.Item2];
-
-                if (_referee.WinningPlayer == null)
-                    ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
-                        ? _lastTakenByPlayer1
-                        : _lastTakenByPlayer2);
+                if (moveArgs.player == 1)
+                {
+                    UpdatePlayer1Moves(boardHex);
+                }
                 else
-                    ChangeHexColor(boardHex, _referee.WinningPlayer.PlayerNumber == 1
-                        ? _lastTakenByPlayer1
-                        : _lastTakenByPlayer2);
+                {
+                    UpdatePlayer2Moves(boardHex);
+                }
+
             }
 
             Refresh();
 
             _playThrough.Add(_graphicsEngine.CreateImage());
         }
+
+        private void UpdatePlayer1Moves(Hex boardHex)
+        {
+            ChangeHexColor(_lastTakenByPlayer1,  _takenBeforeByPlayer1);
+            _lastTakenByPlayer1 = boardHex;
+            ChangeHexColor(_lastTakenByPlayer1, _lastTakenByPlayer1Colour);
+
+        }
+        private void UpdatePlayer2Moves(Hex boardHex)
+        {
+            ChangeHexColor(_lastTakenByPlayer2, _takenBeforeByPlayer2);
+            _lastTakenByPlayer2 = boardHex;
+            ChangeHexColor(_lastTakenByPlayer2, _lastTakenByPlayer2Colour);
+
+        }
+
         public void GameOver(object sender, EventArgs args)
         {
             // Show the winning path
             var colorForWinningPath =
-                _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1 : _lastTakenByPlayer2;
+                _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1Colour : _lastTakenByPlayer2Colour;
             foreach (var hex in _referee.winningPath)
                 ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
 
@@ -222,10 +209,10 @@ namespace WindowsGame
                 if (hexHoveringOver != null)
                 {
                     var label = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
-                    if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer1 ||
+                    if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer1Colour ||
                         hexHoveringOver.HexState.BackgroundColor == _takenBeforeByPlayer1)
                         label += " Player 1";
-                    else if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer2 ||
+                    else if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer2Colour ||
                              hexHoveringOver.HexState.BackgroundColor == _takenBeforeByPlayer2)
                         label += " Player 2";
                     else

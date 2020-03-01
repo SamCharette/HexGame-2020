@@ -18,7 +18,9 @@ namespace Players.Minimax.List
 
         public ListPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
-            
+            PlayerNumber = playerNumber;
+            Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
+            Size = boardSize;
             _maxLevels = GetDefault(playerConfig, "maxLevels", 20);
             Name = playerConfig.name;
 

@@ -33,7 +33,7 @@
   },
   {
     "name": "Minnie",
-    "type": "Minimax AI",
+    "type": "Minimax List AI",
     "settings": [
       {
         "key":  "maxLevels", 

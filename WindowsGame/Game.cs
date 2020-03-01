@@ -62,11 +62,14 @@ namespace WindowsGame
         public void Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
+            _referee.GameOver += GameOver;
+            _referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
             StartGame();
         }
+
 
         public async void StartGame()
         {
@@ -130,50 +133,58 @@ namespace WindowsGame
                     }
 
 
-                    var hexTaken = await _referee.TakeTurn(_referee.CurrentPlayer());
+                    _referee.StartGame();
 
-                    if (hexTaken != null)
-                    {
-                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
-
-                        var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
-
-                        if (_referee.WinningPlayer == null)
-                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
-                                ? _lastTakenByPlayer1
-                                : _lastTakenByPlayer2);
-                        else
-                            ChangeHexColor(boardHex, _referee.WinningPlayer.PlayerNumber == 1
-                                ? _lastTakenByPlayer1
-                                : _lastTakenByPlayer2);
-                    }
-
-                    Refresh();
-
-                    _playThrough.Add(_graphicsEngine.CreateImage());
+                   
                 }
 
-                // Show the winning path
-                var colorForWinningPath =
-                    _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1 : _lastTakenByPlayer2;
-                foreach (var hex in _referee.winningPath)
-                    ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
-
-                lblWInner.Text = @"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
-                lblWInner.Visible = true;
-                btnSave.Enabled = true;
-                btnSave.Visible = true;
-                Refresh();
-                // Clear up the memory for the ref
-                Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
-                _playThrough.Add(_graphicsEngine.CreateImage());
-                _referee.Dispose();
-                buttonTestBoard.Enabled = true;
+                
             }
             catch (Exception)
             {
                 Console.WriteLine(@"The winner, because of a foul, is player #" + _referee.OpponentPlayer().PlayerNumber + "!");
             }
+        }
+         
+        public void PlayerMadeMove(object sender, EventArgs args)
+        {
+            PlayerMadeMoveArgs moveArgs = (PlayerMadeMoveArgs) args;
+            if (moveArgs != null)
+            {
+                var boardHex = _board.Hexes[moveArgs.move.Item1, moveArgs.move.Item2];
+
+                if (_referee.WinningPlayer == null)
+                    ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
+                        ? _lastTakenByPlayer1
+                        : _lastTakenByPlayer2);
+                else
+                    ChangeHexColor(boardHex, _referee.WinningPlayer.PlayerNumber == 1
+                        ? _lastTakenByPlayer1
+                        : _lastTakenByPlayer2);
+            }
+
+            Refresh();
+
+            _playThrough.Add(_graphicsEngine.CreateImage());
+        }
+        public void GameOver(object sender, EventArgs args)
+        {
+            // Show the winning path
+            var colorForWinningPath =
+                _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1 : _lastTakenByPlayer2;
+            foreach (var hex in _referee.winningPath)
+                ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
+
+            lblWInner.Text = @"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
+            lblWInner.Visible = true;
+            btnSave.Enabled = true;
+            btnSave.Visible = true;
+            Refresh();
+            // Clear up the memory for the ref
+            Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
+            _playThrough.Add(_graphicsEngine.CreateImage());
+            _referee.Dispose();
+            buttonTestBoard.Enabled = true;
         }
 
         private void MakeGif(List<Bitmap> frames, string fileName)

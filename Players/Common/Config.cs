@@ -11,6 +11,7 @@ namespace Players.Common
     {
         public string name;
         public string type;
+        public string playerNumber;
         public List<Setting> settings;
     }
 }

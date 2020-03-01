@@ -49,15 +49,24 @@ namespace WindowsGame
             var configPath = Path.Combine(appPath, "Config\\players.json");
             _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
 
+            int count = 0;
             foreach (var player in _playerConfigs)
             {
                 comboBoxPlayer1Type.Items.Add(player.name);
+                if (player.playerNumber == "1")
+                {
+                    comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[count];
+                }
                 comboBoxPlayer2Type.Items.Add(player.name);
+                if (player.playerNumber == "2")
+                {
+                    comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[count];
+                }
+
+                count++;
             }
 
             textBoxHexBoardSize.Text = @"11";
-            comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[0];
-            comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
 
         }
 

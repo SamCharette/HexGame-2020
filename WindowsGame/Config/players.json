@@ -2,10 +2,11 @@
   {
     "name": "Dozer",
     "type": "Dozer AI",
-    "settings": [
+    "playerNumber": "0",
+      "settings": [
       {
         "key": "costToClaimedNode",
-        "value":  "0" 
+        "value": "0"
       },
       {
         "key": "costPerNodeTillEnd",
@@ -18,15 +19,17 @@
     ]
   },
   {
+    "playerNumber": "0",
     "name": "Human",
     "type": "Human Player"
   },
   {
+    "playerNumber": "2",
     "name": "Random",
     "type": "Random AI",
     "settings": [
       {
-        "key":  "waitTime", 
+        "key": "waitTime",
         "value": "0"
       }
     ]
@@ -34,9 +37,10 @@
   {
     "name": "Minnie",
     "type": "Minimax List AI",
+    "playerNumber": "1",
     "settings": [
       {
-        "key":  "maxLevels", 
+        "key": "maxLevels",
         "value": "50"
       }
     ]

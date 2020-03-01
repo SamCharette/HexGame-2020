@@ -95,7 +95,7 @@ namespace Players.Minimax.List
 
                 // And now, if there's more than just the node in the list
                 // we can go in and update all of the adjacency lists
-                //listOfNodesToUpdate.ForEach(x => x.UpdateAdjacencyList(listOfNodesToUpdate));
+                listOfNodesToUpdate.ForEach(x => x.UpdateAdjacencyList(listOfNodesToUpdate));
             }
 
             return true;

@@ -17,11 +17,12 @@ namespace Players.Minimax.List
         public List<ListNode> Neighbours = new List<ListNode>();
         public Common.PlayerType Owner = Common.PlayerType.White;
 
-        public int F;
         public int G;
         public int H;
-        public Status Status;
+        public Status Status = Status.Untested;
         public ListNode Parent;
+
+        public int F => G + H;
 
         public int RawDistanceToLeft => Column;
         public int RawDistanceToRight => BoardSize - 1 - Column;
@@ -40,9 +41,16 @@ namespace Players.Minimax.List
             RandomValue = Guid.NewGuid();
         }
 
+        public bool IsNeighboursWith(ListNode neighbour)
+        {
+            return Neighbours.Any(x => x.Row == neighbour.Row && x.Column == neighbour.Column) ;
+        }
         public void AttachTo(ListNode neighbour)
         {
-            Neighbours.Add(neighbour);
+            if (!Neighbours.Any(x => x.Row == neighbour.Row && x.Column == neighbour.Column))
+            {
+                Neighbours.Add(neighbour);
+            }
         }
         
         public int RemainingDistance()

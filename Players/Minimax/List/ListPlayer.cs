@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MathNet.Numerics.Providers.Common.OpenBlas;
 using Players.Base;
 using Players.Common;
 using Players.Minimax.List;
@@ -14,6 +15,10 @@ namespace Players.Minimax.List
         private int _maxLevels;
         private int _maxSeconds;
         private int _nodesChecked;
+        private int costPerClaimedNode = 1;
+        private int costPerUnclaimedNode = 5;
+        private int costPerNodeTillEnd = 10;
+
         private PlayerType Opponent => Me == Common.PlayerType.Blue  ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
 
@@ -41,7 +46,6 @@ namespace Players.Minimax.List
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
-            _nodesChecked = 0;
             if (opponentMove != null)
             {
                 // First we set the opponent's hex as being owned by them.
@@ -51,20 +55,31 @@ namespace Players.Minimax.List
                     _memory.TakeHex(Opponent, opponentMove.Item1, opponentMove.Item2);
                 }
             }
+
+            
+            var myBestPathFromHere = StartLookForBestPath(Me, _memory);
+            var opponentBestPathFromHere = StartLookForBestPath(Opponent, _memory);
             ListNode choice = null;
-            int bestScore = 999;
 
-            var possibleMoves = _memory.Board.OrderBy(x => x.RandomValue).Where(x => x.Owner == Common.PlayerType.White);
-
-            foreach (var move in possibleMoves)
+            if (myBestPathFromHere != null && opponentBestPathFromHere != null)
             {
-                var thoughtBoard = new ListMap(_memory);
+                var possibleMoves = new List<ListNode>();
+                possibleMoves.AddRange(myBestPathFromHere.Where(x => x.Owner == Common.PlayerType.White));
+                possibleMoves.AddRange(opponentBestPathFromHere.Where(x => x.Owner == Common.PlayerType.White));
 
-                var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, Me, _maxLevels, 0, 0);
-                if (scoreForThisMove < bestScore)
+                _nodesChecked = 0;
+                int bestScore = 999;
+
+                foreach (var move in possibleMoves)
                 {
-                    bestScore = scoreForThisMove;
-                    choice = _memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                    var thoughtBoard = _memory;
+
+                    var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, Me, _maxLevels, 0, 0);
+                    if (scoreForThisMove < bestScore)
+                    {
+                        bestScore = scoreForThisMove;
+                        choice = _memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                    }
                 }
             }
 
@@ -82,9 +97,6 @@ namespace Players.Minimax.List
 
         private int ScoreFromPath(List<ListNode> path)
         {
-            // Start at the top or left, use A* to get the best path to the opposite
-            // side.  The score for that player is the amount of unclaimed places in
-            // the best path
             if (path == null || ! path.Any())
             {
                 return 100;
@@ -94,16 +106,25 @@ namespace Players.Minimax.List
 
         private int ScoreFromBoard(Common.PlayerType player, ListMap board)
         {
+            var opponent = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
             // Get the player's best path
-            var playerPath = new List<ListNode>();
+            var playerPath = StartLookForBestPath(player, board);
             // Get the opponent best path
-            var opponentPath = new List<ListNode>();
+            var opponentPath = StartLookForBestPath(opponent, board);
 
-
-            return ScoreFromPath(playerPath) - ScoreFromPath(opponentPath);
+            var score = ScoreFromPath(playerPath) - ScoreFromPath(opponentPath);
+            board.ClearPathValues();
+            return score;
         }
 
-        public List<ListNode> GetBestPath(Common.PlayerType player, ListMap board)
+        private int ScoreFromBoard(Common.PlayerType player, ListMap board, List<ListNode> playerPath, List<ListNode> opponentPath)
+        {
+            var score = ScoreFromPath(playerPath) - ScoreFromPath(opponentPath);
+            board.ClearPathValues();
+            return score;
+        }
+
+        public List<ListNode> StartLookForBestPath(Common.PlayerType player, ListMap board)
         {
             ListNode start;
             ListNode end;
@@ -119,34 +140,46 @@ namespace Players.Minimax.List
 
             start.Status = Status.Open;
 
-            return LookForPath(board.Board, player, end);
+            return ContinueLookingForPath(board, player, start, end);
 
         }
 
-        private List<ListNode> LookForPath(List<ListNode> board, PlayerType player, ListNode end)
+        private List<ListNode> ContinueLookingForPath(ListMap map, PlayerType player, ListNode start, ListNode end)
         {
             ListNode bestLookingNode = null;
-            Quip("Looking...");
 
-            // GEt the best looking node
-            bestLookingNode = board
-                .OrderBy(x => x.F)
-                .ThenBy(x => x.RandomValue)
-                .FirstOrDefault(z => z.Status == Status.Open);
 
-            if (bestLookingNode == null)
+            if (map.Board.All(x => x.Status == Status.Untested))
             {
+                Quip("Starting at the beginning");
+                start.Status = Status.Open;
+                bestLookingNode = start;
+            }
+            else
+            {
+                Quip("Checking out the next node");
+
+                bestLookingNode = map.Board
+                    .OrderBy(x => x.F)
+                    .ThenBy(x => x.RandomValue)
+                    .FirstOrDefault(x => x.Status == Status.Open);
+            }
+
+            if (bestLookingNode == null )
+            {
+                Quip("Wait, what happened?  No nodes to check?");
                 return null;
             }
 
             // CLOSE IT
             bestLookingNode.Status = Status.Closed;
 
-            if (bestLookingNode == end)
+            if (bestLookingNode.IsNeighboursWith(end))
             {
+                Quip("Found a good path.");
                 var preferredPath = new List<ListNode>();
                 var parent = bestLookingNode;
-                while (parent != null)
+                while (parent != null && (parent.Row != start.Row && parent.Column != start.Column))
                 {
                     preferredPath.Add(parent);
                     parent = parent.Parent;
@@ -154,7 +187,7 @@ namespace Players.Minimax.List
 
                 return preferredPath;
             }
-
+            
             var neighbours = bestLookingNode.Neighbours;
 
             foreach (var node in neighbours)
@@ -163,56 +196,28 @@ namespace Players.Minimax.List
                 {
                     if (node.Status == Status.Open)
                     {
-                        if (node.G > bestLookingNode.G + (node.Owner == player ? 0 : 1))
+                        
+                        if (node.G > bestLookingNode.G + (node.Owner == player ? costPerClaimedNode : costPerUnclaimedNode))
                         {
                             node.Parent = bestLookingNode;
-                            node.G = bestLookingNode.G + (node.Owner == player ? 1 : 0); ;
-                            node.H = (player == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * 1;
+                            node.G = bestLookingNode.G + (node.Owner == player ? costPerUnclaimedNode : costPerClaimedNode); 
+                            node.H = (player == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
                     {
                         node.Status = Status.Open;
                         node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G + (node.Owner == player ? 0 : 1);
-                        node.H = (player == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * 1;
+                        node.G = bestLookingNode.G + (node.Owner == player ? costPerClaimedNode : costPerUnclaimedNode);
+                        node.H = (player == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
                     }
                 }
 
 
             }
-            return LookForPath(board, player, end);
+            return ContinueLookingForPath(map, player, start, end);
 
         }
-
-
-        //private int ScoreFromBoardOld(Common.PlayerType player, ListMap board)
-        //{
-        //    // To score the board, we should find the best path for each player
-        //    // and use them to determine the score.
-        //    //
-        //    // Any path with fewer hexes needed to get to an edge, for instance, is better
-        //    if (board.Board.Count(x => x.Owner != Common.PlayerType.White) > 2)
-        //    {
-
-        //        var opponent = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
-
-        //        var playerScore = board.Board.Where(x => x.Owner == player)
-        //            .OrderBy(y => y.RemainingDistance())
-        //            .FirstOrDefault();
-
-        //        var opponentScore = board.Board.Where(x => x.Owner == opponent)
-        //            .OrderBy(y => y.RemainingDistance())
-        //            .FirstOrDefault();
-
-        //        var finalScore = playerScore.RemainingDistance() - opponentScore.RemainingDistance();
-
-        //        return finalScore;
-        //    }
-
-        //    return 0;
-
-        //}
 
         private int LetMeThinkAboutIt(ListMap thoughtBoard, Common.PlayerType player, int depth, int alpha, int beta)
         {
@@ -224,27 +229,38 @@ namespace Players.Minimax.List
                 return ScoreFromBoard(player, thoughtBoard);
             }
 
-            var possibleMoves = thoughtBoard.Board.Where(x => x.Owner == Common.PlayerType.White);
+            var myBestPathFromHere = StartLookForBestPath(Me, thoughtBoard);
+            var opponentBestPathFromHere = StartLookForBestPath(Opponent, thoughtBoard);
+
+            var possibleMoves = new List<ListNode>();
+            if (myBestPathFromHere != null)
+            {
+                possibleMoves.AddRange(myBestPathFromHere.Where(x => x.Owner == Common.PlayerType.White));
+            }
+            if (opponentBestPathFromHere != null)
+            {
+                possibleMoves.AddRange(opponentBestPathFromHere.Where(x => x.Owner == Common.PlayerType.White));
+            }
             // Get possible moves for player
             if (possibleMoves.Any())
             {
-                var newThoughtBoard = new ListMap(thoughtBoard);
+                
                 if (player == Me)
                 {
                     var bestValue = -999999;
+
                     foreach (var move in possibleMoves)
                     {
-
-                        newThoughtBoard.TakeHex(player, move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(newThoughtBoard, Opponent, depth - 1, currentAlpha, currentBeta));
+                        thoughtBoard.TakeHex(player, move.Row, move.Column);
+                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(thoughtBoard, Opponent, depth - 1, currentAlpha, currentBeta));
                         currentAlpha = Math.Max(currentAlpha, bestValue);
+                        thoughtBoard.ReleaseHex(move.Row, move.Column);
                         if (currentBeta <= currentAlpha)
                         {
-                            _nodesChecked++;
                             break;
                         }
                     }
-
+                 
                     return bestValue;
                 }
                 else
@@ -253,12 +269,12 @@ namespace Players.Minimax.List
                     foreach (var move in possibleMoves)
                     {
 
-                        newThoughtBoard.TakeHex(player, move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(newThoughtBoard, Me, depth - 1, currentAlpha, currentBeta));
+                        thoughtBoard.TakeHex(player, move.Row, move.Column);
+                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(thoughtBoard, Me, depth - 1, currentAlpha, currentBeta));
                         currentBeta = Math.Min(currentBeta, bestValue);
+                        thoughtBoard.ReleaseHex(move.Row, move.Column);
                         if (currentBeta <= currentAlpha)
                         {
-                            _nodesChecked++;
                             break;
                         }
                     }

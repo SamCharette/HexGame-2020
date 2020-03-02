@@ -23,42 +23,64 @@ namespace WindowsGame
         private GraphicsEngine _graphicsEngine;
         private List<Bitmap> _playThrough;
         private Referee _referee;
+        private Hex _lastTakenByPlayer1;
+        private Hex _lastTakenByPlayer2;
         private readonly Color _takenBeforeByPlayer1 = Color.DeepSkyBlue;
         private readonly Color _takenBeforeByPlayer2 = Color.LightCoral;
         private readonly Color _emptyBlueSide = Color.Azure;
         private readonly Color _emptyCorner = Color.Plum;
         private readonly Color _emptyRedSide = Color.MistyRose;
-        private readonly Color _lastTakenByPlayer1 = Color.Blue;
-        private readonly Color _lastTakenByPlayer2 = Color.Red;
+        private readonly Color _lastTakenByPlayer1Colour = Color.Blue;
+        private readonly Color _lastTakenByPlayer2Colour = Color.Red;
         private List<Config> _playerConfigs;
 
 
         public Game()
         {
             InitializeComponent();
+            SetUpPlayers();
+        }
+
+        private void SetUpPlayers()
+        {
+            comboBoxPlayer1Type.Items.Clear();
+            comboBoxPlayer2Type.Items.Clear();
             var appPath = Application.StartupPath;
             var configPath = Path.Combine(appPath, "Config\\players.json");
             _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
 
+            int count = 0;
             foreach (var player in _playerConfigs)
             {
                 comboBoxPlayer1Type.Items.Add(player.name);
+                if (player.playerNumber == "1")
+                {
+                    comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[count];
+                }
                 comboBoxPlayer2Type.Items.Add(player.name);
+                if (player.playerNumber == "2")
+                {
+                    comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[count];
+                }
+
+                count++;
             }
 
             textBoxHexBoardSize.Text = @"11";
-            comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[0];
-            comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[0];
+
         }
 
         public void Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
+            _referee.GameOver += GameOver;
+            _referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
             StartGame();
         }
+
 
         public async void StartGame()
         {
@@ -98,74 +120,67 @@ namespace WindowsGame
             }
 
             Refresh();
+            _playThrough.Add(_graphicsEngine.CreateImage());
+            _referee.StartGame();
 
-            try
+            
+        }
+         
+        public void PlayerMadeMove(object sender, EventArgs args)
+        {
+            PlayerMadeMoveArgs moveArgs = (PlayerMadeMoveArgs) args;
+            if (moveArgs != null)
             {
-                _playThrough.Add(_graphicsEngine.CreateImage());
-
-                while (_referee.WinningPlayer == null)
+                var boardHex = _board.Hexes[moveArgs.move.Item1, moveArgs.move.Item2];
+                if (moveArgs.player == 1)
                 {
-                    //Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
-
-                    if (_referee.lastHexForPlayer1 != null && _referee.lastHexForPlayer2 != null)
-                    {
-                        var lastHex = _board.Hexes[
-                            _referee.CurrentPlayer().PlayerNumber == 1
-                                ? _referee.lastHexForPlayer1.Item1
-                                : _referee.lastHexForPlayer2.Item1,
-                            _referee.CurrentPlayer().PlayerNumber == 1
-                                ? _referee.lastHexForPlayer1.Item2
-                                : _referee.lastHexForPlayer2.Item2];
-
-                        ChangeHexColor(lastHex,
-                            _referee.CurrentPlayer().PlayerNumber == 1 ? _takenBeforeByPlayer1 : _takenBeforeByPlayer2);
-                    }
-
-
-                    var hexTaken = await _referee.TakeTurn(_referee.CurrentPlayer());
-
-                    if (hexTaken != null)
-                    {
-                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
-
-                        var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
-
-                        if (_referee.WinningPlayer == null)
-                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
-                                ? _lastTakenByPlayer1
-                                : _lastTakenByPlayer2);
-                        else
-                            ChangeHexColor(boardHex, _referee.WinningPlayer.PlayerNumber == 1
-                                ? _lastTakenByPlayer1
-                                : _lastTakenByPlayer2);
-                    }
-
-                    Refresh();
-
-                    _playThrough.Add(_graphicsEngine.CreateImage());
+                    UpdatePlayer1Moves(boardHex);
+                }
+                else
+                {
+                    UpdatePlayer2Moves(boardHex);
                 }
 
-                // Show the winning path
-                var colorForWinningPath =
-                    _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1 : _lastTakenByPlayer2;
-                foreach (var hex in _referee.winningPath)
-                    ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
+            }
 
-                lblWInner.Text = @"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
-                lblWInner.Visible = true;
-                btnSave.Enabled = true;
-                btnSave.Visible = true;
-                Refresh();
-                // Clear up the memory for the ref
-                Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
-                _playThrough.Add(_graphicsEngine.CreateImage());
-                _referee.Dispose();
-                buttonTestBoard.Enabled = true;
-            }
-            catch (Exception)
-            {
-                Console.WriteLine(@"The winner, because of a foul, is player #" + _referee.OpponentPlayer().PlayerNumber + "!");
-            }
+            Refresh();
+
+            _playThrough.Add(_graphicsEngine.CreateImage());
+        }
+
+        private void UpdatePlayer1Moves(Hex boardHex)
+        {
+            ChangeHexColor(_lastTakenByPlayer1,  _takenBeforeByPlayer1);
+            _lastTakenByPlayer1 = boardHex;
+            ChangeHexColor(_lastTakenByPlayer1, _lastTakenByPlayer1Colour);
+
+        }
+        private void UpdatePlayer2Moves(Hex boardHex)
+        {
+            ChangeHexColor(_lastTakenByPlayer2, _takenBeforeByPlayer2);
+            _lastTakenByPlayer2 = boardHex;
+            ChangeHexColor(_lastTakenByPlayer2, _lastTakenByPlayer2Colour);
+
+        }
+
+        public void GameOver(object sender, EventArgs args)
+        {
+            // Show the winning path
+            var colorForWinningPath =
+                _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1Colour : _lastTakenByPlayer2Colour;
+            foreach (var hex in _referee.winningPath)
+                ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
+
+            lblWInner.Text = @"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
+            lblWInner.Visible = true;
+            btnSave.Enabled = true;
+            btnSave.Visible = true;
+            Refresh();
+            // Clear up the memory for the ref
+            Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
+            _playThrough.Add(_graphicsEngine.CreateImage());
+            _referee.Dispose();
+            buttonTestBoard.Enabled = true;
         }
 
         private void MakeGif(List<Bitmap> frames, string fileName)
@@ -203,10 +218,10 @@ namespace WindowsGame
                 if (hexHoveringOver != null)
                 {
                     var label = "[" + hexHoveringOver.Row + "," + hexHoveringOver.Column + "]";
-                    if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer1 ||
+                    if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer1Colour ||
                         hexHoveringOver.HexState.BackgroundColor == _takenBeforeByPlayer1)
                         label += " Player 1";
-                    else if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer2 ||
+                    else if (hexHoveringOver.HexState.BackgroundColor == _lastTakenByPlayer2Colour ||
                              hexHoveringOver.HexState.BackgroundColor == _takenBeforeByPlayer2)
                         label += " Player 2";
                     else
@@ -374,6 +389,11 @@ namespace WindowsGame
                 {
                     Console.WriteLine(@"Game couldn't be loaded properly : " + exception.Message);
                 }
+        }
+
+        private void buttonReloadConfig_Click(object sender, EventArgs e)
+        {
+            SetUpPlayers();
         }
     }
 }

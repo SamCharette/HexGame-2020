@@ -4,17 +4,17 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Players.Minimax
+namespace Players.Minimax.List
 {
 
-    public class MinimaxNode
+    public class ListNode
     {
         public int Row;
         public int Column;
         public int BoardSize;
         public Guid RandomValue;
-        public List<MinimaxNode> AdjacencyList;
-        public MinimaxGamePlayer Owner = MinimaxGamePlayer.White;
+        public List<ListNode> AdjacencyList;
+        public Common.PlayerType Owner = Common.PlayerType.White;
 
         public int RawDistanceToLeft => Column;
         public int RawDistanceToRight => BoardSize - 1 - Column;
@@ -23,9 +23,9 @@ namespace Players.Minimax
 
         public int RawDistanceToBottom => BoardSize - 1 - Row;
 
-        
 
-        public MinimaxNode(int Size, int row, int column)
+
+        public ListNode(int Size, int row, int column)
         {
             BoardSize = Size;
             Row = row;
@@ -36,11 +36,11 @@ namespace Players.Minimax
 
         public void ResetAdjacencies()
         {
-            AdjacencyList = new List<MinimaxNode>(BoardSize * BoardSize);
+            AdjacencyList = new List<ListNode>(BoardSize * BoardSize);
             AdjacencyList.Add(this);
         }
 
-        public void UpdateAdjacencyList(List<MinimaxNode> adjacentNodes)
+        public void UpdateAdjacencyList(List<ListNode> adjacentNodes)
         {
             AdjacencyList.Clear();
             AdjacencyList.AddRange(adjacentNodes);
@@ -51,18 +51,18 @@ namespace Players.Minimax
             var bestStartNode = AdjacencyList.OrderBy(x => x.GetDistanceToStart())
                 .FirstOrDefault();
             var bestEndNode = AdjacencyList.OrderBy(x => x.GetDistanceToEnd()).FirstOrDefault();
-            
+
             return bestStartNode.GetDistanceToStart() + bestEndNode.GetDistanceToEnd();
         }
 
         public int GetDistanceToStart()
         {
-            if (Owner == MinimaxGamePlayer.Blue)
+            if (Owner == Common.PlayerType.Blue)
             {
                 return GetDistanceToTop();
             }
 
-            if (Owner == MinimaxGamePlayer.Red)
+            if (Owner == Common.PlayerType.Red)
             {
                 return GetDistanceToLeft();
             }
@@ -72,12 +72,12 @@ namespace Players.Minimax
 
         public int GetDistanceToEnd()
         {
-            if (Owner == MinimaxGamePlayer.Blue)
+            if (Owner == Common.PlayerType.Blue)
             {
                 return GetDistanceToBottom();
             }
 
-            if (Owner == MinimaxGamePlayer.Red)
+            if (Owner == Common.PlayerType.Red)
             {
                 return GetDistanceToRight();
             }
@@ -117,6 +117,6 @@ namespace Players.Minimax
             return bestNode.RawDistanceToRight;
         }
 
-       
+
     }
 }

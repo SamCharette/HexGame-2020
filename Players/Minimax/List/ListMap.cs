@@ -3,50 +3,43 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Players.Minimax.List;
 
-namespace Players.Minimax
+namespace Players.Minimax.List
 {
-    public enum AxialDirections
-    {
-        TopLeft,
-        TopRight,
-        Right,
-        BottomRight,
-        BottomLeft,
-        Left
-    }
-    public class MinimaxMap
+
+    public class ListMap
     {
         public int Size;
-        public List<MinimaxNode> Board;
+        public List<ListNode> Board;
 
-        public MinimaxMap()
+        public ListMap()
         {
 
         }
 
 
 
-        public MinimaxMap(int size)
+        public ListMap(int size)
         {
             Size = size;
-            Board = new List<MinimaxNode>(Size * Size);
+            Board = new List<ListNode>(Size * Size);
             for (var column = 0; column < Size; column++)
             {
                 for (var row = 0; row < Size; row++)
                 {
-                    Board.Add(new MinimaxNode(Size, row, column));
+                    Board.Add(new ListNode(Size, row, column));
                 }
             }
         }
 
-        public MinimaxMap(MinimaxMap mapToClone)
+        public ListMap(ListMap mapToClone)
         {
             Size = mapToClone.Size;
-            Board = new List<MinimaxNode>(Size * Size);
+            Board = new List<ListNode>(Size * Size);
             foreach (var node in mapToClone.Board)
             {
-                var newNode = new MinimaxNode(Size, node.Row, node.Column);
+                var newNode = new ListNode(Size, node.Row, node.Column);
                 newNode.Owner = node.Owner;
                 Board.Add(newNode);
             }
@@ -72,27 +65,27 @@ namespace Players.Minimax
             { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
         };
 
-       
 
-        public bool TakeHex(MinimaxGamePlayer owner, int row, int column)
+
+        public bool TakeHex(Common.PlayerType owner, int row, int column)
         {
             var node = Board.FirstOrDefault(x =>
-                x.Row == row && x.Column == column && x.Owner == MinimaxGamePlayer.White);
+                x.Row == row && x.Column == column && x.Owner == Common.PlayerType.White);
             if (node == null)
             {
                 return false;
             }
 
             node.Owner = owner;
-            var listOfNodesToUpdate = new List<MinimaxNode>();
+            var listOfNodesToUpdate = new List<ListNode>();
             listOfNodesToUpdate.Add(node);
 
             // Get and set adjacencies with neighbours
             for (var i = 0; i < 6; i++)
             {
-                var delta = Directions[(AxialDirections) i];
+                var delta = Directions[(AxialDirections)i];
                 var neighbourNode =
-                    Board.FirstOrDefault(x => x.Row == row + delta.Item1 
+                    Board.FirstOrDefault(x => x.Row == row + delta.Item1
                                               && x.Column == column + delta.Item2);
 
                 if (neighbourNode != null && neighbourNode.Owner == node.Owner)

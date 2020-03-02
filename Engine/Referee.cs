@@ -8,6 +8,8 @@ using Players;
 using Players.Base;
 using Players.Common;
 using Players.Minimax;
+using Players.Minimax.List;
+using Players.Minimax.Matrix;
 
 namespace Engine
 {
@@ -25,8 +27,9 @@ namespace Engine
         private Tuple<int, int> _lastPlay;
         public List<Hex> winningPath;
         public Player WinningPlayer;
-        public Hex clickedHex;
         public List<Move> AllGameMoves;
+        public event EventHandler PlayerMadeMove;
+        public event EventHandler GameOver;
 
         public Player Player1 { get; set; }
         public Player Player2 { get; set; }
@@ -35,8 +38,17 @@ namespace Engine
         public Tuple<int,int> lastHexForPlayer1;
         public Tuple<int,int> lastHexForPlayer2;
 
-        private EventWaitHandle waitHandle = new AutoResetEvent(false);
         private Tuple<int,int> hexWanted;
+
+        protected virtual void OnPlayerMadeMove(PlayerMadeMoveArgs e)
+        {
+            PlayerMadeMove?.Invoke(this, e);
+        }
+
+        protected virtual void OnGameEnd(GameOverArgs e)
+        {
+            GameOver?.Invoke(this, e);
+        }
 
         public Player CurrentPlayer()
         {
@@ -62,6 +74,9 @@ namespace Engine
         {
             _lastPlayer = Player1 == _lastPlayer ? Player2 : Player1;
         }
+
+
+
         public void ClickOnHexCoords(int x, int y)
         {
             if (CurrentPlayer() is HumanPlayer)
@@ -87,6 +102,7 @@ namespace Engine
             WinningPlayer = null;
             AllGameMoves = new List<Move>();
             _lastPlayer = Player2;
+            
         }
 
         public void AddPlayer(Config playerConfig, int playerNumber)
@@ -116,14 +132,25 @@ namespace Engine
                     }
 
                     break;
-                case "Minimax AI":
+                case "Minimax Matrix AI":
                     if (playerNumber == 1)
                     {
-                        Player1 = new MinimaxPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new MatrixPlayer(playerNumber, Size, playerConfig);
                     }
                     else
                     {
-                        Player2 = new MinimaxPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new MatrixPlayer(playerNumber, Size, playerConfig);
+                    }
+
+                    break;
+                case "Minimax List AI":
+                    if (playerNumber == 1)
+                    {
+                        Player1 = new ListPlayer(playerNumber, Size, playerConfig);
+                    }
+                    else
+                    {
+                        Player2 = new ListPlayer(playerNumber, Size, playerConfig);
                     }
 
                     break;
@@ -154,33 +181,33 @@ namespace Engine
            
         }
         
-        public async Task<Tuple<int,int>> TakeTurn(Player player)
+        public void StartGame()
         {
-            Quip(player.PlayerType() + " take your turn!");
+            while (WinningPlayer == null)
+            {
+                TakeTurn(CurrentPlayer());
+            }
+        }
+
+        public void TakeTurn(Player player)
+        {
+            Quip(player.Name + " " + player.PlayerType() + " take your turn!");
             hexWanted = null;
 
-            // First, check to see if the player is empty
-            if (player == null)
-            {
-                Quip("Non player trying to take a turn?");
-                throw new Exception("Cannot take a turn as a non-player");
-            }
 
             // Next, check to see if the player is the same as the last one
             if (player == _lastPlayer)
             {
                 Quip("FOUL!  Taking a second turn!");
-                WinningPlayer = (player == Player1 ? Player2 : Player1);
-                throw new Exception("Cannot play twice in a row");
+                GameEndsOnFoul();
             }
 
-            hexWanted = await Task.Run(() => player.SelectHex(_lastPlay));
+            hexWanted = player.SelectHex(_lastPlay);
 
             if (hexWanted == null)
             {
                 Quip("FOUL!  No hex was selected.  Player LOSES.");
-                WinningPlayer = LastPlayer();
-                return null;
+                GameEndsOnFoul();
             }
             else
             {
@@ -189,40 +216,62 @@ namespace Engine
                 if (!success)
                 {
                     Quip("FOUL!  Player tried to take a hex that was blocked!");
-                    WinningPlayer = (player == Player1 ? Player2 : Player1);
-                    throw new Exception("Can't pick a blocked hex");
-                }
-
-                if (CurrentPlayer().PlayerNumber == 1)
-                {
-                    lastHexForPlayer1 = hexWanted;
+                    GameEndsOnFoul();
                 }
                 else
                 {
-                    lastHexForPlayer2 = hexWanted;
+                    if (CurrentPlayer().PlayerNumber == 1)
+                    {
+                        lastHexForPlayer1 = hexWanted;
+                    }
+                    else
+                    {
+                        lastHexForPlayer2 = hexWanted;
+                    }
+
+                    _lastPlay = hexWanted;
+                    var playerMove = new Move
+                    {
+                        player = CurrentPlayer(),
+                        hex = hexWanted
+                    };
+                    AllGameMoves.Add(playerMove);
+                    var moveArgs = new PlayerMadeMoveArgs
+                    {
+                        player = CurrentPlayer().PlayerNumber,
+                        move = new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2)
+                    };
+                    OnPlayerMadeMove(moveArgs);
+
+                    LookForWinner();
                 }
 
-                _lastPlay = hexWanted; 
-                var playerMove = new Move();
-                playerMove.player = CurrentPlayer();
-                playerMove.hex = hexWanted;
-                AllGameMoves.Add(playerMove);
-                LookForWinner();
-                return new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2);
+              
             }
            
 
         }
 
+        private void GameEndsOnFoul()
+        {
+            WinningPlayer = OpponentPlayer();
+            var args = new GameOverArgs()
+            {
+                WinningPlayerNumber = WinningPlayer.PlayerNumber,
+                WinningPath = null
+            };
+            OnGameEnd(args);
+        }
+
         public void Dispose()
         {
-            Size = 0;
-            Board = null;
-            Player1.GameOver(WinningPlayer.PlayerNumber);
-            Player2.GameOver(WinningPlayer.PlayerNumber);
-            winningPath = null;
-            WinningPlayer = null;
-            _lastPlayer = null;
+            //Size = 0;
+            //Board = null;
+            //Player1.GameOver(WinningPlayer.PlayerNumber);
+            //Player2.GameOver(WinningPlayer.PlayerNumber);
+            //winningPath = null;
+            //WinningPlayer = null;
+            //_lastPlayer = null;
         }
 
         private void PrintPath(List<Hex> path)
@@ -248,6 +297,12 @@ namespace Engine
             {
                 WinningPlayer = CurrentPlayer();
                 Quip("The winner is player #" + WinningPlayer.PlayerNumber + ", " + WinningPlayer.PlayerType() + "!");
+                var args = new GameOverArgs
+                {
+                    WinningPlayerNumber = WinningPlayer.PlayerNumber,
+                    WinningPath = Board.LastPathChecked
+                };
+                OnGameEnd(args);
                 return true;
             }
 
@@ -263,6 +318,7 @@ namespace Engine
             if (Board.DoesWinningPathExistFor(playerNumber))
             {
                 winningPath = Board.LastPathChecked;
+               
                 return true;
             }
 

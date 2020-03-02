@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using Players.Minimax.List;
 
@@ -12,6 +13,10 @@ namespace Players.Minimax.List
     {
         public int Size;
         public List<ListNode> Board;
+        public ListNode Top;
+        public ListNode Bottom;
+        public ListNode Left;
+        public ListNode Right;
 
         public ListMap()
         {
@@ -24,13 +29,71 @@ namespace Players.Minimax.List
         {
             Size = size;
             Board = new List<ListNode>(Size * Size);
+            // Make the nodes
+            Top = new ListNode(Size, -10, -10);
+            Bottom = new ListNode(Size, 1000, 1000);
+            Left = new ListNode(Size, -20, -20);
+            Right = new ListNode(Size, 2000, 2000);
+
             for (var column = 0; column < Size; column++)
             {
+
                 for (var row = 0; row < Size; row++)
                 {
-                    Board.Add(new ListNode(Size, row, column));
+                    var newNode = new ListNode(Size, row, column);
+                    if (column == 0)
+                    {
+                        AttachToEachOther(newNode, Left);
+                    }
+
+                    if (column == Size - 1)
+                    {
+                        AttachToEachOther(newNode, Right);
+                    }
+
+                    if (row == 0)
+                    {
+                        AttachToEachOther(newNode, Top);
+                    }
+
+                    if (row == Size - 1)
+                    {
+                        AttachToEachOther(newNode, Bottom);
+                    }
+
+                    Board.Add(newNode);
                 }
+
+                // Now go through the main nodes and attach all neighbours
+                foreach (var node in Board)
+                {
+                    // Get and set adjacencies with neighbours
+                    for (var i = 0; i < 6; i++)
+                    {
+                        var delta = Directions[(AxialDirections)i];
+                        var neighbourNode =
+                            Board.FirstOrDefault(x => x.Row == node.Row + delta.Item1
+                                                      && x.Column == node.Column + delta.Item2);
+
+                        if (neighbourNode != null && neighbourNode.Owner == node.Owner)
+                        {
+                            AttachToEachOther(node, neighbourNode);
+                        }
+
+                    }
+                }
+
             }
+        }
+        
+
+    
+
+
+        public void AttachToEachOther(ListNode a, ListNode b)
+        {
+            a.AttachTo(b);
+            b.AttachTo(a);
         }
 
         public ListMap(ListMap mapToClone)
@@ -46,11 +109,11 @@ namespace Players.Minimax.List
             foreach (var node in mapToClone.Board)
             {
                 var clonedNode = Board.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
-                foreach (var adjacentNode in node.AdjacencyList)
+                foreach (var adjacentNode in node.Neighbours)
                 {
                     var adjacentClonedNode =
                         Board.FirstOrDefault(x => x.Row == adjacentNode.Row && x.Column == adjacentNode.Column);
-                    clonedNode.AdjacencyList.Add(adjacentClonedNode);
+                    clonedNode.Neighbours.Add(adjacentClonedNode);
                 }
             }
         }
@@ -77,26 +140,6 @@ namespace Players.Minimax.List
             }
 
             node.Owner = owner;
-            var listOfNodesToUpdate = new List<ListNode>();
-            listOfNodesToUpdate.Add(node);
-
-            // Get and set adjacencies with neighbours
-            for (var i = 0; i < 6; i++)
-            {
-                var delta = Directions[(AxialDirections)i];
-                var neighbourNode =
-                    Board.FirstOrDefault(x => x.Row == row + delta.Item1
-                                              && x.Column == column + delta.Item2);
-
-                if (neighbourNode != null && neighbourNode.Owner == node.Owner)
-                {
-                    listOfNodesToUpdate.AddRange(neighbourNode.AdjacencyList.Where(x => !listOfNodesToUpdate.Any(y => y.Row == x.Row && y.Column == x.Column)));
-                }
-
-                // And now, if there's more than just the node in the list
-                // we can go in and update all of the adjacency lists
-                listOfNodesToUpdate.ForEach(x => x.UpdateAdjacencyList(listOfNodesToUpdate));
-            }
 
             return true;
         }

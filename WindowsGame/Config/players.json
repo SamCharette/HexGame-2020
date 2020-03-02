@@ -41,7 +41,7 @@
     "settings": [
       {
         "key": "maxLevels",
-        "value": "50"
+        "value": "10"
       }
     ]
   }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Players.Common;
 
 namespace Players.Minimax.List
 {
@@ -13,8 +14,14 @@ namespace Players.Minimax.List
         public int Column;
         public int BoardSize;
         public Guid RandomValue;
-        public List<ListNode> AdjacencyList;
+        public List<ListNode> Neighbours = new List<ListNode>();
         public Common.PlayerType Owner = Common.PlayerType.White;
+
+        public int F;
+        public int G;
+        public int H;
+        public Status Status;
+        public ListNode Parent;
 
         public int RawDistanceToLeft => Column;
         public int RawDistanceToRight => BoardSize - 1 - Column;
@@ -31,26 +38,18 @@ namespace Players.Minimax.List
             Row = row;
             Column = column;
             RandomValue = Guid.NewGuid();
-            ResetAdjacencies();
         }
 
-        public void ResetAdjacencies()
+        public void AttachTo(ListNode neighbour)
         {
-            AdjacencyList = new List<ListNode>(BoardSize * BoardSize);
-            AdjacencyList.Add(this);
+            Neighbours.Add(neighbour);
         }
-
-        public void UpdateAdjacencyList(List<ListNode> adjacentNodes)
-        {
-            AdjacencyList.Clear();
-            AdjacencyList.AddRange(adjacentNodes);
-        }
-
+        
         public int RemainingDistance()
         {
-            var bestStartNode = AdjacencyList.OrderBy(x => x.GetDistanceToStart())
+            var bestStartNode = Neighbours.OrderBy(x => x.GetDistanceToStart())
                 .FirstOrDefault();
-            var bestEndNode = AdjacencyList.OrderBy(x => x.GetDistanceToEnd()).FirstOrDefault();
+            var bestEndNode = Neighbours.OrderBy(x => x.GetDistanceToEnd()).FirstOrDefault();
 
             return bestStartNode.GetDistanceToStart() + bestEndNode.GetDistanceToEnd();
         }
@@ -89,13 +88,13 @@ namespace Players.Minimax.List
         {
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
-            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToTop)
+            var bestNode = Neighbours.OrderBy(x => x.RawDistanceToTop)
                 .FirstOrDefault();
             return bestNode.RawDistanceToTop;
         }
         public int GetDistanceToLeft()
         {
-            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToLeft)
+            var bestNode = Neighbours.OrderBy(x => x.RawDistanceToLeft)
                 .FirstOrDefault();
             return bestNode.RawDistanceToLeft;
         }
@@ -103,7 +102,7 @@ namespace Players.Minimax.List
         {
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
-            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToBottom)
+            var bestNode = Neighbours.OrderBy(x => x.RawDistanceToBottom)
                 .FirstOrDefault();
             return bestNode.RawDistanceToBottom;
         }
@@ -112,7 +111,7 @@ namespace Players.Minimax.List
         {
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
-            var bestNode = AdjacencyList.OrderBy(x => x.RawDistanceToRight)
+            var bestNode = Neighbours.OrderBy(x => x.RawDistanceToRight)
                 .FirstOrDefault();
             return bestNode.RawDistanceToRight;
         }

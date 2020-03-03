@@ -31,6 +31,17 @@ namespace Players.Minimax.List
 
         public int RawDistanceToBottom => BoardSize - 1 - Row;
 
+        public ListNode(ListNode sourceNode)
+        {
+            BoardSize = sourceNode.BoardSize;
+            Row = sourceNode.Row;
+            Column = sourceNode.Column;
+            G = sourceNode.G;
+            H = sourceNode.H;
+            Status = sourceNode.Status;
+            Owner = sourceNode.Owner;
+            Neighbours = new List<ListNode>();
+        }
 
 
         public ListNode(int Size, int row, int column)

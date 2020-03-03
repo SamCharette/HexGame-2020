@@ -19,6 +19,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Players", "Players\Players.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HexLibrary", "HexLibrary\HexLibrary.csproj", "{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{6184A89C-8883-4128-BE4D-502E027DED28}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4CE1B85D-B268-4CFF-8C8A-820040374010} = {4CE1B85D-B268-4CFF-8C8A-820040374010}
+		{3A81126F-59DB-4088-AFCA-69ACBDB814EA} = {3A81126F-59DB-4088-AFCA-69ACBDB814EA}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +47,10 @@ Global
 		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6184A89C-8883-4128-BE4D-502E027DED28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6184A89C-8883-4128-BE4D-502E027DED28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6184A89C-8883-4128-BE4D-502E027DED28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6184A89C-8883-4128-BE4D-502E027DED28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

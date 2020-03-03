@@ -101,21 +101,50 @@ namespace Players.Minimax.List
         public ListMap(ListMap mapToClone)
         {
             Size = mapToClone.Size;
+            Top = new ListNode(mapToClone.Top);
+            Bottom = new ListNode(mapToClone.Bottom);
+            Left = new ListNode(mapToClone.Left);
+            Right = new ListNode(mapToClone.Right);
+
             Board = new List<ListNode>(Size * Size);
             foreach (var node in mapToClone.Board)
             {
-                var newNode = new ListNode(Size, node.Row, node.Column);
-                newNode.Owner = node.Owner;
+                var newNode = new ListNode(node);
                 Board.Add(newNode);
             }
             foreach (var node in mapToClone.Board)
             {
-                var clonedNode = Board.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                var clonedNode = Board.FirstOrDefault(x => x.Row == node.Row 
+                                                           && x.Column == node.Column);
+
                 foreach (var adjacentNode in node.Neighbours)
                 {
                     var adjacentClonedNode =
-                        Board.FirstOrDefault(x => x.Row == adjacentNode.Row && x.Column == adjacentNode.Column);
-                    clonedNode.Neighbours.Add(adjacentClonedNode);
+                        Board.FirstOrDefault(x => x.Row == adjacentNode.Row 
+                                                  && x.Column == adjacentNode.Column);
+                    if (clonedNode != null && adjacentClonedNode != null)
+                    {
+                        AttachToEachOther(clonedNode, adjacentClonedNode);
+                    }
+                    else
+                    {
+                        if (adjacentNode.Row == -10 && adjacentNode.Column == -10)
+                        {
+                            AttachToEachOther(clonedNode, Top);
+                        }
+                        if (adjacentNode.Row == -20 && adjacentNode.Column == -20)
+                        {
+                            AttachToEachOther(clonedNode, Left);
+                        }
+                        if (adjacentNode.Row == 1000 && adjacentNode.Column == 1000)
+                        {
+                            AttachToEachOther(clonedNode, Bottom);
+                        }
+                        if (adjacentNode.Row == 2000 && adjacentNode.Column == 2000)
+                        {
+                            AttachToEachOther(clonedNode, Right);
+                        }
+                    }
                 }
             }
         }

@@ -47,6 +47,8 @@ namespace Engine
 
         protected virtual void OnGameEnd(GameOverArgs e)
         {
+            Player1.GameOver(WinningPlayer.PlayerNumber);
+            Player2.GameOver(WinningPlayer.PlayerNumber);
             GameOver?.Invoke(this, e);
         }
 
@@ -191,7 +193,7 @@ namespace Engine
 
         public void TakeTurn(Player player)
         {
-            Quip(player.Name + " " + player.PlayerType() + " take your turn!");
+//            Quip(player.Name + " " + player.PlayerType() + " take your turn!");
             hexWanted = null;
 
 

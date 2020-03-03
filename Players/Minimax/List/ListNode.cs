@@ -21,6 +21,7 @@ namespace Players.Minimax.List
         public int H;
         public Status Status = Status.Untested;
         public ListNode Parent;
+        public int LookAtMe = 0;
 
         public int F => G + H;
 
@@ -50,6 +51,27 @@ namespace Players.Minimax.List
             Row = row;
             Column = column;
             RandomValue = Guid.NewGuid();
+        }
+        private bool IsInsideBoard()
+        {
+            return Row >= 0 && Row < BoardSize && Column >= 0 && Column < BoardSize;
+        }
+        public void PingNeighbours(bool sayHi = true)
+        {
+            foreach (var neighbour in Neighbours)
+            {
+                if (neighbour.IsInsideBoard())
+                {
+                    if (sayHi)
+                    {
+                        neighbour.LookAtMe++;
+                    }
+                    else
+                    {
+                        neighbour.LookAtMe--;
+                    }
+                }
+            }
         }
 
         public bool IsNeighboursWith(ListNode neighbour)

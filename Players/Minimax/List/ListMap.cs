@@ -86,6 +86,10 @@ namespace Players.Minimax.List
                 }
                 ClearPathValues();
             }
+            Top.PingNeighbours();
+            Bottom.PingNeighbours();
+            Left.PingNeighbours();
+            Right.PingNeighbours();
         }
         
 
@@ -202,6 +206,8 @@ namespace Players.Minimax.List
 
             node.Owner = owner;
 
+            node.PingNeighbours();
+
             return true;
         }
 
@@ -212,6 +218,7 @@ namespace Players.Minimax.List
             if (node != null)
             {
                 node.Owner = PlayerType.White;
+                node.PingNeighbours(false);
             }
         }
     }

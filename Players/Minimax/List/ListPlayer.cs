@@ -145,13 +145,13 @@ namespace Players.Minimax.List
         {
             var opponent = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
             // Get the player's best path
+            board.ClearPathValues();
             var playerPath = StartLookingForBestPath(player, board);
             var playerScore = ScoreFromPath(playerPath, player);
-            board.ClearPathValues();
             // Get the opponent best path
+            board.ClearPathValues();
             var opponentPath = StartLookingForBestPath(opponent, board);
             var opponentScore = ScoreFromPath(opponentPath, opponent);
-            board.ClearPathValues();
 
             var score = opponentScore - playerScore;
             return score;
@@ -278,15 +278,15 @@ namespace Players.Minimax.List
             }
 
             var newThoughtBoard = thoughtBoard;
-
-            var myBestPathFromHere = StartLookingForBestPath(Me, newThoughtBoard);
-            var opponentBestPathFromHere = StartLookingForBestPath(Opponent, newThoughtBoard);
+            var opponent = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
+            var playerBestPathFromHere = StartLookingForBestPath(player, newThoughtBoard);
+            var opponentBestPathFromHere = StartLookingForBestPath(opponent, newThoughtBoard);
 
 
             var possibleMoves = new List<ListNode>();
-            if (myBestPathFromHere != null)
+            if (playerBestPathFromHere != null)
             {
-                possibleMoves.AddRange(myBestPathFromHere
+                possibleMoves.AddRange(playerBestPathFromHere
                     .OrderByDescending(x => x.LookAtMe)
                     .ThenByDescending(x => x.RandomValue)
                     .Where(x => x.Owner == Common.PlayerType.White));
@@ -306,7 +306,7 @@ namespace Players.Minimax.List
                     foreach (var move in possibleMoves)
                     {
                         newThoughtBoard.TakeHex(player, move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(newThoughtBoard, Opponent, depth - 1, currentAlpha, currentBeta));
+                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(newThoughtBoard, player, depth - 1, currentAlpha, currentBeta));
                         currentAlpha = Math.Max(currentAlpha, bestValue);
                         _nodesChecked++;
                         if (currentBeta <= currentAlpha)
@@ -326,7 +326,7 @@ namespace Players.Minimax.List
                     {
 
                         newThoughtBoard.TakeHex(player, move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(newThoughtBoard, Me, depth - 1, currentAlpha, currentBeta));
+                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(newThoughtBoard, opponent, depth - 1, currentAlpha, currentBeta));
                         currentBeta = Math.Min(currentBeta, bestValue);
                         _nodesChecked++;
                         if (currentBeta <= currentAlpha)

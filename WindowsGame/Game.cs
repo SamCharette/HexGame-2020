@@ -316,6 +316,26 @@ namespace WindowsGame
 
         private void buttonTestBoard_Click(object sender, EventArgs e)
         {
+            if (textBoxHexBoardSize.Text == "")
+            {
+                //Check to see if entered size fits a 1080p window.
+                // too small, i mean less than 5.  c'mon.
+                MessageBox.Show("Must enter an integer between 5 and 20", "Invalid board size numnuts!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (Int32.Parse(textBoxHexBoardSize.Text) < 5 || Int32.Parse(textBoxHexBoardSize.Text) > 30)
+            {
+                // Window too large. gets unwieldy.  may have to work in some scaling int he future.
+                MessageBox.Show("Must enter an integer between 5 and 20", "Invalid board size numnuts!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            // calc width & height based on board size
+            Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
+            Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
+
+            //center the window after resize
+            CenterToScreen();
+
             Play();
         }
 

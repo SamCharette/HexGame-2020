@@ -26,7 +26,7 @@ namespace Tests.Players.Minimax.List
         public void FindBestPath_ShouldReturnSizeLength_WhenBoardIsEmpty()
         {
             var player = new ListPlayer(1, 11, new Config());
-            var path = player.StartLookingForBestPath(PlayerType.Blue, player.Memory);
+            var path = player.StartLookingForBestPath(true, player.Memory);
             Assert.AreEqual(11, path.Count);
         }
 
@@ -38,7 +38,7 @@ namespace Tests.Players.Minimax.List
             node.Owner = PlayerType.Blue;
             node = player.Memory.Board.FirstOrDefault(x => x.Row == 8 && x.Column == 3);
             node.Owner = PlayerType.Blue;
-            var path = player.StartLookingForBestPath(PlayerType.Blue, player.Memory);
+            var path = player.StartLookingForBestPath(true, player.Memory);
             Assert.AreEqual(9, path.Count(x => x.Owner == PlayerType.White));
         }
     }

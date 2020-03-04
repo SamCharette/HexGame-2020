@@ -19,8 +19,8 @@ namespace Players.Minimax.List
         private int costPerClaimedNode = 1;
         private int costPerUnclaimedNode = 50;
         private int costPerNodeTillEnd = 100;
-        private int worstImpossibleScore = 9999;
-        private int bestImpossibleScore = -9999;
+        private int worstImpossibleScore = -9999;
+        private int bestImpossibleScore = 9999;
         private int regularMoveNumber = 0;
         private int randomMoveNumber = 0;
         private int prunesMade = 0;
@@ -94,7 +94,7 @@ namespace Players.Minimax.List
                     _nodesChecked = 0;
                     var thoughtBoard = new ListMap(Memory);
 
-                    var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, _maxLevels, bestImpossibleScore, worstImpossibleScore, true);
+                    var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, _maxLevels, 0, 0, true);
                     if (scoreForThisMove > bestScore)
                     {
                         bestScore = scoreForThisMove;
@@ -154,7 +154,7 @@ namespace Players.Minimax.List
             var opponentPath = StartLookingForBestPath(!isMaximizing, board);
             var opponentScore = ScoreFromPath(opponentPath, false);
 
-            var score = playerScore - opponentScore;
+            var score = opponentScore - playerScore;
             return score;
         }
 

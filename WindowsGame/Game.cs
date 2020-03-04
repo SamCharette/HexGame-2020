@@ -170,13 +170,11 @@ namespace WindowsGame
 
                     if (hexTaken != null)
                     {
-                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
-
                         var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
                         ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 1
-                            ? _lastTakenByPlayer1Colour
-                            : _lastTakenByPlayer2Colour);
+                            ? _lastTakenByPlayer2Colour
+                            : _lastTakenByPlayer1Colour);
 
                         _playThrough.Add(_graphicsEngine.CreateImage());
                     }
@@ -205,9 +203,8 @@ namespace WindowsGame
 
             }
 
-
         }
-         
+
         public void PlayerMadeMove(object sender, EventArgs args)
         {
             PlayerMadeMoveArgs moveArgs = (PlayerMadeMoveArgs) args;

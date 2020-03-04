@@ -183,14 +183,7 @@ namespace Engine
            
         }
         
-        public void StartGame()
-        {
-            while (WinningPlayer == null)
-            {
-                TakeTurn(CurrentPlayer());
-            }
-        }
-
+   
         public async Task<Tuple<int,int>> TakeTurn(Player player)
         {
 //            Quip(player.Name + " " + player.PlayerType() + " take your turn!");

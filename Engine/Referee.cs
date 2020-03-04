@@ -191,7 +191,7 @@ namespace Engine
             }
         }
 
-        public void TakeTurn(Player player)
+        public async Task<Tuple<int,int>> TakeTurn(Player player)
         {
 //            Quip(player.Name + " " + player.PlayerType() + " take your turn!");
             hexWanted = null;
@@ -204,7 +204,7 @@ namespace Engine
                 GameEndsOnFoul();
             }
 
-            hexWanted = player.SelectHex(_lastPlay);
+            hexWanted = await Task.Run(() => player.SelectHex(_lastPlay));
 
             if (hexWanted == null)
             {
@@ -243,14 +243,14 @@ namespace Engine
                         player = CurrentPlayer().PlayerNumber,
                         move = new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2)
                     };
-                    OnPlayerMadeMove(moveArgs);
+                    //OnPlayerMadeMove(moveArgs);
 
                     LookForWinner();
                 }
 
               
             }
-           
+            return new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2); 
 
         }
 

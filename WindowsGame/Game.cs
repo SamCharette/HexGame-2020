@@ -121,9 +121,91 @@ namespace WindowsGame
 
             Refresh();
             _playThrough.Add(_graphicsEngine.CreateImage());
-            _referee.StartGame();
 
-            
+            // make the edges colourful!
+            foreach (var hex in _board.Hexes)
+            {
+                if (hex.Row == 0 || hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, _emptyBlueSide);
+                }
+                if (hex.Column == 0 || hex.Column == boardSize - 1)
+                {
+                    ChangeHexColor(hex, _emptyRedSide);
+                }
+                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
+                    || hex.Column == boardSize - 1 && hex.Row == 0 || hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, _emptyCorner);
+                }
+            }
+
+       
+
+            try
+            {
+
+                while (_referee.WinningPlayer == null)
+                {
+
+                    //Console.WriteLine("Player taking turn: " + referee.CurrentPlayer().PlayerNumber);
+
+                    if (_referee.lastHexForPlayer1 != null && _referee.lastHexForPlayer2 != null)
+                    {
+                        var lastHex = _board.Hexes[
+                        _referee.CurrentPlayer().PlayerNumber == 1
+                            ? _referee.lastHexForPlayer1.Item1
+                            : _referee.lastHexForPlayer2.Item1,
+                        _referee.CurrentPlayer().PlayerNumber == 1
+                            ? _referee.lastHexForPlayer1.Item2
+                            : _referee.lastHexForPlayer2.Item2];
+
+                        ChangeHexColor(lastHex,
+                            _referee.CurrentPlayer().PlayerNumber == 1 ? _takenBeforeByPlayer1 : _takenBeforeByPlayer2);
+
+                    }
+
+
+                    var hexTaken = await (_referee.TakeTurn(_referee.CurrentPlayer()));
+
+                    if (hexTaken != null)
+                    {
+                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
+
+                        var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
+
+                        ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 1
+                            ? _lastTakenByPlayer1Colour
+                            : _lastTakenByPlayer2Colour);
+
+                        _playThrough.Add(_graphicsEngine.CreateImage());
+                    }
+
+                    this.Refresh();
+                }
+
+                // Show the winning path
+                var colorForWinningPath = _referee.CurrentPlayer().PlayerNumber == 1 ? _lastTakenByPlayer1Colour : _lastTakenByPlayer2Colour;
+                foreach (var hex in _referee.winningPath)
+                {
+                    ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
+                }
+
+                this.lblWInner.Text = "The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
+                this.lblWInner.Visible = true;
+                this.btnSave.Enabled = true;
+                this.btnSave.Visible = true;
+                this.Refresh();
+                Console.WriteLine("The winner is player #" + _referee.WinningPlayer.PlayerNumber);
+                _playThrough.Add(_graphicsEngine.CreateImage());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("No winner today!");
+
+            }
+
+
         }
          
         public void PlayerMadeMove(object sender, EventArgs args)

@@ -23,7 +23,7 @@ namespace Players.Base
             SetUpInMemoryBoard();
         }
 
-        public void GameOver(int winningPlayerNumber)
+        public virtual void GameOver(int winningPlayerNumber)
         {
             _memory = null;
 

@@ -73,8 +73,8 @@ namespace WindowsGame
         public void Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
-            _referee.GameOver += GameOver;
-            _referee.PlayerMadeMove += PlayerMadeMove;
+            //_referee.GameOver += GameOver;
+            //_referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
@@ -107,17 +107,6 @@ namespace WindowsGame
 
             _graphicsEngine = new GraphicsEngine(_board, 20, 20);
 
-
-            // make the edges colourful!
-            foreach (var hex in _board.Hexes)
-            {
-                if (hex.Row == 0 || hex.Row == boardSize - 1) ChangeHexColor(hex, _emptyBlueSide);
-                if (hex.Column == 0 || hex.Column == boardSize - 1) ChangeHexColor(hex, _emptyRedSide);
-                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
-                                                    || hex.Column == boardSize - 1 && hex.Row == 0 ||
-                                                    hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
-                    ChangeHexColor(hex, _emptyCorner);
-            }
 
             Refresh();
             _playThrough.Add(_graphicsEngine.CreateImage());
@@ -172,9 +161,18 @@ namespace WindowsGame
                     {
                         var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
-                        ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 1
+                        if (_referee.WinningPlayer != null)
+                        {
+                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
                             ? _lastTakenByPlayer2Colour
                             : _lastTakenByPlayer1Colour);
+                        } else
+                        {
+                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 1
+                                ? _lastTakenByPlayer2Colour
+                                : _lastTakenByPlayer1Colour);
+                        }
+                        
 
                         _playThrough.Add(_graphicsEngine.CreateImage());
                     }

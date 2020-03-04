@@ -3,7 +3,7 @@
     "name": "Dozer",
     "type": "Dozer AI",
     "playerNumber": "0",
-      "settings": [
+    "settings": [
       {
         "key": "costToClaimedNode",
         "value": "0"
@@ -41,7 +41,18 @@
     "settings": [
       {
         "key": "maxLevels",
-        "value": "5"
+        "value": "10"
+      }
+    ]
+  },
+  {
+    "name": "Maxine",
+    "type": "Minimax List AI",
+    "playerNumber": "0",
+    "settings": [
+      {
+        "key": "maxLevels",
+        "value": "50"
       }
     ]
   }

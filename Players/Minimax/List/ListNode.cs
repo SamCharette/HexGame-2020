@@ -16,12 +16,13 @@ namespace Players.Minimax.List
         public Guid RandomValue;
         public List<ListNode> Neighbours = new List<ListNode>();
         public Common.PlayerType Owner = Common.PlayerType.White;
+        public int LookAtMe => Touches > 0 ? 1 : 0;
 
         public int G;
         public int H;
         public Status Status = Status.Untested;
         public ListNode Parent;
-        public int LookAtMe = 0;
+        public int Touches = 0;
 
         public int F => G + H;
 
@@ -64,11 +65,11 @@ namespace Players.Minimax.List
                 {
                     if (sayHi)
                     {
-                        neighbour.LookAtMe++;
+                        neighbour.Touches++;
                     }
                     else
                     {
-                        neighbour.LookAtMe--;
+                        neighbour.Touches--;
                     }
                 }
             }

@@ -194,6 +194,7 @@ namespace WindowsGame
                 this.Refresh();
                 Console.WriteLine("The winner is player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
+                buttonTestBoard.Enabled = true;
             }
             catch (Exception e)
             {

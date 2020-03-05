@@ -86,8 +86,9 @@ namespace WindowsGame
         {
             buttonTestBoard.Enabled = false;
             var boardSize = _referee.Size;
-            lblWInner.Visible = false;
-            btnSave.Visible = false;
+            saveGameToolStripMenuItem.Enabled = false;
+            loadGameToolStripMenuItem.Enabled = false;
+            reloadConfigurationToolStripMenuItem.Enabled = false;
             _playThrough = new List<Bitmap>();
 
             _board = new Board(boardSize,
@@ -187,20 +188,22 @@ namespace WindowsGame
                     ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
                 }
 
-                this.lblWInner.Text = "The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
-                this.lblWInner.Visible = true;
-                this.btnSave.Enabled = true;
-                this.btnSave.Visible = true;
+      
                 this.Refresh();
-                Console.WriteLine("The winner is player #" + _referee.WinningPlayer.PlayerNumber);
+                Console.WriteLine("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
                 buttonTestBoard.Enabled = true;
+                MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
             }
             catch (Exception e)
             {
+                MessageBox.Show("No winner today!", "Drat");
                 Console.WriteLine("No winner today!");
 
             }
+            saveGameToolStripMenuItem.Enabled = true;
+            loadGameToolStripMenuItem.Enabled = true;
+            reloadConfigurationToolStripMenuItem.Enabled = true;
 
         }
 
@@ -249,10 +252,9 @@ namespace WindowsGame
             foreach (var hex in _referee.winningPath)
                 ChangeHexColor(GetBoardHexFromCoordinates(hex.Row, hex.Column), colorForWinningPath);
 
-            lblWInner.Text = @"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber;
-            lblWInner.Visible = true;
-            btnSave.Enabled = true;
-            btnSave.Visible = true;
+            MessageBox.Show(@"The winner is: Player #" + _referee.WinningPlayer.PlayerNumber);
+
+            saveGameToolStripMenuItem.Enabled = true;
             Refresh();
             // Clear up the memory for the ref
             Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
@@ -380,54 +382,14 @@ namespace WindowsGame
             _board = null;
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+
+
+        private void reloadConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Save the game and the moves.
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                using (var writer = XmlWriter.Create(saveFileDialog1.FileName))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("Match");
-                    writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
-                    writer.WriteElementString("Size", textBoxHexBoardSize.Text);
-                    writer.WriteStartElement("Players");
-                    writer.WriteStartElement("Player");
-                    writer.WriteElementString("Type", _referee.Player1.GetType().Name);
-                    writer.WriteElementString("Number", "1");
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Player");
-                    writer.WriteElementString("Type", _referee.Player2.GetType().Name);
-                    writer.WriteElementString("Number", "2");
-                    writer.WriteEndElement();
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Moves");
-                    var moveNumber = 1;
-                    foreach (var move in _referee.AllGameMoves)
-                    {
-                        writer.WriteStartElement("Move");
-                        writer.WriteElementString("Number", moveNumber.ToString());
-                        writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
-                        writer.WriteElementString("X", move.hex.Item1.ToString());
-                        writer.WriteElementString("Y", move.hex.Item2.ToString());
-                        writer.WriteEndElement();
-                        moveNumber++;
-                    }
-
-                    writer.WriteEndElement();
-                    writer.WriteEndElement();
-                    writer.WriteEndDocument();
-                    writer.Flush();
-                }
-
-                MakeGif(_playThrough, saveFileDialog1.FileName);
-
-
-                btnSave.Enabled = false;
-            }
+            SetUpPlayers();
         }
 
-        private void btnLoad_Click(object sender, EventArgs e)
+        private void loadGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 try
@@ -485,13 +447,67 @@ namespace WindowsGame
                 }
                 catch (Exception exception)
                 {
+                    MessageBox.Show(@"Game couldn't be loaded properly : " + exception.Message);
                     Console.WriteLine(@"Game couldn't be loaded properly : " + exception.Message);
                 }
         }
 
-        private void buttonReloadConfig_Click(object sender, EventArgs e)
+        private void saveGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SetUpPlayers();
+            // Save the game and the moves.
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                using (var writer = XmlWriter.Create(saveFileDialog1.FileName))
+                {
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("Match");
+                    writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                    writer.WriteElementString("Size", textBoxHexBoardSize.Text);
+                    writer.WriteStartElement("Players");
+                    writer.WriteStartElement("Player");
+                    writer.WriteElementString("Type", _referee.Player1.GetType().Name);
+                    writer.WriteElementString("Number", "1");
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Player");
+                    writer.WriteElementString("Type", _referee.Player2.GetType().Name);
+                    writer.WriteElementString("Number", "2");
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Moves");
+                    var moveNumber = 1;
+                    foreach (var move in _referee.AllGameMoves)
+                    {
+                        writer.WriteStartElement("Move");
+                        writer.WriteElementString("Number", moveNumber.ToString());
+                        writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
+                        writer.WriteElementString("X", move.hex.Item1.ToString());
+                        writer.WriteElementString("Y", move.hex.Item2.ToString());
+                        writer.WriteEndElement();
+                        moveNumber++;
+                    }
+
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteEndDocument();
+                    writer.Flush();
+                }
+
+                MakeGif(_playThrough, saveFileDialog1.FileName);
+
+
+                saveGameToolStripMenuItem.Enabled = false;
+            }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var aboutForm = new About();
+            aboutForm.Show();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

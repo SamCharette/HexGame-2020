@@ -25,12 +25,17 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.comboBoxPlayer1Type = new System.Windows.Forms.ComboBox();
-            this.lblWInner = new System.Windows.Forms.Label();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnLoad = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.buttonReloadConfig = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reloadConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelXY
@@ -84,7 +89,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(1068, 11);
+            this.label4.Location = new System.Drawing.Point(1068, 32);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(85, 17);
@@ -133,40 +138,6 @@
             this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
             this.comboBoxPlayer1Type.TabIndex = 18;
             // 
-            // lblWInner
-            // 
-            this.lblWInner.AutoSize = true;
-            this.lblWInner.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWInner.Location = new System.Drawing.Point(320, 602);
-            this.lblWInner.Name = "lblWInner";
-            this.lblWInner.Size = new System.Drawing.Size(177, 39);
-            this.lblWInner.TabIndex = 19;
-            this.lblWInner.Text = "Winner is: ";
-            this.lblWInner.Visible = false;
-            // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(960, 638);
-            this.btnSave.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(94, 32);
-            this.btnSave.TabIndex = 20;
-            this.btnSave.Text = "Save Game";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Visible = false;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // btnLoad
-            // 
-            this.btnLoad.Location = new System.Drawing.Point(844, 638);
-            this.btnLoad.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(96, 32);
-            this.btnLoad.TabIndex = 21;
-            this.btnLoad.Text = "Load Game";
-            this.btnLoad.UseVisualStyleBackColor = true;
-            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
-            // 
             // openFileDialog1
             // 
             this.openFileDialog1.DefaultExt = "xml";
@@ -179,25 +150,77 @@
             this.saveFileDialog1.FileName = "game.xml";
             this.saveFileDialog1.InitialDirectory = "C:\\GameFiles";
             // 
-            // buttonReloadConfig
+            // menuStrip1
             // 
-            this.buttonReloadConfig.Location = new System.Drawing.Point(690, 638);
-            this.buttonReloadConfig.Name = "buttonReloadConfig";
-            this.buttonReloadConfig.Size = new System.Drawing.Size(144, 32);
-            this.buttonReloadConfig.TabIndex = 22;
-            this.buttonReloadConfig.Text = "Reload Config";
-            this.buttonReloadConfig.UseVisualStyleBackColor = true;
-            this.buttonReloadConfig.Click += new System.EventHandler(this.buttonReloadConfig_Click);
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.helpToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1213, 30);
+            this.menuStrip1.TabIndex = 23;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveGameToolStripMenuItem,
+            this.loadGameToolStripMenuItem,
+            this.reloadConfigurationToolStripMenuItem,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // saveGameToolStripMenuItem
+            // 
+            this.saveGameToolStripMenuItem.Name = "saveGameToolStripMenuItem";
+            this.saveGameToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
+            this.saveGameToolStripMenuItem.Text = "Save Game";
+            this.saveGameToolStripMenuItem.Click += new System.EventHandler(this.saveGameToolStripMenuItem_Click);
+            // 
+            // loadGameToolStripMenuItem
+            // 
+            this.loadGameToolStripMenuItem.Name = "loadGameToolStripMenuItem";
+            this.loadGameToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
+            this.loadGameToolStripMenuItem.Text = "Load Game";
+            this.loadGameToolStripMenuItem.Click += new System.EventHandler(this.loadGameToolStripMenuItem_Click);
+            // 
+            // reloadConfigurationToolStripMenuItem
+            // 
+            this.reloadConfigurationToolStripMenuItem.Name = "reloadConfigurationToolStripMenuItem";
+            this.reloadConfigurationToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
+            this.reloadConfigurationToolStripMenuItem.Text = "Reload Configuration";
+            this.reloadConfigurationToolStripMenuItem.Click += new System.EventHandler(this.reloadConfigurationToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1213, 676);
-            this.Controls.Add(this.buttonReloadConfig);
-            this.Controls.Add(this.btnLoad);
-            this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.lblWInner);
             this.Controls.Add(this.comboBoxPlayer1Type);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -207,7 +230,9 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBoxHexBoardSize);
             this.Controls.Add(this.buttonTestBoard);
+            this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
+            this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Game";
             this.Text = "HexGame";
@@ -215,6 +240,8 @@
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form_MouseClick);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form_MouseMove);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -231,11 +258,15 @@
 		private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboBoxPlayer1Type;
-        private System.Windows.Forms.Label lblWInner;
-        private System.Windows.Forms.Button btnSave;
-        private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.Windows.Forms.Button buttonReloadConfig;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveGameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadGameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reloadConfigurationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }

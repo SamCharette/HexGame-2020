@@ -73,8 +73,8 @@ namespace WindowsGame
         public void Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
-            _referee.GameOver += GameOver;
-            _referee.PlayerMadeMove += PlayerMadeMove;
+            //_referee.GameOver += GameOver;
+            //_referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
@@ -107,17 +107,6 @@ namespace WindowsGame
 
             _graphicsEngine = new GraphicsEngine(_board, 20, 20);
 
-
-            // make the edges colourful!
-            foreach (var hex in _board.Hexes)
-            {
-                if (hex.Row == 0 || hex.Row == boardSize - 1) ChangeHexColor(hex, _emptyBlueSide);
-                if (hex.Column == 0 || hex.Column == boardSize - 1) ChangeHexColor(hex, _emptyRedSide);
-                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
-                                                    || hex.Column == boardSize - 1 && hex.Row == 0 ||
-                                                    hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
-                    ChangeHexColor(hex, _emptyCorner);
-            }
 
             Refresh();
             _playThrough.Add(_graphicsEngine.CreateImage());
@@ -170,13 +159,20 @@ namespace WindowsGame
 
                     if (hexTaken != null)
                     {
-                        //Console.WriteLine("Hex selected was : " + hexTaken.Item1 + ", " + hexTaken.Item2);
-
                         var boardHex = _board.Hexes[hexTaken.Item1, hexTaken.Item2];
 
-                        ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 1
-                            ? _lastTakenByPlayer1Colour
-                            : _lastTakenByPlayer2Colour);
+                        if (_referee.WinningPlayer != null)
+                        {
+                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 2
+                            ? _lastTakenByPlayer2Colour
+                            : _lastTakenByPlayer1Colour);
+                        } else
+                        {
+                            ChangeHexColor(boardHex, _referee.CurrentPlayer().PlayerNumber == 1
+                                ? _lastTakenByPlayer2Colour
+                                : _lastTakenByPlayer1Colour);
+                        }
+                        
 
                         _playThrough.Add(_graphicsEngine.CreateImage());
                     }
@@ -198,6 +194,7 @@ namespace WindowsGame
                 this.Refresh();
                 Console.WriteLine("The winner is player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
+                buttonTestBoard.Enabled = true;
             }
             catch (Exception e)
             {
@@ -205,9 +202,8 @@ namespace WindowsGame
 
             }
 
-
         }
-         
+
         public void PlayerMadeMove(object sender, EventArgs args)
         {
             PlayerMadeMoveArgs moveArgs = (PlayerMadeMoveArgs) args;
@@ -319,6 +315,26 @@ namespace WindowsGame
 
         private void buttonTestBoard_Click(object sender, EventArgs e)
         {
+            if (textBoxHexBoardSize.Text == "")
+            {
+                //Check to see if entered size fits a 1080p window.
+                // too small, i mean less than 5.  c'mon.
+                MessageBox.Show("Must enter an integer between 5 and 20", "Invalid board size numnuts!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (Int32.Parse(textBoxHexBoardSize.Text) < 5 || Int32.Parse(textBoxHexBoardSize.Text) > 30)
+            {
+                // Window too large. gets unwieldy.  may have to work in some scaling int he future.
+                MessageBox.Show("Must enter an integer between 5 and 20", "Invalid board size numnuts!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            // calc width & height based on board size
+            Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
+            Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
+
+            //center the window after resize
+            CenterToScreen();
+
             Play();
         }
 

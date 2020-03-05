@@ -14,6 +14,7 @@ namespace Players.Base
         protected bool _isHorizontal => PlayerNumber == 2;
         protected List<BaseNode> _memory;
         public int WaitTime = 50;
+        public int talkative;
 
 
         protected Player(int playerNumber, int boardSize, Config playerConfig)
@@ -115,7 +116,10 @@ namespace Players.Base
 
         public void Quip(string expressionToSay)
         {
-            Console.WriteLine(Name + " " + PlayerType() + " (player " + PlayerNumber +") : " + expressionToSay);
+            if (talkative == 1)
+            {
+                Console.WriteLine(Name + " " + PlayerType() + " (player " + PlayerNumber + ") : " + expressionToSay);
+            }
         }
 
     }

@@ -64,6 +64,7 @@ namespace Players
             costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
             costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
             costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
+            talkative = Convert.ToInt32(playerConfig.talkative);
             Name = playerConfig.name;
             SetUpInMemoryBoard();
         }

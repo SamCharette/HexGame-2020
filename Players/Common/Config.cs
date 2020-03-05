@@ -13,5 +13,6 @@ namespace Players.Common
         public string type;
         public string playerNumber;
         public List<Setting> settings;
+        public string talkative;
     }
 }

@@ -2,30 +2,27 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using MathNet.Numerics.Providers.Common.OpenBlas;
-using Players.Base;
 using Players.Common;
-using Players.Minimax.List;
+
 
 namespace Players.Minimax.List
 {
     public class ListPlayer : MinimaxPlayer
     {
-        public new ListMap Memory;
-        private int Size;
-        private int _maxLevels;
-        private int _maxSeconds;
-        private int _nodesChecked;
-        private int costToMoveToClaimedNode;
-        private int costToMoveToUnclaimedNode;
-        private int costPerNodeTillEnd;
-        private int worstImpossibleScore = -9999;
-        private int bestImpossibleScore = 9999;
-        private int regularMoveNumber = 0;
-        private int randomMoveNumber = 0;
-        private int prunesMade = 0;
+        private const int AbsoluteWorst = -9999;
+        private const int AbsoluteBest = 9999;
+        public ListMap Memory { get; set; }
+        public int MaxLevels { get; set; }
+        public int CostToMoveToClaimedNode { get; set; }
+        public int CostToMoveToUnclaimedNode { get; set; }
+        public int CostPerNodeTillEnd { get; set; }
+        public int RegularMoveNumber { get; set; }
+        public int RandomMoveNumber { get;set;}
+        public int PrunesMade { get; set; }
+        public int NodesChecked { get; set; }
+        private Tuple<int,int> bestMove = new Tuple<int, int>(0,0);
 
-        private PlayerType Opponent => Me == Common.PlayerType.Blue  ? Common.PlayerType.Red : Common.PlayerType.Blue;
+        public PlayerType Opponent => Me == Common.PlayerType.Blue  ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
 
 
@@ -34,20 +31,22 @@ namespace Players.Minimax.List
             PlayerNumber = playerNumber;
             Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
             Size = boardSize;
-            _maxLevels = GetDefault(playerConfig, "maxLevels", 20);
-            costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
-            costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
-            costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
+            MaxLevels = GetDefault(playerConfig, "maxLevels", 20);
+            CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
+            CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
+            CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
             talkative = Convert.ToInt32(playerConfig.talkative);
-
+            RegularMoveNumber = 0;
+            RandomMoveNumber = 0;
+            PrunesMade = 0;
             Name = playerConfig.name;
-
+            NodesChecked = 0;
             Startup();
         }
 
         public override string PlayerType()
         {
-            return "MiniMax AI (" + _maxLevels + ")";
+            return "MiniMax AI (" + MaxLevels + ")";
         }
 
         public void Startup()
@@ -58,7 +57,7 @@ namespace Players.Minimax.List
         public override void GameOver(int winningPlayerNumber)
         {
             Memory = null;
-            Quip("Game over.  " + regularMoveNumber + " regular moves and " + randomMoveNumber + " random ones.");
+            Quip("Game over.  " + RegularMoveNumber + " regular moves and " + RandomMoveNumber + " random ones.");
         }
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
@@ -73,52 +72,51 @@ namespace Players.Minimax.List
                 }
             }
 
-            prunesMade = 0;
+            PrunesMade = 0;
 
-            int bestScore = worstImpossibleScore;
+            int bestScore = AbsoluteWorst;
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            //var possibleMoves = PossibleMoves(Memory, true);
+            var possibleMoves = PossibleMoves(Memory, true);
 
-            //if (possibleMoves != null)
-            //{
-            //    regularMoveNumber++;
+            if (possibleMoves != null)
+            {
+                RegularMoveNumber++;
 
-            //    choice = possibleMoves.FirstOrDefault();
-             
-            //    foreach (var move in possibleMoves)
-            //    {
-            //        _nodesChecked = 0;
-            //        var thoughtBoard = new ListMap(Memory);
-            //        Memory.TakeHex(Me, move.Row, move.Column);
-            //        var scoreForThisMove = LetMeThinkAboutIt(Memory, _maxLevels, bestImpossibleScore, worstImpossibleScore, true);
-            //        if (scoreForThisMove > bestScore)
-            //        {
-            //            bestScore = scoreForThisMove;
-            //            choice = Memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
-            //        }
-            //        Memory.ReleaseHex(move.Row, move.Column);
-            //        //Quip("1 potential move with " + _nodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
-            //    }
-            //}
+                choice = possibleMoves.FirstOrDefault();
 
-            var score = LetMeThinkAboutIt(Memory, _maxLevels, worstImpossibleScore, bestImpossibleScore, true);
+                foreach (var move in possibleMoves)
+                {
+                    NodesChecked = 0;
+                    Memory.TakeHex(Me, move.Row, move.Column);
+                    var scoreForThisMove = LetMeThinkAboutIt(Memory, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
+                    if (scoreForThisMove > bestScore)
+                    {
+                        bestScore = scoreForThisMove;
+                        choice = Memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                    }
+                    Memory.ReleaseHex(move.Row, move.Column);
+                    //Quip("1 potential move with " + NodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
+                }
+            }
+
+            var score = LetMeThinkAboutIt(Memory, MaxLevels, AbsoluteBest, AbsoluteWorst, true);
             Quip( "Best score found was " + score);
             watch.Stop();
 
             // And when in doubt, get a random one
             if (choice == null)
             {
-                randomMoveNumber++;
+                RandomMoveNumber++;
 
                 choice = Memory.Board.OrderBy(x => x.RandomValue)
                     .FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-                Quip("Random choice : [" + choice.Row + ", " + choice.Column + "] #" + randomMoveNumber);
+                Quip("Random choice : [" + choice.Row + ", " + choice.Column + "] #" + RandomMoveNumber);
             }
             else
             {
-                Quip("Choosing: [" + choice.Row + ", " + choice.Column + "] normal move #" + regularMoveNumber + " (" + watch.ElapsedMilliseconds + "ms) with " + prunesMade + " prunes made and score was " + bestScore);
+                Quip("Choosing: [" + choice.Row + ", " + choice.Column + "] normal move #" + RegularMoveNumber + " (" + watch.ElapsedMilliseconds + "ms) with " + PrunesMade + " prunes made and score was " + bestScore);
             }
 
             Memory.TakeHex(Me, choice.Row, choice.Column);
@@ -135,25 +133,25 @@ namespace Players.Minimax.List
                 return ScoreFromBoard(isMaximizing, thoughtBoard);
             }
 
-            var possibleMoves = PossibleMoves(Memory, isMaximizing);
+            var possibleMoves = PossibleMoves(thoughtBoard, isMaximizing);
             
             if (possibleMoves.Any())
             {
 
                 if (isMaximizing)
                 {
-                    var bestValue = worstImpossibleScore;
+                    var bestValue = AbsoluteWorst;
 
                     foreach (var move in possibleMoves)
                     {
-                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(Memory, depth - 1, alpha, beta, false));
+                        thoughtBoard.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(thoughtBoard, depth - 1, alpha, beta, false));
                         alpha = Math.Max(alpha, bestValue);
-                        _nodesChecked++;
-                        Memory.ReleaseHex(move.Row, move.Column);
+                        NodesChecked++;
+                        thoughtBoard.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
-                            prunesMade++;
+                            PrunesMade++;
                             break;
                         }
 
@@ -163,18 +161,18 @@ namespace Players.Minimax.List
                 }
                 else
                 {
-                    var bestValue = bestImpossibleScore;
+                    var bestValue = AbsoluteBest;
                     foreach (var move in possibleMoves)
                     {
 
-                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(Memory, depth - 1, alpha, beta, true));
+                        thoughtBoard.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(thoughtBoard, depth - 1, alpha, beta, true));
                         beta = Math.Min(beta, bestValue);
-                        _nodesChecked++;
-                        Memory.ReleaseHex(move.Row, move.Column);
+                        NodesChecked++;
+                        thoughtBoard.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
-                            prunesMade++;
+                            PrunesMade++;
                             break;
                         }
                     }
@@ -184,7 +182,7 @@ namespace Players.Minimax.List
             }
             else
             {
-                return ScoreFromBoard(isMaximizing, Memory);
+                return ScoreFromBoard(isMaximizing, thoughtBoard);
             }
         }
 
@@ -220,17 +218,7 @@ namespace Players.Minimax.List
         {
             if (path == null || ! path.Any())
             {
-                if (isMaximizing)
-                {
-                    //Quip("Dafuq?");
-                    return worstImpossibleScore;
-                }
-                else
-                {
-                    //Quip("Doubledafuq?");
-                    return bestImpossibleScore;
-                }
-
+                return isMaximizing ? AbsoluteWorst : AbsoluteBest;
             }
             
             return Size - path.Count(x => x.Owner == Common.PlayerType.White);
@@ -247,6 +235,8 @@ namespace Players.Minimax.List
             var opponentScore = ScoreFromPath(opponentPath, !isMaximizing);
 
             var score = playerScore - opponentScore;
+            var hex = playerPath?.FirstOrDefault(x => x.Owner == Common.PlayerType.White);
+            bestMove = new Tuple<int, int>(hex?.Row ?? 0, hex?.Column ?? 0);
             return score;
         }
 
@@ -356,19 +346,19 @@ namespace Players.Minimax.List
                     if (node.Status == Status.Open)
                     {
                         
-                        if (node.G > bestLookingNode.G + (node.Owner == Common.PlayerType.White ? costToMoveToUnclaimedNode : costToMoveToClaimedNode ))
+                        if (node.G > bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode ))
                         { 
                             node.Parent = bestLookingNode;
-                            node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? costToMoveToUnclaimedNode : costToMoveToClaimedNode); 
-                            node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                            node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode); 
+                            node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
                     {
                         node.Status = Status.Open;
                         node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? costToMoveToUnclaimedNode : costToMoveToClaimedNode);
-                        node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                        node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode);
+                        node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                     }
                 }
 

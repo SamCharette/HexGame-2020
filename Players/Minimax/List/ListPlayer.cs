@@ -74,7 +74,7 @@ namespace Players.Minimax.List
 
             PrunesMade = 0;
 
-            int bestScore = AbsoluteWorst;
+            int bestScore = AbsoluteBest;
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -90,7 +90,7 @@ namespace Players.Minimax.List
                 {
                     NodesChecked = 0;
                     Memory.TakeHex(Me, move.Row, move.Column);
-                    var scoreForThisMove = LetMeThinkAboutIt(Memory, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
+                    var scoreForThisMove = LetMeThinkAboutIt(Memory, MaxLevels, AbsoluteBest, AbsoluteWorst, false);
                     if (scoreForThisMove > bestScore)
                     {
                         bestScore = scoreForThisMove;

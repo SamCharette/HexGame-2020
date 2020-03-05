@@ -79,29 +79,32 @@ namespace Players.Minimax.List
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            var possibleMoves = PossibleMoves(Memory, true);
+            //var possibleMoves = PossibleMoves(Memory, true);
 
-            if (possibleMoves != null)
-            {
-                regularMoveNumber++;
+            //if (possibleMoves != null)
+            //{
+            //    regularMoveNumber++;
 
-                choice = possibleMoves.FirstOrDefault();
+            //    choice = possibleMoves.FirstOrDefault();
              
-                foreach (var move in possibleMoves)
-                {
-                    _nodesChecked = 0;
-                    var thoughtBoard = new ListMap(Memory);
+            //    foreach (var move in possibleMoves)
+            //    {
+            //        _nodesChecked = 0;
+            //        var thoughtBoard = new ListMap(Memory);
+            //        Memory.TakeHex(Me, move.Row, move.Column);
+            //        var scoreForThisMove = LetMeThinkAboutIt(Memory, _maxLevels, bestImpossibleScore, worstImpossibleScore, true);
+            //        if (scoreForThisMove > bestScore)
+            //        {
+            //            bestScore = scoreForThisMove;
+            //            choice = Memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+            //        }
+            //        Memory.ReleaseHex(move.Row, move.Column);
+            //        //Quip("1 potential move with " + _nodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
+            //    }
+            //}
 
-                    var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, _maxLevels, bestImpossibleScore, worstImpossibleScore, true);
-                    if (scoreForThisMove > bestScore)
-                    {
-                        bestScore = scoreForThisMove;
-                        choice = thoughtBoard.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
-                    }
-
-                    //Quip("1 potential move with " + _nodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
-                }
-            }
+            var score = LetMeThinkAboutIt(Memory, _maxLevels, worstImpossibleScore, bestImpossibleScore, true);
+            Quip( "Best score found was " + score);
             watch.Stop();
 
             // And when in doubt, get a random one
@@ -123,14 +126,74 @@ namespace Players.Minimax.List
             return new Tuple<int, int>(choice.Row, choice.Column);
         }
 
+        private int LetMeThinkAboutIt(ListMap thoughtBoard, int depth, int alpha, int beta, bool isMaximizing)
+        {
+  
+
+            if (depth == 0 || thoughtBoard.Board.All(x => x.Owner != Common.PlayerType.White))
+            {
+                return ScoreFromBoard(isMaximizing, thoughtBoard);
+            }
+
+            var possibleMoves = PossibleMoves(Memory, isMaximizing);
+            
+            if (possibleMoves.Any())
+            {
+
+                if (isMaximizing)
+                {
+                    var bestValue = worstImpossibleScore;
+
+                    foreach (var move in possibleMoves)
+                    {
+                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(Memory, depth - 1, alpha, beta, false));
+                        alpha = Math.Max(alpha, bestValue);
+                        _nodesChecked++;
+                        Memory.ReleaseHex(move.Row, move.Column);
+                        if (beta <= alpha)
+                        {
+                            prunesMade++;
+                            break;
+                        }
+
+                    }
+
+                    return bestValue;
+                }
+                else
+                {
+                    var bestValue = bestImpossibleScore;
+                    foreach (var move in possibleMoves)
+                    {
+
+                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(Memory, depth - 1, alpha, beta, true));
+                        beta = Math.Min(beta, bestValue);
+                        _nodesChecked++;
+                        Memory.ReleaseHex(move.Row, move.Column);
+                        if (beta <= alpha)
+                        {
+                            prunesMade++;
+                            break;
+                        }
+                    }
+
+                    return bestValue;
+                }
+            }
+            else
+            {
+                return ScoreFromBoard(isMaximizing, Memory);
+            }
+        }
+
         private List<ListNode> PossibleMoves(ListMap board, bool isMaximizing)
         {
             // The possible moves are generated by better looking in our path,
             // followed by the opponent path, followed then by open hexes on no path
             var myBestPathFromHere = StartLookingForBestPath(isMaximizing, board);
-            var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, board);
-
-            var possibleMoves = new List<ListNode>();
+             var possibleMoves = new List<ListNode>();
             if (myBestPathFromHere != null)
                 possibleMoves
                     .AddRange(myBestPathFromHere
@@ -138,15 +201,18 @@ namespace Players.Minimax.List
                         .ThenBy(x => x.F)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
-            if (opponentBestPathFromHere != null)
-                possibleMoves
-                    .AddRange(opponentBestPathFromHere
-                        .OrderBy(x => x.LookAtMe)
-                        .ThenBy(x => x.RandomValue)
-                        .Where(x => x.Owner == Common.PlayerType.White));
-            possibleMoves.AddRange(Memory.Board
-                .OrderBy(x => x.RandomValue)
-                .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+          
+            //var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, board);
+
+            //if (opponentBestPathFromHere != null)
+            //    possibleMoves
+            //        .AddRange(opponentBestPathFromHere
+            //            .OrderBy(x => x.LookAtMe)
+            //            .ThenBy(x => x.RandomValue)
+            //            .Where(x => x.Owner == Common.PlayerType.White));
+            //possibleMoves.AddRange(Memory.Board
+            //    .OrderBy(x => x.RandomValue)
+            //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
             return possibleMoves;
         }
 
@@ -312,87 +378,7 @@ namespace Players.Minimax.List
 
         }
 
-        private int LetMeThinkAboutIt(ListMap thoughtBoard, int depth, int alpha, int beta, bool isMaximizing)
-        {
-            var currentAlpha = alpha;
-            var currentBeta = beta;
-            
-            if (depth == 0 || thoughtBoard.Board.All(x => x.Owner != Common.PlayerType.White))
-            {
-                return ScoreFromBoard(isMaximizing, thoughtBoard);
-            }
-
-            var newThoughtBoard = new ListMap(thoughtBoard);
-            //var playerBestPathFromHere = StartLookingForBestPath(isMaximizing, newThoughtBoard);
-            //var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, newThoughtBoard);
-
-
-            var possibleMoves = PossibleMoves(thoughtBoard, isMaximizing);
-            //if (playerBestPathFromHere != null)
-            //{
-            //    possibleMoves.AddRange(playerBestPathFromHere
-            //        .OrderByDescending(x => x.LookAtMe)
-            //        .ThenByDescending(x => x.RandomValue)
-            //        .Where(x => x.Owner == Common.PlayerType.White));
-            //}
-            //if (opponentBestPathFromHere != null)
-            //{
-            //    possibleMoves.AddRange(opponentBestPathFromHere
-            //        .OrderByDescending(x => x.LookAtMe)
-            //        .ThenByDescending(x => x.RandomValue)
-            //        .Where(x => x.Owner == Common.PlayerType.White));
-            //}
-            // Get possible moves for player
-            if (possibleMoves.Any())
-            {
-                
-                if (isMaximizing)
-                {
-                    var bestValue = worstImpossibleScore;
-
-                    foreach (var move in possibleMoves)
-                    {
-                        newThoughtBoard.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(newThoughtBoard, depth - 1, currentAlpha, currentBeta, false));
-                        currentAlpha = Math.Max(currentAlpha, bestValue);
-                        _nodesChecked++;
-                        if (currentBeta <= currentAlpha)
-                        {
-                            prunesMade++;
-                            break;
-                        }
-                        newThoughtBoard.ReleaseHex(move.Row, move.Column);
-
-                    }
-
-                    return bestValue;
-                }
-                else
-                {
-                    var bestValue = bestImpossibleScore;
-                    foreach (var move in possibleMoves)
-                    {
-
-                        newThoughtBoard.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(newThoughtBoard, depth - 1, currentAlpha, currentBeta, true));
-                        currentBeta = Math.Min(currentBeta, bestValue);
-                        _nodesChecked++;
-                        if (currentBeta <= currentAlpha)
-                        {
-                            prunesMade++;
-                            break;
-                        }
-                        newThoughtBoard.ReleaseHex(move.Row, move.Column);
-                    }
-
-                    return bestValue;
-                }
-            }
-            else
-            {
-                return ScoreFromBoard(isMaximizing, newThoughtBoard);
-            }
-        }
+    
 
     }
 }

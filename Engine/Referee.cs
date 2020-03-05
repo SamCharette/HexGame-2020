@@ -260,13 +260,15 @@ namespace Engine
 
         public void Dispose()
         {
-            //Size = 0;
-            //Board = null;
-            //Player1.GameOver(WinningPlayer.PlayerNumber);
-            //Player2.GameOver(WinningPlayer.PlayerNumber);
-            //winningPath = null;
-            //WinningPlayer = null;
-            //_lastPlayer = null;
+            Size = 0;
+            Board = null;
+            Player1.GameOver(WinningPlayer.PlayerNumber);
+            Player2.GameOver(WinningPlayer.PlayerNumber);
+            Player1 = null;
+            Player2 = null;
+            winningPath = null;
+            WinningPlayer = null;
+            _lastPlayer = null;
         }
 
         private void PrintPath(List<Hex> path)

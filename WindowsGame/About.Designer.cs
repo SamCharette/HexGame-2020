@@ -35,6 +35,7 @@
             // 
             // textBox1
             // 
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Enabled = false;
             this.textBox1.Location = new System.Drawing.Point(126, 94);
             this.textBox1.Multiline = true;

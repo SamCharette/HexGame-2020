@@ -190,14 +190,14 @@ namespace WindowsGame
 
       
                 this.Refresh();
-                Console.WriteLine("The winner is player #" + _referee.WinningPlayer.PlayerNumber);
+                Console.WriteLine("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
                 buttonTestBoard.Enabled = true;
-                MessageBox.Show("The winner is: Player #" + _referee.WinningPlayer.PlayerNumber);
+                MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
             }
             catch (Exception e)
             {
-                MessageBox.Show("No winner today!");
+                MessageBox.Show("No winner today!", "Drat");
                 Console.WriteLine("No winner today!");
 
             }

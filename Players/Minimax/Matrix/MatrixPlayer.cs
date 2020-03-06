@@ -10,117 +10,147 @@ namespace Players.Minimax.Matrix
 {
     public class MatrixPlayer : MinimaxPlayer
     {
-        public new ListMap _memory;
-        private int Size;
-        private int _maxLevels;
-        private readonly PlayerType _me;
-        private int _nodesChecked;
-        private PlayerType Opponent => _me == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
+        public MatrixNode[,] Board { get; set; }
+        public Matrix<int> MyMoves { get; set; }
+        public Matrix<int> EnemyMoves { get; set; }
+        public Matrix<int> EmptyMatrix { get; set; }
+        public int MaxLevels { get; set; }
+        public int NodesChecked { get; set; }
+        public PlayerType Opponent => Me == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
         public MatrixPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             Size = boardSize;
             PlayerNumber = playerNumber;
-            _me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
-            _maxLevels = GetDefault(playerConfig, "maxLevels", 20);
+            Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
+            MaxLevels = GetDefault(playerConfig, "maxLevels", 20);
             Name = playerConfig.name;
-
+            Board = new MatrixNode[Size,Size];
+            for (int col = 0; col < Size; col++)
+            {
+                for (int row = 0; row < Size; row++)
+                {
+                    Board[row, col] = new MatrixNode(Size);
+                } 
+            }
             //Startup();
         }
 
-        //        public override string PlayerType()
-        //        {
-        //            return "MiniMax Matrix AI (" + _maxLevels + ")";
-        //        }
+        public override string PlayerType()
+        {
+            return "MiniMax Matrix AI (" + MaxLevels + ")";
+        }
 
-        //        public void Startup()
-        //        {
-        //            Quip("I will be looking " + _maxLevels + " deep.");
-        //            _memory = new ListMap(Size);
-        //        }
+        public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
+        {
+            UpdateEnemyMoves(opponentMove);
 
-        //        public Matrix<int> MyMoves()
-        //        {
-        //            return PlayerNumber == 1 ? _memory.player1Matrix : _memory.player2Matrix;
-        //        }
+            // Now that we've updated the player information, time to look for a move.
+            var matrixToExamine = MyMoves
+                .Add(EmptyMatrix.Multiply(2))
+                .Add(EnemyMoves.Multiply(3));
 
-        //        public Matrix<int> EnemyMoves()
-        //        {
-        //            return PlayerNumber == 2 ? _memory.player1Matrix : _memory.player2Matrix;
+            var currentScore = ScoreTheBoard(matrixToExamine, Me);
 
-        //        }
+            return null;
+        }
 
-        //        public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
-        //        {
-        //            UpdateEnemyMoves(opponentMove);
+        public int ScoreTheBoard(Matrix<int> board, PlayerType player)
+        {
+            // Note, the lower the score the better the score is
+            var otherPlayer = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
+            var playerScore = CostOfBestPath(board, player);
+            var enemyScore = CostOfBestPath(board, otherPlayer);
+            return playerScore - enemyScore;
+        }
 
-        //            // Now that we've updated the player information, time to look for a move.
-        //            var matrixToExamine = MyMoves()
-        //                .Add(_memory.emptyMatrix.Multiply(2))
-        //                .Add(EnemyMoves().Multiply(3));
+        public int CostOfBestPath(Matrix<int> board, PlayerType player)
+        {
+            // So the goal here is to find the best path from the board
+            // for the player and return the number of hexes left to complete it.
 
-        //            var currentScore = ScoreTheBoard(matrixToExamine, _me);
+            // Start at one edge, move to the next.  Empty spaces cost 1,
+            // owned spaces cost 0 and are more desirable
+            var nodesToLookAt = GetStartingHexes(board, player);
 
-        //        }
+            // Something happened, let's just return a bad score.
+            return 999;
+        }
 
-        //        public int ScoreTheBoard(Matrix<int> board, PlayerType player)
-        //        {
-        //            // Note, the lower the score the better the score is
-        //            var otherPlayer = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
-        //            var playerScore = CostOfBestPath(board, player);
-        //            var enemyScore = CostOfBestPath(board, otherPlayer);
-        //            return playerScore - enemyScore;
-        //        }
+        public List<Tuple<int, int>> GetStartingHexes(Matrix<int> board, PlayerType player)
+        {
+            if (player == Common.PlayerType.Blue)
+            {
+                return TopFriendlyHexes(board);
+            }
+            else
+            {
+                return LeftFriendlyHexes(board);
+            }
+        }
 
-        //        public int CostOfBestPath(Matrix<int> board, PlayerType player)
-        //        {
-        //            // So the goal here is to find the best path from the board
-        //            // for the player and return the number of hexes left to complete it.
+        public List<Tuple<int, int>> GetEndingHexes(Matrix<int> board, PlayerType player)
+        {
+            if (player == Common.PlayerType.Blue)
+            {
+                return BottomFriendlyHexes(board);
+            }
+            else
+            {
+                return RightFriendlyHexes(board);
+            }
+        }
 
-        //            // Start at one edge, move to the next.  Empty spaces cost 1,
-        //            // owned spaces cost 0 and are more desirable
-        //            var nodesToLookAt = GetStartingHexes(board, player);
+        public List<Tuple<int, int>> TopFriendlyHexes(Matrix<int> board)
+        {
+            var topFriendly = new List<Tuple<int, int>>();
+            for (int i = 0; i < Size; i++)
+            {
+                topFriendly.Add(new Tuple<int, int>(0,i));
+            }
 
-        //            // Something happened, let's just return a bad score.
-        //            return 999;
-        //        }
+            return topFriendly;
+        }
 
-        //        public List<Tuple<int, int>> GetStartingHexes(Matrix<int> board, PlayerType player)
-        //        {
-        //            if (player == Common.PlayerType.Blue)
-        //            {
-        //                return TopFriendlyHexes(board);
-        //            }
-        //            else
-        //            {
-        //                return LeftFriendlyHexes(board);
-        //            }
-        //        }
+        public List<Tuple<int, int>> LeftFriendlyHexes(Matrix<int> board)
+        {
+            var leftFriendly = new List<Tuple<int, int>>();
+            for (int i = 0; i < Size; i++)
+            {
+                leftFriendly.Add(new Tuple<int, int>(i, 0));
+            }
 
-        //        public List<Tuple<int, int>> TopFriendlyHexes(Matrix<int> board)
-        //        {
+            return leftFriendly;
+        }
 
-        //        }
+        public List<Tuple<int, int>> BottomFriendlyHexes(Matrix<int> board)
+        {
+            var  bottomFriendly = new List<Tuple<int, int>>();
+            for (int i = 0; i < Size; i++)
+            {
+                bottomFriendly.Add(new Tuple<int, int>(Size, i));
+            }
 
-        //        public List<Tuple<int, int>> LeftFriendlyHexes(Matrix<int> board)
-        //        {
+            return bottomFriendly;
+        }
+        public List<Tuple<int, int>> RightFriendlyHexes(Matrix<int> board)
+        {
+            var rightFriendly = new List<Tuple<int, int>>();
+            for (int i = 0; i < Size; i++)
+            { 
+                rightFriendly.Add(new Tuple<int, int>(i, Size));
+            }
 
-        //        }
-        //        private void UpdateEnemyMoves(Tuple<int, int> opponentMove)
-        //        {
-        //            if (opponentMove != null)
-        //            {
-        //                // First, let's set make note of the opponent's move
-        //                if (PlayerNumber == 1)
-        //                {
-        //                    _memory.player2Matrix[opponentMove.Item1, opponentMove.Item2] = 1;
-        //                }
-        //                else
-        //                {
-        //                    _memory.player1Matrix[opponentMove.Item1, opponentMove.Item2] = 1;
-        //                }
-        //            }
-        //        }
+            return rightFriendly;
+        }
+
+        private void UpdateEnemyMoves(Tuple<int, int> opponentMove)
+        {
+            if (opponentMove != null)
+            {
+                EnemyMoves[opponentMove.Item1, opponentMove.Item2] = 1;
+            }
+        }
 
         //        public  Tuple<int, int> SelectHex(Tuple<int, int> opponentMove, int nothing)
         //        {

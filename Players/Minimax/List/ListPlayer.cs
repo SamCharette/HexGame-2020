@@ -21,6 +21,7 @@ namespace Players.Minimax.List
         public int PrunesMade { get; set; }
         public int NodesChecked { get; set; }
         private Tuple<int,int> bestMove = new Tuple<int, int>(0,0);
+        public List<ListNode> PossibleMovesToMake { get; set; }
 
         public PlayerType Opponent => Me == Common.PlayerType.Blue  ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
@@ -78,19 +79,19 @@ namespace Players.Minimax.List
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            var possibleMoves = PossibleMoves(Memory, true);
+            PossibleMovesToMake = PossibleMoves(true);
 
-            if (possibleMoves != null)
+            if (PossibleMovesToMake != null)
             {
                 RegularMoveNumber++;
 
-                choice = possibleMoves.FirstOrDefault();
+                choice = PossibleMovesToMake.FirstOrDefault();
 
-                foreach (var move in possibleMoves)
+                foreach (var move in PossibleMovesToMake)
                 {
                     NodesChecked = 0;
                     Memory.TakeHex(Me, move.Row, move.Column);
-                    var scoreForThisMove = LetMeThinkAboutIt(Memory, MaxLevels, AbsoluteBest, AbsoluteWorst, false);
+                    var scoreForThisMove = LetMeThinkAboutIt( MaxLevels, AbsoluteWorst, AbsoluteBest, false);
                     if (scoreForThisMove > bestScore)
                     {
                         bestScore = scoreForThisMove;
@@ -101,7 +102,7 @@ namespace Players.Minimax.List
                 }
             }
 
-            var score = LetMeThinkAboutIt(Memory, MaxLevels, AbsoluteBest, AbsoluteWorst, true);
+            var score = LetMeThinkAboutIt( MaxLevels, AbsoluteWorst, AbsoluteBest, true);
             Quip( "Best score found was " + score);
             watch.Stop();
 
@@ -124,31 +125,31 @@ namespace Players.Minimax.List
             return new Tuple<int, int>(choice.Row, choice.Column);
         }
 
-        private int LetMeThinkAboutIt(ListMap thoughtBoard, int depth, int alpha, int beta, bool isMaximizing)
+        private int LetMeThinkAboutIt(int depth, int alpha, int beta, bool isMaximizing)
         {
   
 
-            if (depth == 0 || thoughtBoard.Board.All(x => x.Owner != Common.PlayerType.White))
+            if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                return ScoreFromBoard(isMaximizing, thoughtBoard);
+                return ScoreFromBoard(isMaximizing, Memory);
             }
 
-            var possibleMoves = PossibleMoves(thoughtBoard, isMaximizing);
+            var possibleMoves = PossibleMoves(isMaximizing);
             
-            if (possibleMoves.Any())
+            if (possibleMoves.Any(x => x.Owner == Common.PlayerType.White))
             {
 
                 if (isMaximizing)
                 {
-                    var bestValue = AbsoluteWorst;
+                    var bestValue = alpha;
 
-                    foreach (var move in possibleMoves)
+                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
-                        thoughtBoard.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(thoughtBoard, depth - 1, alpha, beta, false));
+                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(depth - 1, alpha, beta, false));
                         alpha = Math.Max(alpha, bestValue);
                         NodesChecked++;
-                        thoughtBoard.ReleaseHex(move.Row, move.Column);
+                        Memory.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
                             PrunesMade++;
@@ -161,15 +162,15 @@ namespace Players.Minimax.List
                 }
                 else
                 {
-                    var bestValue = AbsoluteBest;
-                    foreach (var move in possibleMoves)
+                    var bestValue = beta;
+                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
 
-                        thoughtBoard.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(thoughtBoard, depth - 1, alpha, beta, true));
+                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt( depth - 1, alpha, beta, true));
                         beta = Math.Min(beta, bestValue);
                         NodesChecked++;
-                        thoughtBoard.ReleaseHex(move.Row, move.Column);
+                        Memory.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
                             PrunesMade++;
@@ -182,15 +183,15 @@ namespace Players.Minimax.List
             }
             else
             {
-                return ScoreFromBoard(isMaximizing, thoughtBoard);
+                return ScoreFromBoard(isMaximizing, Memory);
             }
         }
 
-        private List<ListNode> PossibleMoves(ListMap board, bool isMaximizing)
+        private List<ListNode> PossibleMoves( bool isMaximizing)
         {
             // The possible moves are generated by better looking in our path,
             // followed by the opponent path, followed then by open hexes on no path
-            var myBestPathFromHere = StartLookingForBestPath(isMaximizing, board);
+            var myBestPathFromHere = StartLookingForBestPath(isMaximizing, Memory);
              var possibleMoves = new List<ListNode>();
             if (myBestPathFromHere != null)
                 possibleMoves
@@ -199,15 +200,15 @@ namespace Players.Minimax.List
                         .ThenBy(x => x.F)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
-          
-            //var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, board);
 
-            //if (opponentBestPathFromHere != null)
-            //    possibleMoves
-            //        .AddRange(opponentBestPathFromHere
-            //            .OrderBy(x => x.LookAtMe)
-            //            .ThenBy(x => x.RandomValue)
-            //            .Where(x => x.Owner == Common.PlayerType.White));
+            var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, Memory);
+
+            if (opponentBestPathFromHere != null)
+                possibleMoves
+                    .AddRange(opponentBestPathFromHere
+                        .OrderBy(x => x.LookAtMe)
+                        .ThenBy(x => x.RandomValue)
+                        .Where(x => x.Owner == Common.PlayerType.White));
             //possibleMoves.AddRange(Memory.Board
             //    .OrderBy(x => x.RandomValue)
             //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
@@ -222,19 +223,26 @@ namespace Players.Minimax.List
             }
             
             return Size - path.Count(x => x.Owner == Common.PlayerType.White);
+      
         }
 
         private int ScoreFromBoard(bool isMaximizing, ListMap board)
         {
+
+
             // Get the player's best path
-            var playerPath = StartLookingForBestPath(isMaximizing, board);
+            var playerPath = PossibleMoves(isMaximizing);
             var playerScore = ScoreFromPath(playerPath, isMaximizing);
             
             // Get the opponent best path
-            var opponentPath = StartLookingForBestPath(!isMaximizing, board);
+            var opponentPath = PossibleMoves(!isMaximizing);
             var opponentScore = ScoreFromPath(opponentPath, !isMaximizing);
 
             var score = playerScore - opponentScore;
+            if (!isMaximizing)
+            {
+                score = score * -1;
+            }
             var hex = playerPath?.FirstOrDefault(x => x.Owner == Common.PlayerType.White);
             bestMove = new Tuple<int, int>(hex?.Row ?? 0, hex?.Column ?? 0);
             return score;

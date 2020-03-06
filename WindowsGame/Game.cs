@@ -69,7 +69,33 @@ namespace WindowsGame
             textBoxHexBoardSize.Text = @"11";
 
         }
+        public void PerformanceInformationRelayed(object sender, EventArgs args)
+        {
+            var playerArgs = (PerformanceEventArgs) args;
+            var playerMetricLabel = playerArgs.PlayerNumber == 1 ? player1Metrics : player2Metrics;
 
+            var textToShow = "";
+            foreach (var counter in playerArgs.Counters)
+            {
+                textToShow = textToShow + counter.Key + " : " + counter.Value + "\n";
+            }
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() =>
+                {
+                    playerMetricLabel.Text = textToShow;
+                    Refresh();
+
+                }));
+            }
+            else
+            {
+                playerMetricLabel.Text = textToShow;
+            }
+
+
+
+        }
         public void Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
@@ -77,7 +103,9 @@ namespace WindowsGame
             //_referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
+            _referee.Player1.RelayInformation += PerformanceInformationRelayed;
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
+            _referee.Player2.RelayInformation += PerformanceInformationRelayed;
             StartGame();
         }
 
@@ -259,7 +287,6 @@ namespace WindowsGame
             // Clear up the memory for the ref
             Console.WriteLine(@"The winner is player #" + _referee.WinningPlayer.PlayerNumber);
             _playThrough.Add(_graphicsEngine.CreateImage());
-            _referee.Dispose();
             buttonTestBoard.Enabled = true;
         }
 
@@ -331,11 +358,11 @@ namespace WindowsGame
                 return;
             }
             // calc width & height based on board size
-            Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
-            Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
+ //           Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
+ //           Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
 
             //center the window after resize
-            CenterToScreen();
+//            CenterToScreen();
 
             Play();
         }
@@ -508,6 +535,16 @@ namespace WindowsGame
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBoxPlayer2Type_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -11,6 +11,8 @@ namespace Players.Minimax.List
     {
         private const int AbsoluteWorst = -9999;
         private const int AbsoluteBest = 9999;
+        private const string MovesExamined = "Total Moves Examined";
+        private const string MovesExaminedThisTurn = "Moves Examined This Turn";
         public ListMap Memory { get; set; }
         public int MaxLevels { get; set; }
         public int CostToMoveToClaimedNode { get; set; }
@@ -42,6 +44,9 @@ namespace Players.Minimax.List
             PrunesMade = 0;
             Name = playerConfig.name;
             NodesChecked = 0;
+            Monitors.Add(MovesExamined, 0);
+            Monitors.Add(MovesExaminedThisTurn, 0);
+
             Startup();
         }
 
@@ -63,6 +68,7 @@ namespace Players.Minimax.List
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
+            Monitors[MovesExaminedThisTurn] = 0;
             if (opponentMove != null)
             {
                 // First we set the opponent's hex as being owned by them.
@@ -74,7 +80,7 @@ namespace Players.Minimax.List
             }
 
             PrunesMade = 0;
-
+            
             int bestScore = AbsoluteBest;
 
             ListNode choice = null;
@@ -98,6 +104,9 @@ namespace Players.Minimax.List
                         choice = Memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
                     }
                     Memory.ReleaseHex(move.Row, move.Column);
+                    Monitors[MovesExamined]++;
+                    Monitors[MovesExaminedThisTurn]++;
+                    RelayPerformanceInformation();
                     //Quip("1 potential move with " + NodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
                 }
             }
@@ -135,7 +144,12 @@ namespace Players.Minimax.List
             }
 
             var possibleMoves = PossibleMoves(isMaximizing);
-            
+            if (!possibleMoves.Any())
+            {
+                possibleMoves.AddRange(Memory.Board
+                    .OrderBy(x => x.RandomValue)
+                    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            }
             if (possibleMoves.Any(x => x.Owner == Common.PlayerType.White))
             {
 
@@ -286,14 +300,7 @@ namespace Players.Minimax.List
             board.ClearPathValues();
             var path = ContinueLookingForPath(board, isMaximizing, start, end);
             watch.Stop();
-            //if (path != null && path.Any())
-            //{
-            //    Quip("Path found in " + watch.ElapsedMilliseconds + " milliseconds.");
-            //}
-            //else
-            //{
-            //    Quip("Path wasn't found in " + watch.ElapsedMilliseconds + " milliseconds");
-            //}
+ 
 
             return path;
         }
@@ -321,6 +328,7 @@ namespace Players.Minimax.List
                     .OrderByDescending(x => x.LookAtMe)
                     .ThenBy(x => x.F)
                     .ThenBy(x => x.RandomValue)
+                    .Where(x => x.Row >=0 && x.Row < Size)
                     .FirstOrDefault(x => x.Status == Status.Open);
             }
 

@@ -15,6 +15,9 @@ namespace Players.Minimax.Matrix
         public Matrix<int> EnemyMoves { get; set; }
         public Matrix<int> EmptyMatrix { get; set; }
         public int MaxLevels { get; set; }
+        private const int AbsoluteBestScore = 9999;
+        private const int AbsoluteWorstScore = -9999;
+        
         public int NodesChecked { get; set; }
         public PlayerType Opponent => Me == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
@@ -50,13 +53,57 @@ namespace Players.Minimax.Matrix
                 .Add(EmptyMatrix.Multiply(2))
                 .Add(EnemyMoves.Multiply(3));
 
-            var currentScore = ScoreTheBoard(matrixToExamine, Me);
+            var bestScore = Minimax(matrixToExamine, MaxLevels, AbsoluteWorstScore, AbsoluteBestScore, true);
+
 
             return null;
         }
 
+        public int Minimax(Matrix<int> board, int depth, int alpha, int beta, bool isMaximizing)
+        {
+            if (depth == 0 || IsThereAWinner(board, isMaximizing ? Me : Opponent))
+            {
+                return ScoreTheBoard(board, isMaximizing ? Me : Opponent);
+            }
+
+            if (isMaximizing)
+            {
+                var bestScore = AbsoluteWorstScore;
+                // Get moves
+                // for each possible move
+                    // Take the hex for the player
+                    // bestScore = Math.Max(bestScore(board, depth -1, alpha, beta, false);
+                    // alpha = Math.Max(alpha, bestScore)
+                    // Release the hex again
+                    // if (beta <= alpha)
+                    // {
+                    //  break;
+                    // }
+                return bestScore;
+            }
+            else
+            {
+                var bestScore = AbsoluteBestScore;
+                // Get Moves
+                // for each possible move
+                // Take the hex for the player
+                // bestScore = Math.Min(bestScore(board, depth -1, alpha, beta, true);
+                // alpha = Math.Min(alpha, bestScore)
+                // Release the hex again
+                // if (beta <= alpha)
+                // {
+                //  break;
+                // }
+                return bestScore;
+            }
+        }
+
         public int ScoreTheBoard(Matrix<int> board, PlayerType player)
         {
+            if (IsThereAWinner(board, player))
+            {
+                return player == Me ? AbsoluteBestScore : AbsoluteWorstScore;
+            }
             // Note, the lower the score the better the score is
             var otherPlayer = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
             var playerScore = CostOfBestPath(board, player);
@@ -66,82 +113,54 @@ namespace Players.Minimax.Matrix
 
         public int CostOfBestPath(Matrix<int> board, PlayerType player)
         {
-            // So the goal here is to find the best path from the board
-            // for the player and return the number of hexes left to complete it.
+            var vertical = MyMoves.RowSums();
+            var horizontal = MyMoves.ColumnSums();
+           
+            var emptyVertical = vertical.Count(x => x.Equals(0));
+            var emptyHorizontal = horizontal.Count(x => x.Equals(0));
 
-            // Start at one edge, move to the next.  Empty spaces cost 1,
-            // owned spaces cost 0 and are more desirable
-            var nodesToLookAt = GetStartingHexes(board, player);
+            if (Me == Common.PlayerType.Blue)
+            {
+                return 1;
+            }
+            return (Size - emptyVertical) + (Size - emptyHorizontal);
 
-            // Something happened, let's just return a bad score.
-            return 999;
         }
 
-        public List<Tuple<int, int>> GetStartingHexes(Matrix<int> board, PlayerType player)
+        public bool IsWinningPick(int newRow, int newColumn)
+        {
+            if (Me == Common.PlayerType.Blue)
+            {
+                return Board[newRow, newColumn].ReachesBottom() && Board[newRow, newColumn].ReachesTop();
+            }
+            return Board[newRow, newColumn].ReachesLeft() && Board[newRow, newColumn].ReachesRight();
+
+        }
+
+        public bool IsThereAWinner(Matrix<int> board, PlayerType player)
         {
             if (player == Common.PlayerType.Blue)
             {
-                return TopFriendlyHexes(board);
-            }
+                for (var i = 0; i < Size; i++)
+                {
+                    if (Board[0,i].Owner == player && Board[0, i].ReachesBottom())
+                    {
+                        return true;
+                    }
+                }
+            } 
             else
             {
-                return LeftFriendlyHexes(board);
-            }
-        }
-
-        public List<Tuple<int, int>> GetEndingHexes(Matrix<int> board, PlayerType player)
-        {
-            if (player == Common.PlayerType.Blue)
-            {
-                return BottomFriendlyHexes(board);
-            }
-            else
-            {
-                return RightFriendlyHexes(board);
-            }
-        }
-
-        public List<Tuple<int, int>> TopFriendlyHexes(Matrix<int> board)
-        {
-            var topFriendly = new List<Tuple<int, int>>();
-            for (int i = 0; i < Size; i++)
-            {
-                topFriendly.Add(new Tuple<int, int>(0,i));
+                for (var i = 0; i < Size; i++)
+                {
+                    if (Board[0, i].Owner == player && Board[i,0].ReachesRight())
+                    {
+                        return true;
+                    }
+                }
             }
 
-            return topFriendly;
-        }
-
-        public List<Tuple<int, int>> LeftFriendlyHexes(Matrix<int> board)
-        {
-            var leftFriendly = new List<Tuple<int, int>>();
-            for (int i = 0; i < Size; i++)
-            {
-                leftFriendly.Add(new Tuple<int, int>(i, 0));
-            }
-
-            return leftFriendly;
-        }
-
-        public List<Tuple<int, int>> BottomFriendlyHexes(Matrix<int> board)
-        {
-            var  bottomFriendly = new List<Tuple<int, int>>();
-            for (int i = 0; i < Size; i++)
-            {
-                bottomFriendly.Add(new Tuple<int, int>(Size, i));
-            }
-
-            return bottomFriendly;
-        }
-        public List<Tuple<int, int>> RightFriendlyHexes(Matrix<int> board)
-        {
-            var rightFriendly = new List<Tuple<int, int>>();
-            for (int i = 0; i < Size; i++)
-            { 
-                rightFriendly.Add(new Tuple<int, int>(i, Size));
-            }
-
-            return rightFriendly;
+            return false;
         }
 
         private void UpdateEnemyMoves(Tuple<int, int> opponentMove)

@@ -13,6 +13,11 @@ namespace Players.Minimax.List
         private const int AbsoluteBest = 9999;
         private const string MovesExamined = "Total Moves Examined";
         private const string MovesExaminedThisTurn = "Moves Examined This Turn";
+        private const string CurrentScore = "Current Score";
+        private const string AverageTimeToDecision = "Average time to decision";
+        private const string TotalTimeThinking = "Total time thinking";
+        private const string NumberOfRandomMoves = "# of random moves";
+        private const string NumberOfPlannedMoves = "# of planned moves";
         public ListMap Memory { get; set; }
         public int MaxLevels { get; set; }
         public int CostToMoveToClaimedNode { get; set; }
@@ -46,6 +51,11 @@ namespace Players.Minimax.List
             NodesChecked = 0;
             Monitors.Add(MovesExamined, 0);
             Monitors.Add(MovesExaminedThisTurn, 0);
+            Monitors.Add(CurrentScore, 0);
+            Monitors.Add(AverageTimeToDecision, 0);
+            Monitors.Add(TotalTimeThinking, 0);
+            Monitors.Add(NumberOfPlannedMoves, 0);
+            Monitors.Add(NumberOfRandomMoves, 0);
 
             Startup();
         }
@@ -81,7 +91,7 @@ namespace Players.Minimax.List
 
             PrunesMade = 0;
             
-            int bestScore = AbsoluteBest;
+            int bestScore = AbsoluteWorst;
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -106,6 +116,7 @@ namespace Players.Minimax.List
                     Memory.ReleaseHex(move.Row, move.Column);
                     Monitors[MovesExamined]++;
                     Monitors[MovesExaminedThisTurn]++;
+                    Monitors[CurrentScore] = bestScore;
                     RelayPerformanceInformation();
                     //Quip("1 potential move with " + NodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
                 }
@@ -114,10 +125,13 @@ namespace Players.Minimax.List
             var score = LetMeThinkAboutIt( MaxLevels, AbsoluteWorst, AbsoluteBest, true);
             Quip( "Best score found was " + score);
             watch.Stop();
+            Monitors[TotalTimeThinking] = Monitors[TotalTimeThinking] +  Convert.ToInt32(watch.ElapsedMilliseconds);
+
 
             // And when in doubt, get a random one
             if (choice == null)
             {
+                Monitors[NumberOfRandomMoves]++;
                 RandomMoveNumber++;
 
                 choice = Memory.Board.OrderBy(x => x.RandomValue)
@@ -126,9 +140,12 @@ namespace Players.Minimax.List
             }
             else
             {
+                Monitors[NumberOfPlannedMoves]++;
                 Quip("Choosing: [" + choice.Row + ", " + choice.Column + "] normal move #" + RegularMoveNumber + " (" + watch.ElapsedMilliseconds + "ms) with " + PrunesMade + " prunes made and score was " + bestScore);
             }
 
+            Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] / (RegularMoveNumber + RandomMoveNumber);
+            RelayPerformanceInformation();
             Memory.TakeHex(Me, choice.Row, choice.Column);
 
             return new Tuple<int, int>(choice.Row, choice.Column);

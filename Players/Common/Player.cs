@@ -15,7 +15,17 @@ namespace Players.Base
         protected List<BaseNode> _memory;
         public int WaitTime = 50;
         public int talkative;
+        public event EventHandler RelayInformation;
+        public Dictionary<string,int> Monitors = new Dictionary<string, int>();
 
+        public void RelayPerformanceInformation()
+        {
+            var args = new PerformanceEventArgs();
+            args.PlayerNumber = PlayerNumber;
+            args.Counters = new Dictionary<string, int>(Monitors);
+            RelayInformation?.Invoke(this, args);
+        }
+            
 
         protected Player(int playerNumber, int boardSize, Config playerConfig)
         {

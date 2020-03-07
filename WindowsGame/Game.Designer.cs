@@ -32,9 +32,11 @@
             this.saveGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.player1Metrics = new System.Windows.Forms.Label();
+            this.player2Metrics = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -100,17 +102,18 @@
             // 
             this.comboBoxPlayer2Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer2Type.FormattingEnabled = true;
-            this.comboBoxPlayer2Type.Location = new System.Drawing.Point(1085, 412);
+            this.comboBoxPlayer2Type.Location = new System.Drawing.Point(969, 344);
             this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer2Type.Name = "comboBoxPlayer2Type";
             this.comboBoxPlayer2Type.Size = new System.Drawing.Size(119, 24);
             this.comboBoxPlayer2Type.TabIndex = 14;
+            this.comboBoxPlayer2Type.SelectedIndexChanged += new System.EventHandler(this.comboBoxPlayer2Type_SelectedIndexChanged);
             // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(1085, 327);
+            this.label6.Location = new System.Drawing.Point(966, 97);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(60, 17);
@@ -121,18 +124,19 @@
             // 
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(1083, 391);
+            this.label7.Location = new System.Drawing.Point(967, 323);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(60, 17);
             this.label7.TabIndex = 17;
             this.label7.Text = "Player 2";
+            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // comboBoxPlayer1Type
             // 
             this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxPlayer1Type.FormattingEnabled = true;
-            this.comboBoxPlayer1Type.Location = new System.Drawing.Point(1085, 363);
+            this.comboBoxPlayer1Type.Location = new System.Drawing.Point(966, 118);
             this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer1Type.Name = "comboBoxPlayer1Type";
             this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
@@ -170,7 +174,7 @@
             this.reloadConfigurationToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // saveGameToolStripMenuItem
@@ -194,21 +198,6 @@
             this.reloadConfigurationToolStripMenuItem.Text = "Reload Configuration";
             this.reloadConfigurationToolStripMenuItem.Click += new System.EventHandler(this.reloadConfigurationToolStripMenuItem_Click);
             // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
-            this.helpToolStripMenuItem.Text = "Help";
-            // 
-            // aboutToolStripMenuItem
-            // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.aboutToolStripMenuItem.Text = "About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -216,11 +205,46 @@
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(133, 26);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // player1Metrics
+            // 
+            this.player1Metrics.AutoSize = true;
+            this.player1Metrics.Location = new System.Drawing.Point(966, 146);
+            this.player1Metrics.Name = "player1Metrics";
+            this.player1Metrics.Size = new System.Drawing.Size(109, 17);
+            this.player1Metrics.TabIndex = 24;
+            this.player1Metrics.Text = "Player 1 metrics";
+            // 
+            // player2Metrics
+            // 
+            this.player2Metrics.AutoSize = true;
+            this.player2Metrics.Location = new System.Drawing.Point(966, 381);
+            this.player2Metrics.Name = "player2Metrics";
+            this.player2Metrics.Size = new System.Drawing.Size(109, 17);
+            this.player2Metrics.TabIndex = 25;
+            this.player2Metrics.Text = "Player 2 metrics";
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1213, 676);
+            this.Controls.Add(this.player2Metrics);
+            this.Controls.Add(this.player1Metrics);
             this.Controls.Add(this.comboBoxPlayer1Type);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -268,5 +292,7 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.Label player1Metrics;
+        private System.Windows.Forms.Label player2Metrics;
     }
 }

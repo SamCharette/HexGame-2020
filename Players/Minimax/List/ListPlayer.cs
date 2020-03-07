@@ -2,30 +2,30 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using MathNet.Numerics.Providers.Common.OpenBlas;
-using Players.Base;
 using Players.Common;
-using Players.Minimax.List;
+
 
 namespace Players.Minimax.List
 {
     public class ListPlayer : MinimaxPlayer
     {
-        public new ListMap Memory;
-        private int Size;
-        private int _maxLevels;
-        private int _maxSeconds;
-        private int _nodesChecked;
-        private int costToMoveToClaimedNode;
-        private int costToMoveToUnclaimedNode;
-        private int costPerNodeTillEnd;
-        private int worstImpossibleScore = -9999;
-        private int bestImpossibleScore = 9999;
-        private int regularMoveNumber = 0;
-        private int randomMoveNumber = 0;
-        private int prunesMade = 0;
+        private const int AbsoluteWorst = -9999;
+        private const int AbsoluteBest = 9999;
+        private const string MovesExamined = "Total Moves Examined";
+        private const string MovesExaminedThisTurn = "Moves Examined This Turn";
+        public ListMap Memory { get; set; }
+        public int MaxLevels { get; set; }
+        public int CostToMoveToClaimedNode { get; set; }
+        public int CostToMoveToUnclaimedNode { get; set; }
+        public int CostPerNodeTillEnd { get; set; }
+        public int RegularMoveNumber { get; set; }
+        public int RandomMoveNumber { get;set;}
+        public int PrunesMade { get; set; }
+        public int NodesChecked { get; set; }
+        private Tuple<int,int> bestMove = new Tuple<int, int>(0,0);
+        public List<ListNode> PossibleMovesToMake { get; set; }
 
-        private PlayerType Opponent => Me == Common.PlayerType.Blue  ? Common.PlayerType.Red : Common.PlayerType.Blue;
+        public PlayerType Opponent => Me == Common.PlayerType.Blue  ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
 
 
@@ -34,20 +34,25 @@ namespace Players.Minimax.List
             PlayerNumber = playerNumber;
             Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
             Size = boardSize;
-            _maxLevels = GetDefault(playerConfig, "maxLevels", 20);
-            costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
-            costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
-            costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
+            MaxLevels = GetDefault(playerConfig, "maxLevels", 20);
+            CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
+            CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
+            CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
             talkative = Convert.ToInt32(playerConfig.talkative);
-
+            RegularMoveNumber = 0;
+            RandomMoveNumber = 0;
+            PrunesMade = 0;
             Name = playerConfig.name;
+            NodesChecked = 0;
+            Monitors.Add(MovesExamined, 0);
+            Monitors.Add(MovesExaminedThisTurn, 0);
 
             Startup();
         }
 
         public override string PlayerType()
         {
-            return "MiniMax AI (" + _maxLevels + ")";
+            return "MiniMax AI (" + MaxLevels + ")";
         }
 
         public void Startup()
@@ -58,11 +63,12 @@ namespace Players.Minimax.List
         public override void GameOver(int winningPlayerNumber)
         {
             Memory = null;
-            Quip("Game over.  " + regularMoveNumber + " regular moves and " + randomMoveNumber + " random ones.");
+            Quip("Game over.  " + RegularMoveNumber + " regular moves and " + RandomMoveNumber + " random ones.");
         }
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
+            Monitors[MovesExaminedThisTurn] = 0;
             if (opponentMove != null)
             {
                 // First we set the opponent's hex as being owned by them.
@@ -73,49 +79,54 @@ namespace Players.Minimax.List
                 }
             }
 
-            prunesMade = 0;
-
-            int bestScore = worstImpossibleScore;
+            PrunesMade = 0;
+            
+            int bestScore = AbsoluteBest;
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            var possibleMoves = PossibleMoves(Memory, true);
+            PossibleMovesToMake = PossibleMoves(true);
 
-            if (possibleMoves != null)
+            if (PossibleMovesToMake != null)
             {
-                regularMoveNumber++;
+                RegularMoveNumber++;
 
-                choice = possibleMoves.FirstOrDefault();
-             
-                foreach (var move in possibleMoves)
+                choice = PossibleMovesToMake.FirstOrDefault();
+
+                foreach (var move in PossibleMovesToMake)
                 {
-                    _nodesChecked = 0;
-                    var thoughtBoard = new ListMap(Memory);
-
-                    var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, _maxLevels, bestImpossibleScore, worstImpossibleScore, true);
+                    NodesChecked = 0;
+                    Memory.TakeHex(Me, move.Row, move.Column);
+                    var scoreForThisMove = LetMeThinkAboutIt( MaxLevels, AbsoluteWorst, AbsoluteBest, false);
                     if (scoreForThisMove > bestScore)
                     {
                         bestScore = scoreForThisMove;
-                        choice = thoughtBoard.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                        choice = Memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
                     }
-
-                    //Quip("1 potential move with " + _nodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
+                    Memory.ReleaseHex(move.Row, move.Column);
+                    Monitors[MovesExamined]++;
+                    Monitors[MovesExaminedThisTurn]++;
+                    RelayPerformanceInformation();
+                    //Quip("1 potential move with " + NodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
                 }
             }
+
+            var score = LetMeThinkAboutIt( MaxLevels, AbsoluteWorst, AbsoluteBest, true);
+            Quip( "Best score found was " + score);
             watch.Stop();
 
             // And when in doubt, get a random one
             if (choice == null)
             {
-                randomMoveNumber++;
+                RandomMoveNumber++;
 
                 choice = Memory.Board.OrderBy(x => x.RandomValue)
                     .FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-                Quip("Random choice : [" + choice.Row + ", " + choice.Column + "] #" + randomMoveNumber);
+                Quip("Random choice : [" + choice.Row + ", " + choice.Column + "] #" + RandomMoveNumber);
             }
             else
             {
-                Quip("Choosing: [" + choice.Row + ", " + choice.Column + "] normal move #" + regularMoveNumber + " (" + watch.ElapsedMilliseconds + "ms) with " + prunesMade + " prunes made and score was " + bestScore);
+                Quip("Choosing: [" + choice.Row + ", " + choice.Column + "] normal move #" + RegularMoveNumber + " (" + watch.ElapsedMilliseconds + "ms) with " + PrunesMade + " prunes made and score was " + bestScore);
             }
 
             Memory.TakeHex(Me, choice.Row, choice.Column);
@@ -123,14 +134,79 @@ namespace Players.Minimax.List
             return new Tuple<int, int>(choice.Row, choice.Column);
         }
 
-        private List<ListNode> PossibleMoves(ListMap board, bool isMaximizing)
+        private int LetMeThinkAboutIt(int depth, int alpha, int beta, bool isMaximizing)
+        {
+  
+
+            if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
+            {
+                return ScoreFromBoard(isMaximizing, Memory);
+            }
+
+            var possibleMoves = PossibleMoves(isMaximizing);
+            if (!possibleMoves.Any())
+            {
+                possibleMoves.AddRange(Memory.Board
+                    .OrderBy(x => x.RandomValue)
+                    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            }
+            if (possibleMoves.Any(x => x.Owner == Common.PlayerType.White))
+            {
+
+                if (isMaximizing)
+                {
+                    var bestValue = alpha;
+
+                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
+                    {
+                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(depth - 1, alpha, beta, false));
+                        alpha = Math.Max(alpha, bestValue);
+                        NodesChecked++;
+                        Memory.ReleaseHex(move.Row, move.Column);
+                        if (beta <= alpha)
+                        {
+                            PrunesMade++;
+                            break;
+                        }
+
+                    }
+
+                    return bestValue;
+                }
+                else
+                {
+                    var bestValue = beta;
+                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
+                    {
+
+                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt( depth - 1, alpha, beta, true));
+                        beta = Math.Min(beta, bestValue);
+                        NodesChecked++;
+                        Memory.ReleaseHex(move.Row, move.Column);
+                        if (beta <= alpha)
+                        {
+                            PrunesMade++;
+                            break;
+                        }
+                    }
+
+                    return bestValue;
+                }
+            }
+            else
+            {
+                return ScoreFromBoard(isMaximizing, Memory);
+            }
+        }
+
+        private List<ListNode> PossibleMoves( bool isMaximizing)
         {
             // The possible moves are generated by better looking in our path,
             // followed by the opponent path, followed then by open hexes on no path
-            var myBestPathFromHere = StartLookingForBestPath(isMaximizing, board);
-            var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, board);
-
-            var possibleMoves = new List<ListNode>();
+            var myBestPathFromHere = StartLookingForBestPath(isMaximizing, Memory);
+             var possibleMoves = new List<ListNode>();
             if (myBestPathFromHere != null)
                 possibleMoves
                     .AddRange(myBestPathFromHere
@@ -138,15 +214,18 @@ namespace Players.Minimax.List
                         .ThenBy(x => x.F)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
+
+            var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, Memory);
+
             if (opponentBestPathFromHere != null)
                 possibleMoves
                     .AddRange(opponentBestPathFromHere
                         .OrderBy(x => x.LookAtMe)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
-            possibleMoves.AddRange(Memory.Board
-                .OrderBy(x => x.RandomValue)
-                .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            //possibleMoves.AddRange(Memory.Board
+            //    .OrderBy(x => x.RandomValue)
+            //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
             return possibleMoves;
         }
 
@@ -154,33 +233,32 @@ namespace Players.Minimax.List
         {
             if (path == null || ! path.Any())
             {
-                if (isMaximizing)
-                {
-                    //Quip("Dafuq?");
-                    return worstImpossibleScore;
-                }
-                else
-                {
-                    //Quip("Doubledafuq?");
-                    return bestImpossibleScore;
-                }
-
+                return isMaximizing ? AbsoluteWorst : AbsoluteBest;
             }
             
             return Size - path.Count(x => x.Owner == Common.PlayerType.White);
+      
         }
 
         private int ScoreFromBoard(bool isMaximizing, ListMap board)
         {
+
+
             // Get the player's best path
-            var playerPath = StartLookingForBestPath(isMaximizing, board);
+            var playerPath = PossibleMoves(isMaximizing);
             var playerScore = ScoreFromPath(playerPath, isMaximizing);
             
             // Get the opponent best path
-            var opponentPath = StartLookingForBestPath(!isMaximizing, board);
+            var opponentPath = PossibleMoves(!isMaximizing);
             var opponentScore = ScoreFromPath(opponentPath, !isMaximizing);
 
             var score = playerScore - opponentScore;
+            if (!isMaximizing)
+            {
+                score = score * -1;
+            }
+            var hex = playerPath?.FirstOrDefault(x => x.Owner == Common.PlayerType.White);
+            bestMove = new Tuple<int, int>(hex?.Row ?? 0, hex?.Column ?? 0);
             return score;
         }
 
@@ -222,14 +300,7 @@ namespace Players.Minimax.List
             board.ClearPathValues();
             var path = ContinueLookingForPath(board, isMaximizing, start, end);
             watch.Stop();
-            //if (path != null && path.Any())
-            //{
-            //    Quip("Path found in " + watch.ElapsedMilliseconds + " milliseconds.");
-            //}
-            //else
-            //{
-            //    Quip("Path wasn't found in " + watch.ElapsedMilliseconds + " milliseconds");
-            //}
+ 
 
             return path;
         }
@@ -257,6 +328,7 @@ namespace Players.Minimax.List
                     .OrderByDescending(x => x.LookAtMe)
                     .ThenBy(x => x.F)
                     .ThenBy(x => x.RandomValue)
+                    .Where(x => x.Row >=0 && x.Row < Size)
                     .FirstOrDefault(x => x.Status == Status.Open);
             }
 
@@ -290,19 +362,19 @@ namespace Players.Minimax.List
                     if (node.Status == Status.Open)
                     {
                         
-                        if (node.G > bestLookingNode.G + (node.Owner == Common.PlayerType.White ? costToMoveToUnclaimedNode : costToMoveToClaimedNode ))
+                        if (node.G > bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode ))
                         { 
                             node.Parent = bestLookingNode;
-                            node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? costToMoveToUnclaimedNode : costToMoveToClaimedNode); 
-                            node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                            node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode); 
+                            node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
                     {
                         node.Status = Status.Open;
                         node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? costToMoveToUnclaimedNode : costToMoveToClaimedNode);
-                        node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                        node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode);
+                        node.H = (CurrentlySearchingAs(isMaximizing) == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                     }
                 }
 
@@ -312,87 +384,7 @@ namespace Players.Minimax.List
 
         }
 
-        private int LetMeThinkAboutIt(ListMap thoughtBoard, int depth, int alpha, int beta, bool isMaximizing)
-        {
-            var currentAlpha = alpha;
-            var currentBeta = beta;
-            
-            if (depth == 0 || thoughtBoard.Board.All(x => x.Owner != Common.PlayerType.White))
-            {
-                return ScoreFromBoard(isMaximizing, thoughtBoard);
-            }
-
-            var newThoughtBoard = new ListMap(thoughtBoard);
-            //var playerBestPathFromHere = StartLookingForBestPath(isMaximizing, newThoughtBoard);
-            //var opponentBestPathFromHere = StartLookingForBestPath(!isMaximizing, newThoughtBoard);
-
-
-            var possibleMoves = PossibleMoves(thoughtBoard, isMaximizing);
-            //if (playerBestPathFromHere != null)
-            //{
-            //    possibleMoves.AddRange(playerBestPathFromHere
-            //        .OrderByDescending(x => x.LookAtMe)
-            //        .ThenByDescending(x => x.RandomValue)
-            //        .Where(x => x.Owner == Common.PlayerType.White));
-            //}
-            //if (opponentBestPathFromHere != null)
-            //{
-            //    possibleMoves.AddRange(opponentBestPathFromHere
-            //        .OrderByDescending(x => x.LookAtMe)
-            //        .ThenByDescending(x => x.RandomValue)
-            //        .Where(x => x.Owner == Common.PlayerType.White));
-            //}
-            // Get possible moves for player
-            if (possibleMoves.Any())
-            {
-                
-                if (isMaximizing)
-                {
-                    var bestValue = worstImpossibleScore;
-
-                    foreach (var move in possibleMoves)
-                    {
-                        newThoughtBoard.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(newThoughtBoard, depth - 1, currentAlpha, currentBeta, false));
-                        currentAlpha = Math.Max(currentAlpha, bestValue);
-                        _nodesChecked++;
-                        if (currentBeta <= currentAlpha)
-                        {
-                            prunesMade++;
-                            break;
-                        }
-                        newThoughtBoard.ReleaseHex(move.Row, move.Column);
-
-                    }
-
-                    return bestValue;
-                }
-                else
-                {
-                    var bestValue = bestImpossibleScore;
-                    foreach (var move in possibleMoves)
-                    {
-
-                        newThoughtBoard.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(newThoughtBoard, depth - 1, currentAlpha, currentBeta, true));
-                        currentBeta = Math.Min(currentBeta, bestValue);
-                        _nodesChecked++;
-                        if (currentBeta <= currentAlpha)
-                        {
-                            prunesMade++;
-                            break;
-                        }
-                        newThoughtBoard.ReleaseHex(move.Row, move.Column);
-                    }
-
-                    return bestValue;
-                }
-            }
-            else
-            {
-                return ScoreFromBoard(isMaximizing, newThoughtBoard);
-            }
-        }
+    
 
     }
 }

@@ -236,8 +236,9 @@ namespace Players.Minimax.List
             if (myBestPathFromHere != null)
                 possibleMoves
                     .AddRange(myBestPathFromHere
-                        .OrderBy(x => x.LookAtMe)
-                        .ThenBy(x => x.F)
+                        .OrderBy(x => x.F)
+                        .ThenBy(x => x.GetDistanceToStart() + x.GetDistanceToEnd())
+                        .ThenBy(x => x.LookAtMe)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
 
@@ -350,10 +351,10 @@ namespace Players.Minimax.List
             {
 
                 bestLookingNode = map.Board
-                    .OrderByDescending(x => x.LookAtMe)
-                    .ThenBy(x => x.F)
+                    .Where(x => x.Location == NodeLocation.Board)
+                    .OrderBy(x => x.F)
+                    .ThenByDescending(x => x.LookAtMe)
                     .ThenBy(x => x.RandomValue)
-                    .Where(x => x.Row >=0 && x.Row < Size)
                     .FirstOrDefault(x => x.Status == Status.Open);
             }
 
@@ -365,11 +366,11 @@ namespace Players.Minimax.List
             // CLOSE IT
             bestLookingNode.Status = Status.Closed;
 
-            if (bestLookingNode.IsNeighboursWith(end))
+            if (bestLookingNode.IsNeighboursWith(end) && bestLookingNode.IsNeighboursWith(start))
             {
                 var preferredPath = new List<ListNode>();
                 var parent = bestLookingNode;
-                while (parent != null && (parent.Row != start.Row && parent.Column != start.Column))
+                while (parent != null && parent.Location == NodeLocation.Board)
                 {
                     preferredPath.Add(parent);
                     parent = parent.Parent;
@@ -378,7 +379,7 @@ namespace Players.Minimax.List
                 return preferredPath;
             }
             
-            var neighbours = bestLookingNode.Neighbours;
+            var neighbours = bestLookingNode.Neighbours.OrderBy(x => x.RemainingDistance());
 
             foreach (var node in neighbours)
             {

@@ -26,7 +26,7 @@ namespace Players
             var move = new Move {X = x, Y = y, MoveNumber = moveNumber};
             Moves.Add(move);
         }
-        public new Tuple<int, int> SelectHex(Tuple<int, int> opposingPick)
+        public override Tuple<int, int> SelectHex(Tuple<int, int> opposingPick)
         {
             var moveToMake = Moves.OrderBy(x => x.MoveNumber).FirstOrDefault(y => y.MoveNumber > LastMoveNumber);
             LastMoveNumber++;

@@ -232,7 +232,6 @@ namespace WindowsGame
             saveGameToolStripMenuItem.Enabled = true;
             loadGameToolStripMenuItem.Enabled = true;
             reloadConfigurationToolStripMenuItem.Enabled = true;
-            _referee.Dispose();
         }
 
         public void PlayerMadeMove(object sender, EventArgs args)

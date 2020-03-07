@@ -163,7 +163,7 @@ namespace Players.Minimax.List
 
             if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                return ScoreFromBoard(isMaximizing, Memory);
+                return ScoreFromBoard();
             }
 
             var possibleMoves = PossibleMoves(isMaximizing);
@@ -223,7 +223,7 @@ namespace Players.Minimax.List
             else
             {
 
-                return ScoreFromBoard(isMaximizing, Memory);
+                return ScoreFromBoard();
             }
         }
 
@@ -249,42 +249,29 @@ namespace Players.Minimax.List
                         .OrderBy(x => x.LookAtMe)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
-            //possibleMoves.AddRange(Memory.Board
-            //    .OrderBy(x => x.RandomValue)
-            //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            possibleMoves.AddRange(Memory.Board
+                .OrderBy(x => x.RandomValue)
+                .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
             return possibleMoves;
         }
 
-        private int ScoreFromPath(List<ListNode> path, bool isMaximizing)
+        private int ScoreFromPath(List<ListNode> path)
         {
-            if (path == null || ! path.Any())
+            if (path == null)
             {
-                return isMaximizing ? AbsoluteWorst : AbsoluteBest;
+                return Size;
             }
-            
             return Size - path.Count(x => x.Owner == Common.PlayerType.White);
       
         }
 
-        private int ScoreFromBoard(bool isMaximizing, ListMap board)
+        private int ScoreFromBoard()
         {
+            var player1Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
+            var player2Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
 
+            var score = player1Score - player2Score;
 
-            // Get the player's best path
-            var playerPath = PossibleMoves(isMaximizing);
-            var playerScore = ScoreFromPath(playerPath, isMaximizing);
-            
-            // Get the opponent best path
-            var opponentPath = PossibleMoves(!isMaximizing);
-            var opponentScore = ScoreFromPath(opponentPath, !isMaximizing);
-
-            var score = playerScore - opponentScore;
-            if (!isMaximizing)
-            {
-                score = score * -1;
-            }
-            var hex = playerPath?.FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-            bestMove = new Tuple<int, int>(hex?.Row ?? 0, hex?.Column ?? 0);
             return score;
         }
 

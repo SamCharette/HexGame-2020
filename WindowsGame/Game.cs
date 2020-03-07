@@ -37,6 +37,7 @@ namespace WindowsGame
 
         public Game()
         {
+     
             InitializeComponent();
             SetUpPlayers();
         }
@@ -45,6 +46,8 @@ namespace WindowsGame
         {
             comboBoxPlayer1Type.Items.Clear();
             comboBoxPlayer2Type.Items.Clear();
+            player1Metrics.Text = "";
+            player2Metrics.Text = "";
             var appPath = Application.StartupPath;
             var configPath = Path.Combine(appPath, "Config\\players.json");
             _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
@@ -534,16 +537,6 @@ namespace WindowsGame
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBoxPlayer2Type_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

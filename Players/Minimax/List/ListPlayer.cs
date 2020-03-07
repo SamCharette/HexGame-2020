@@ -18,6 +18,8 @@ namespace Players.Minimax.List
         private const string TotalTimeThinking = "Total time thinking";
         private const string NumberOfRandomMoves = "# of random moves";
         private const string NumberOfPlannedMoves = "# of planned moves";
+        private const string NumberOfNodesChecked = "Nodes Checked";
+        private const string NumberOfPrunesMade = "Prunes Made";
         public ListMap Memory { get; set; }
         public int MaxLevels { get; set; }
         public int CostToMoveToClaimedNode { get; set; }
@@ -56,6 +58,8 @@ namespace Players.Minimax.List
             Monitors.Add(TotalTimeThinking, 0);
             Monitors.Add(NumberOfPlannedMoves, 0);
             Monitors.Add(NumberOfRandomMoves, 0);
+            Monitors.Add(NumberOfNodesChecked, 0);
+            Monitors.Add(NumberOfPrunesMade, 0);
 
             Startup();
         }
@@ -68,10 +72,12 @@ namespace Players.Minimax.List
         public void Startup()
         {
             Memory = new ListMap(Size);
+            RelayPerformanceInformation();
         }
 
         public override void GameOver(int winningPlayerNumber)
         {
+            RelayPerformanceInformation();
             Memory = null;
             Quip("Game over.  " + RegularMoveNumber + " regular moves and " + RandomMoveNumber + " random ones.");
         }
@@ -153,7 +159,7 @@ namespace Players.Minimax.List
 
         private int LetMeThinkAboutIt(int depth, int alpha, int beta, bool isMaximizing)
         {
-  
+
 
             if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
@@ -180,15 +186,16 @@ namespace Players.Minimax.List
                         bestValue = Math.Max(bestValue, LetMeThinkAboutIt(depth - 1, alpha, beta, false));
                         alpha = Math.Max(alpha, bestValue);
                         NodesChecked++;
+                        Monitors[NumberOfNodesChecked]++;
                         Memory.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
+                            Monitors[NumberOfPrunesMade]++;
                             PrunesMade++;
                             break;
                         }
 
                     }
-
                     return bestValue;
                 }
                 else
@@ -201,19 +208,21 @@ namespace Players.Minimax.List
                         bestValue = Math.Min(bestValue, LetMeThinkAboutIt( depth - 1, alpha, beta, true));
                         beta = Math.Min(beta, bestValue);
                         NodesChecked++;
+                        Monitors[NumberOfNodesChecked]++;
                         Memory.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
+                            Monitors[NumberOfPrunesMade]++;
                             PrunesMade++;
                             break;
                         }
                     }
-
                     return bestValue;
                 }
             }
             else
             {
+
                 return ScoreFromBoard(isMaximizing, Memory);
             }
         }

@@ -31,6 +31,7 @@ namespace Players.Base
         {
             PlayerNumber = playerNumber;
             _size = boardSize;
+            RelayPerformanceInformation();
             SetUpInMemoryBoard();
         }
 

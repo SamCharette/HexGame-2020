@@ -40,6 +40,7 @@ namespace Players
 
         public HumanPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
+            RelayPerformanceInformation();
             base.SetUpInMemoryBoard();
             Name = "Human Player";
         }

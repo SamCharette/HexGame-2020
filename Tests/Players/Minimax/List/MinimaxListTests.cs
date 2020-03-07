@@ -31,15 +31,20 @@ namespace Tests.Players.Minimax.List
         }
 
         [Test]
-        public void FindBestPath_ShouldReturnSmallerSizeLength_WhenBoardHasHexes()
+        public void StartNode_ShouldHaveLessThanSizeDistanceLeft_WhenItHasNeighbours()
         {
             var player = new ListPlayer(1, 11, new Config());
-            var node = player.Memory.Board.FirstOrDefault(x => x.Row == 5 && x.Column == 3);
-            node.Owner = PlayerType.Blue;
-            node = player.Memory.Board.FirstOrDefault(x => x.Row == 8 && x.Column == 3);
-            node.Owner = PlayerType.Blue;
-            var path = player.StartLookingForBestPath(true, player.Memory);
-            Assert.AreEqual(9, path.Count(x => x.Owner == PlayerType.White));
+            var node = player.Memory.Board.FirstOrDefault(x => x.Row == 0 && x.Column == 3);
+            player.Memory.TakeHex(PlayerType.Blue, 0, 3);
+            Assert.True(player.Memory.Top.IsNeighboursWith(node));
+            Assert.AreEqual(11, player.Memory.Top.RemainingDistance());
+            player.Memory.TakeHex(PlayerType.Blue, 1, 3);
+            Assert.AreEqual(10, player.Memory.Top.RemainingDistance());
+            player.Memory.TakeHex(PlayerType.Blue, 2, 2);
+            Assert.AreEqual(9, player.Memory.Top.RemainingDistance());
+            player.Memory.TakeHex(PlayerType.Blue, 5, 2);
+            Assert.AreEqual(9, player.Memory.Top.RemainingDistance());
+
         }
     }
 }

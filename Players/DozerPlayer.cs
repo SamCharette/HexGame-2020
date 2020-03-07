@@ -66,6 +66,7 @@ namespace Players
             costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
             talkative = Convert.ToInt32(playerConfig.talkative);
             Name = playerConfig.name;
+            RelayPerformanceInformation();
             SetUpInMemoryBoard();
         }
 

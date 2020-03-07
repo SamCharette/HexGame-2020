@@ -16,6 +16,7 @@ namespace Players
         }
         public RandomPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
+            RelayPerformanceInformation();
             Name = playerConfig?.name ?? "Random";
         }
     }

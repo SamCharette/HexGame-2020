@@ -13,6 +13,13 @@ namespace Players.Minimax.List
         private const int AbsoluteBest = 9999;
         private const string MovesExamined = "Total Moves Examined";
         private const string MovesExaminedThisTurn = "Moves Examined This Turn";
+        private const string CurrentScore = "Current Score";
+        private const string AverageTimeToDecision = "Average time to decision";
+        private const string TotalTimeThinking = "Total time thinking";
+        private const string NumberOfRandomMoves = "# of random moves";
+        private const string NumberOfPlannedMoves = "# of planned moves";
+        private const string NumberOfNodesChecked = "Nodes Checked";
+        private const string NumberOfPrunesMade = "Prunes Made";
         public ListMap Memory { get; set; }
         public int MaxLevels { get; set; }
         public int CostToMoveToClaimedNode { get; set; }
@@ -46,6 +53,13 @@ namespace Players.Minimax.List
             NodesChecked = 0;
             Monitors.Add(MovesExamined, 0);
             Monitors.Add(MovesExaminedThisTurn, 0);
+            Monitors.Add(CurrentScore, 0);
+            Monitors.Add(AverageTimeToDecision, 0);
+            Monitors.Add(TotalTimeThinking, 0);
+            Monitors.Add(NumberOfPlannedMoves, 0);
+            Monitors.Add(NumberOfRandomMoves, 0);
+            Monitors.Add(NumberOfNodesChecked, 0);
+            Monitors.Add(NumberOfPrunesMade, 0);
 
             Startup();
         }
@@ -58,10 +72,12 @@ namespace Players.Minimax.List
         public void Startup()
         {
             Memory = new ListMap(Size);
+            RelayPerformanceInformation();
         }
 
         public override void GameOver(int winningPlayerNumber)
         {
+            RelayPerformanceInformation();
             Memory = null;
             Quip("Game over.  " + RegularMoveNumber + " regular moves and " + RandomMoveNumber + " random ones.");
         }
@@ -81,7 +97,7 @@ namespace Players.Minimax.List
 
             PrunesMade = 0;
             
-            int bestScore = AbsoluteBest;
+            int bestScore = AbsoluteWorst;
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -106,6 +122,7 @@ namespace Players.Minimax.List
                     Memory.ReleaseHex(move.Row, move.Column);
                     Monitors[MovesExamined]++;
                     Monitors[MovesExaminedThisTurn]++;
+                    Monitors[CurrentScore] = bestScore;
                     RelayPerformanceInformation();
                     //Quip("1 potential move with " + NodesChecked + " nodes checked in " + watch.ElapsedMilliseconds + " milliseconds");
                 }
@@ -114,10 +131,13 @@ namespace Players.Minimax.List
             var score = LetMeThinkAboutIt( MaxLevels, AbsoluteWorst, AbsoluteBest, true);
             Quip( "Best score found was " + score);
             watch.Stop();
+            Monitors[TotalTimeThinking] = Monitors[TotalTimeThinking] +  Convert.ToInt32(watch.ElapsedMilliseconds);
+
 
             // And when in doubt, get a random one
             if (choice == null)
             {
+                Monitors[NumberOfRandomMoves]++;
                 RandomMoveNumber++;
 
                 choice = Memory.Board.OrderBy(x => x.RandomValue)
@@ -126,9 +146,12 @@ namespace Players.Minimax.List
             }
             else
             {
+                Monitors[NumberOfPlannedMoves]++;
                 Quip("Choosing: [" + choice.Row + ", " + choice.Column + "] normal move #" + RegularMoveNumber + " (" + watch.ElapsedMilliseconds + "ms) with " + PrunesMade + " prunes made and score was " + bestScore);
             }
 
+            Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] / (RegularMoveNumber + RandomMoveNumber);
+            RelayPerformanceInformation();
             Memory.TakeHex(Me, choice.Row, choice.Column);
 
             return new Tuple<int, int>(choice.Row, choice.Column);
@@ -136,11 +159,11 @@ namespace Players.Minimax.List
 
         private int LetMeThinkAboutIt(int depth, int alpha, int beta, bool isMaximizing)
         {
-  
+
 
             if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                return ScoreFromBoard(isMaximizing, Memory);
+                return ScoreFromBoard();
             }
 
             var possibleMoves = PossibleMoves(isMaximizing);
@@ -163,15 +186,16 @@ namespace Players.Minimax.List
                         bestValue = Math.Max(bestValue, LetMeThinkAboutIt(depth - 1, alpha, beta, false));
                         alpha = Math.Max(alpha, bestValue);
                         NodesChecked++;
+                        Monitors[NumberOfNodesChecked]++;
                         Memory.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
+                            Monitors[NumberOfPrunesMade]++;
                             PrunesMade++;
                             break;
                         }
 
                     }
-
                     return bestValue;
                 }
                 else
@@ -184,20 +208,22 @@ namespace Players.Minimax.List
                         bestValue = Math.Min(bestValue, LetMeThinkAboutIt( depth - 1, alpha, beta, true));
                         beta = Math.Min(beta, bestValue);
                         NodesChecked++;
+                        Monitors[NumberOfNodesChecked]++;
                         Memory.ReleaseHex(move.Row, move.Column);
                         if (beta <= alpha)
                         {
+                            Monitors[NumberOfPrunesMade]++;
                             PrunesMade++;
                             break;
                         }
                     }
-
                     return bestValue;
                 }
             }
             else
             {
-                return ScoreFromBoard(isMaximizing, Memory);
+
+                return ScoreFromBoard();
             }
         }
 
@@ -223,42 +249,41 @@ namespace Players.Minimax.List
                         .OrderBy(x => x.LookAtMe)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
-            //possibleMoves.AddRange(Memory.Board
-            //    .OrderBy(x => x.RandomValue)
-            //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            possibleMoves.AddRange(Memory.Board
+                .OrderBy(x => x.RandomValue)
+                .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
             return possibleMoves;
         }
 
-        private int ScoreFromPath(List<ListNode> path, bool isMaximizing)
+        private int ScoreFromPath(List<ListNode> path)
         {
-            if (path == null || ! path.Any())
+            if (path == null)
             {
-                return isMaximizing ? AbsoluteWorst : AbsoluteBest;
+                return Size;
             }
-            
             return Size - path.Count(x => x.Owner == Common.PlayerType.White);
       
         }
 
-        private int ScoreFromBoard(bool isMaximizing, ListMap board)
+        private int ScoreFromBoard()
         {
-
-
-            // Get the player's best path
-            var playerPath = PossibleMoves(isMaximizing);
-            var playerScore = ScoreFromPath(playerPath, isMaximizing);
-            
-            // Get the opponent best path
-            var opponentPath = PossibleMoves(!isMaximizing);
-            var opponentScore = ScoreFromPath(opponentPath, !isMaximizing);
-
-            var score = playerScore - opponentScore;
-            if (!isMaximizing)
+            int player1Score;
+            int player2Score;
+            if (Me == Common.PlayerType.Blue)
             {
-                score = score * -1;
+                player1Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
+                player2Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+
+            } 
+            else
+            {
+                player2Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
+                player1Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+
             }
-            var hex = playerPath?.FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-            bestMove = new Tuple<int, int>(hex?.Row ?? 0, hex?.Column ?? 0);
+
+            var score = player1Score - player2Score;
+
             return score;
         }
 

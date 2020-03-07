@@ -33,9 +33,13 @@ namespace Players.Minimax.List
             Board = new List<ListNode>(Size * Size);
             // Make the nodes
             Top = new ListNode(Size, -10, -10);
+            Top.Location = NodeLocation.Top;
             Bottom = new ListNode(Size, 1000, 1000);
+            Bottom.Location = NodeLocation.Bottom;
             Left = new ListNode(Size, -20, -20);
+            Left.Location = NodeLocation.Left;
             Right = new ListNode(Size, 2000, 2000);
+            Right.Location = NodeLocation.Right;
 
             for (var column = 0; column < Size; column++)
             {
@@ -100,6 +104,12 @@ namespace Players.Minimax.List
         {
             a.AttachTo(b);
             b.AttachTo(a);
+        }
+
+        public void DetachFromEachOther(ListNode a, ListNode b)
+        {
+            a.DetachFrom(b);
+            b.DetachFrom(a);
         }
 
         public ListMap(ListMap mapToClone)
@@ -205,10 +215,27 @@ namespace Players.Minimax.List
             }
 
             node.Owner = owner;
-
+            var neighboursToUpdate = FriendlyNeighboursOf(node);
+            foreach (var neighbour in neighboursToUpdate)
+            {
+                AttachNeighboursFrom(node, neighbour);
+            }
             node.PingNeighbours();
 
             return true;
+        }
+
+        public void AttachNeighboursFrom(ListNode source, ListNode current)
+        {
+            var friendlyNeighbours = FriendlyNeighboursOf(current);
+            var notAddedYet =
+                friendlyNeighbours.Where(x =>
+                    !source.Neighbours.Any(y => y.Row == x.Row && y.Column == x.Column));
+            foreach (var node in notAddedYet)
+            {
+                AttachToEachOther(source, node);
+                AttachNeighboursFrom(source, node);
+            }
         }
 
         public void ReleaseHex(int row, int column)
@@ -219,7 +246,53 @@ namespace Players.Minimax.List
             {
                 node.Owner = PlayerType.White;
                 node.PingNeighbours(false);
+                foreach (var hex in Board)
+                {
+                    DetachFromEachOther(hex, node);
+                }
             }
+        }
+
+        public List<ListNode> FriendlyNeighboursOf(ListNode node)
+        {
+            if (node != null)
+            {
+                return PhysicalNeighboursOf(node).Where(x => x.Owner == node.Owner).ToList();
+            }
+            return new List<ListNode>();
+        }
+        public List<ListNode> PhysicalNeighboursOf(ListNode node)
+        {
+            var physicalNeighbours = new List<ListNode>();
+            for (int i = 0; i < 6; i++)
+            {
+                var delta = Directions[(AxialDirections) i];
+                var possibleNeighbour = Board.FirstOrDefault(x =>
+                    x.Row == node.Row + delta.Item1 && x.Column == node.Column + delta.Item2);
+                if (possibleNeighbour != null)
+                {
+                    physicalNeighbours.Add(possibleNeighbour);
+                }
+            }
+
+            // Now add the exterior neighbours if they are there
+            //if (node.IsNeighboursWith(Top))
+            //{
+            //    physicalNeighbours.Add(Top);
+            //}
+            //if (node.IsNeighboursWith(Bottom))
+            //{
+            //    physicalNeighbours.Add(Bottom);
+            //}
+            //if (node.IsNeighboursWith(Left))
+            //{
+            //    physicalNeighbours.Add(Left);
+            //}
+            //if (node.IsNeighboursWith(Right))
+            //{
+            //    physicalNeighbours.Add(Right);
+            //}
+            return physicalNeighbours;
         }
     }
 }

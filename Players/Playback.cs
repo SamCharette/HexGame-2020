@@ -39,6 +39,7 @@ namespace Players
 
         public Playback(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
+            RelayPerformanceInformation();
         }
     }
 }

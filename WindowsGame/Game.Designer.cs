@@ -46,12 +46,13 @@
             this.labelXY.AutoSize = true;
             this.labelXY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelXY.ForeColor = System.Drawing.Color.Blue;
-            this.labelXY.Location = new System.Drawing.Point(1068, 32);
+            this.labelXY.Location = new System.Drawing.Point(975, 60);
             this.labelXY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelXY.Name = "labelXY";
             this.labelXY.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.labelXY.Size = new System.Drawing.Size(0, 17);
+            this.labelXY.Size = new System.Drawing.Size(94, 17);
             this.labelXY.TabIndex = 1;
+            this.labelXY.Text = "Current Hex";
             this.labelXY.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // buttonTestBoard
@@ -91,7 +92,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(1068, 32);
+            this.label4.Location = new System.Drawing.Point(975, 32);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(85, 17);
@@ -100,18 +101,17 @@
             // 
             // comboBoxPlayer2Type
             // 
-            this.comboBoxPlayer2Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBoxPlayer2Type.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.comboBoxPlayer2Type.FormattingEnabled = true;
             this.comboBoxPlayer2Type.Location = new System.Drawing.Point(969, 344);
             this.comboBoxPlayer2Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer2Type.Name = "comboBoxPlayer2Type";
-            this.comboBoxPlayer2Type.Size = new System.Drawing.Size(119, 24);
+            this.comboBoxPlayer2Type.Size = new System.Drawing.Size(224, 24);
             this.comboBoxPlayer2Type.TabIndex = 14;
-            this.comboBoxPlayer2Type.SelectedIndexChanged += new System.EventHandler(this.comboBoxPlayer2Type_SelectedIndexChanged);
             // 
             // label6
             // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(966, 97);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -122,7 +122,7 @@
             // 
             // label7
             // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(967, 323);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -130,16 +130,15 @@
             this.label7.Size = new System.Drawing.Size(60, 17);
             this.label7.TabIndex = 17;
             this.label7.Text = "Player 2";
-            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // comboBoxPlayer1Type
             // 
-            this.comboBoxPlayer1Type.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBoxPlayer1Type.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.comboBoxPlayer1Type.FormattingEnabled = true;
             this.comboBoxPlayer1Type.Location = new System.Drawing.Point(966, 118);
             this.comboBoxPlayer1Type.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPlayer1Type.Name = "comboBoxPlayer1Type";
-            this.comboBoxPlayer1Type.Size = new System.Drawing.Size(119, 24);
+            this.comboBoxPlayer1Type.Size = new System.Drawing.Size(227, 24);
             this.comboBoxPlayer1Type.TabIndex = 18;
             // 
             // openFileDialog1
@@ -222,6 +221,7 @@
             // 
             // player1Metrics
             // 
+            this.player1Metrics.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.player1Metrics.AutoSize = true;
             this.player1Metrics.Location = new System.Drawing.Point(966, 146);
             this.player1Metrics.Name = "player1Metrics";
@@ -231,6 +231,7 @@
             // 
             // player2Metrics
             // 
+            this.player2Metrics.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.player2Metrics.AutoSize = true;
             this.player2Metrics.Location = new System.Drawing.Point(966, 381);
             this.player2Metrics.Name = "player2Metrics";

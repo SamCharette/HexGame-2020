@@ -267,8 +267,20 @@ namespace Players.Minimax.List
 
         private int ScoreFromBoard()
         {
-            var player1Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
-            var player2Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+            int player1Score;
+            int player2Score;
+            if (Me == Common.PlayerType.Blue)
+            {
+                player1Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
+                player2Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+
+            } 
+            else
+            {
+                player2Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
+                player1Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+
+            }
 
             var score = player1Score - player2Score;
 

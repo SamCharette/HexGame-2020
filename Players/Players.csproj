@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConsoleTableExt" Version="2.0.2" />
     <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
+    <PackageReference Include="PowerArgs" Version="3.6.0" />
   </ItemGroup>
 
 </Project>

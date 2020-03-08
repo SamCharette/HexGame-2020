@@ -10,4 +10,8 @@
     <PackageReference Include="PowerArgs" Version="3.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NeuralNet\DNN\Network\" />
+  </ItemGroup>
+
 </Project>

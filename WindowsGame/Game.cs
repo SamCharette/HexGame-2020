@@ -36,8 +36,10 @@ namespace WindowsGame
         private List<Config> _playerConfigs;
         private Int64 totalMillisecondsPlayer1 = 0;
         private Int64 totalMillisecondsPlayer2 = 0;
+        private Int64 preTurnTotalMillisecondsPlayer1 = 0;
+        private Int64 preTurnTotalMillisecondsPlayer2 = 0;
         private DateTime gameStartTime;
-
+        private Stopwatch playerTurnTimer;
 
         public Game()
         {
@@ -91,6 +93,16 @@ namespace WindowsGame
                 BeginInvoke(new Action(() =>
                 {
                     playerMetricLabel.Text = textToShow;
+                    if (playerArgs.PlayerNumber == 1)
+                    {
+                        totalMillisecondsPlayer1 =
+                            preTurnTotalMillisecondsPlayer1 + playerTurnTimer.ElapsedMilliseconds;
+                    }
+                    else
+                    {
+                        totalMillisecondsPlayer2 =
+                            preTurnTotalMillisecondsPlayer2 + playerTurnTimer.ElapsedMilliseconds;
+                    }
                     UpdateTimerValues();
                     Refresh();
 
@@ -192,19 +204,20 @@ namespace WindowsGame
 
                     }
 
-                    var playerTurnTimer = DateTime.Now;
+                    playerTurnTimer = Stopwatch.StartNew();
                     var playerNumber = _referee.CurrentPlayer().PlayerNumber;
                     var hexTaken = await (_referee.TakeTurn(_referee.CurrentPlayer()));
-                   
+                    playerTurnTimer.Stop();
 
                     if (playerNumber == 1)
                     {
-                        totalMillisecondsPlayer1 = totalMillisecondsPlayer1 + (DateTime.Now.Subtract(playerTurnTimer)).Milliseconds;
+                        totalMillisecondsPlayer1 = preTurnTotalMillisecondsPlayer1 + playerTurnTimer.ElapsedMilliseconds;
+                        preTurnTotalMillisecondsPlayer1 = totalMillisecondsPlayer1;
                     }
                     else
                     {
-                        totalMillisecondsPlayer2 = totalMillisecondsPlayer2 + (DateTime.Now.Subtract(playerTurnTimer)).Milliseconds;
-
+                        totalMillisecondsPlayer2 = preTurnTotalMillisecondsPlayer2 + playerTurnTimer.ElapsedMilliseconds;
+                        preTurnTotalMillisecondsPlayer2 = totalMillisecondsPlayer2;
                     }
 
                     UpdateTimerValues();

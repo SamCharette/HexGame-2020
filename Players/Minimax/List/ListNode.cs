@@ -186,6 +186,7 @@ namespace Players.Minimax.List
         {
             var bestStartNode = Neighbours.OrderBy(x => x.GetDistanceToStart())
                 .FirstOrDefault(x => x.Owner == Owner) ?? this;
+
             var bestEndNode = Neighbours.OrderBy(x => x.GetDistanceToEnd())
                                   .FirstOrDefault(x => x.Owner == Owner) ?? this;
 

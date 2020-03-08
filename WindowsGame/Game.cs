@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -33,7 +34,12 @@ namespace WindowsGame
         private readonly Color _lastTakenByPlayer1Colour = Color.Blue;
         private readonly Color _lastTakenByPlayer2Colour = Color.Red;
         private List<Config> _playerConfigs;
-
+        private Int64 totalMillisecondsPlayer1 = 0;
+        private Int64 totalMillisecondsPlayer2 = 0;
+        private Int64 preTurnTotalMillisecondsPlayer1 = 0;
+        private Int64 preTurnTotalMillisecondsPlayer2 = 0;
+        private DateTime gameStartTime;
+        private Stopwatch playerTurnTimer;
 
         public Game()
         {
@@ -87,7 +93,19 @@ namespace WindowsGame
                 BeginInvoke(new Action(() =>
                 {
                     playerMetricLabel.Text = textToShow;
+                    if (playerArgs.PlayerNumber == 1)
+                    {
+                        totalMillisecondsPlayer1 =
+                            preTurnTotalMillisecondsPlayer1 + playerTurnTimer.ElapsedMilliseconds;
+                    }
+                    else
+                    {
+                        totalMillisecondsPlayer2 =
+                            preTurnTotalMillisecondsPlayer2 + playerTurnTimer.ElapsedMilliseconds;
+                    }
+                    UpdateTimerValues();
                     Refresh();
+
 
                 }));
             }
@@ -95,8 +113,6 @@ namespace WindowsGame
             {
                 playerMetricLabel.Text = textToShow;
             }
-
-
 
         }
         public void Play()
@@ -115,6 +131,8 @@ namespace WindowsGame
 
         public async void StartGame()
         {
+            gameStartTime = DateTime.Now;
+
             buttonTestBoard.Enabled = false;
             var boardSize = _referee.Size;
             saveGameToolStripMenuItem.Enabled = false;
@@ -186,8 +204,24 @@ namespace WindowsGame
 
                     }
 
-
+                    playerTurnTimer = Stopwatch.StartNew();
+                    var playerNumber = _referee.CurrentPlayer().PlayerNumber;
                     var hexTaken = await (_referee.TakeTurn(_referee.CurrentPlayer()));
+                    playerTurnTimer.Stop();
+
+                    if (playerNumber == 1)
+                    {
+                        totalMillisecondsPlayer1 = preTurnTotalMillisecondsPlayer1 + playerTurnTimer.ElapsedMilliseconds;
+                        preTurnTotalMillisecondsPlayer1 = totalMillisecondsPlayer1;
+                    }
+                    else
+                    {
+                        totalMillisecondsPlayer2 = preTurnTotalMillisecondsPlayer2 + playerTurnTimer.ElapsedMilliseconds;
+                        preTurnTotalMillisecondsPlayer2 = totalMillisecondsPlayer2;
+                    }
+
+                    UpdateTimerValues();
+                    Refresh();
 
                     if (hexTaken != null)
                     {
@@ -208,7 +242,7 @@ namespace WindowsGame
 
                         _playThrough.Add(_graphicsEngine.CreateImage());
                     }
-
+                   
                     this.Refresh();
                 }
 
@@ -221,9 +255,9 @@ namespace WindowsGame
 
       
                 this.Refresh();
-                Console.WriteLine("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber);
                 _playThrough.Add(_graphicsEngine.CreateImage());
                 buttonTestBoard.Enabled = true;
+                
                 MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
             }
             catch (Exception e)
@@ -237,6 +271,37 @@ namespace WindowsGame
             reloadConfigurationToolStripMenuItem.Enabled = true;
         }
 
+        private void UpdateTimerValues()
+        {
+            lblBlueTime.Text =  "Blue Time: " + FormatTimeSpan(TimeSpan.FromMilliseconds(totalMillisecondsPlayer1));
+            lblRedTime.Text = "Red Time: " + FormatTimeSpan(TimeSpan.FromMilliseconds(totalMillisecondsPlayer2));
+            lblTotalTime.Text = "Total Time: " + FormatTimeSpan(DateTime.Now - gameStartTime);
+        }
+
+        private static string FormatTimeSpan(TimeSpan timeSpan)
+        {
+            Func<Tuple<int, string>, string> tupleFormatter = t => $"{t.Item1} {t.Item2}{(t.Item1 == 1 ? string.Empty : "s")}";
+            var components = new List<Tuple<int, string>>
+            {
+                Tuple.Create((int) timeSpan.TotalDays, "day"),
+                Tuple.Create(timeSpan.Hours, "hour"),
+                Tuple.Create(timeSpan.Minutes, "min"),
+                Tuple.Create(timeSpan.Seconds, "sec"),
+            };
+
+            components.RemoveAll(i => i.Item1 == 0);
+
+            string extra = "";
+
+            if (components.Count > 1)
+            {
+                var finalComponent = components[components.Count - 1];
+                components.RemoveAt(components.Count - 1);
+                extra = $" {tupleFormatter(finalComponent)}";
+            }
+
+            return $"{string.Join(", ", components.Select(tupleFormatter))}{extra}";
+        }
         public void PlayerMadeMove(object sender, EventArgs args)
         {
             PlayerMadeMoveArgs moveArgs = (PlayerMadeMoveArgs) args;

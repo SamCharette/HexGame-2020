@@ -37,6 +37,9 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.player1Metrics = new System.Windows.Forms.Label();
             this.player2Metrics = new System.Windows.Forms.Label();
+            this.lblTotalTime = new System.Windows.Forms.Label();
+            this.lblBlueTime = new System.Windows.Forms.Label();
+            this.lblRedTime = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -161,7 +164,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1213, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(1213, 28);
             this.menuStrip1.TabIndex = 23;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -173,7 +176,7 @@
             this.reloadConfigurationToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // saveGameToolStripMenuItem
@@ -209,7 +212,7 @@
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
             this.helpToolStripMenuItem.Text = "Help";
             // 
             // aboutToolStripMenuItem
@@ -239,11 +242,47 @@
             this.player2Metrics.TabIndex = 25;
             this.player2Metrics.Text = "Player 2 metrics";
             // 
+            // lblTotalTime
+            // 
+            this.lblTotalTime.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblTotalTime.AutoSize = true;
+            this.lblTotalTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTotalTime.Location = new System.Drawing.Point(32, 635);
+            this.lblTotalTime.Name = "lblTotalTime";
+            this.lblTotalTime.Size = new System.Drawing.Size(116, 25);
+            this.lblTotalTime.TabIndex = 26;
+            this.lblTotalTime.Text = "Total Time: ";
+            // 
+            // lblBlueTime
+            // 
+            this.lblBlueTime.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblBlueTime.AutoSize = true;
+            this.lblBlueTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBlueTime.Location = new System.Drawing.Point(382, 635);
+            this.lblBlueTime.Name = "lblBlueTime";
+            this.lblBlueTime.Size = new System.Drawing.Size(106, 25);
+            this.lblBlueTime.TabIndex = 27;
+            this.lblBlueTime.Text = "Blue Time:";
+            // 
+            // lblRedTime
+            // 
+            this.lblRedTime.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblRedTime.AutoSize = true;
+            this.lblRedTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRedTime.Location = new System.Drawing.Point(692, 635);
+            this.lblRedTime.Name = "lblRedTime";
+            this.lblRedTime.Size = new System.Drawing.Size(102, 25);
+            this.lblRedTime.TabIndex = 28;
+            this.lblRedTime.Text = "Red Time:";
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1213, 676);
+            this.Controls.Add(this.lblRedTime);
+            this.Controls.Add(this.lblBlueTime);
+            this.Controls.Add(this.lblTotalTime);
             this.Controls.Add(this.player2Metrics);
             this.Controls.Add(this.player1Metrics);
             this.Controls.Add(this.comboBoxPlayer1Type);
@@ -295,5 +334,8 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Label player1Metrics;
         private System.Windows.Forms.Label player2Metrics;
+        private System.Windows.Forms.Label lblTotalTime;
+        private System.Windows.Forms.Label lblBlueTime;
+        private System.Windows.Forms.Label lblRedTime;
     }
 }

@@ -251,9 +251,9 @@ namespace Players.Minimax.List
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
 
-            possibleMoves.AddRange(Memory.Board
-                .OrderBy(x => x.RandomValue)
-                .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            //possibleMoves.AddRange(Memory.Board
+            //    .OrderBy(x => x.RandomValue)
+            //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
             return possibleMoves;
         }
 
@@ -292,44 +292,49 @@ namespace Players.Minimax.List
 
         public List<ListNode> StartLookingForBestPath(bool isMaximizing, ListMap board)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            ListNode start;
-            ListNode end;
-            if (isMaximizing)
+            try
             {
-                if (Me == Common.PlayerType.Blue)
+                ListNode start;
+                ListNode end;
+                if (isMaximizing)
                 {
-                    start = board.Top;
-                    end = board.Bottom;
+                    if (Me == Common.PlayerType.Blue)
+                    {
+                        start = board.Top;
+                        end = board.Bottom;
+                    }
+                    else
+                    {
+                        start = board.Left;
+                        end = board.Right;
+                    }
                 }
                 else
                 {
-                    start = board.Left;
-                    end = board.Right;
+                    if (Me == Common.PlayerType.Blue)
+                    {
+                        start = board.Left;
+                        end = board.Right;
+                    }
+                    else
+                    {
+                        start = board.Top;
+                        end = board.Bottom;
+                    }
                 }
+
+
+                board.ClearPathValues();
+                var path = ContinueLookingForPath(board, isMaximizing, start, end);
+
+                return path;
             }
-            else
+            catch (Exception e)
             {
-                if (Me == Common.PlayerType.Blue)
-                {
-                    start = board.Left;
-                    end = board.Right;
-                }
-                else
-                {
-                    start = board.Top;
-                    end = board.Bottom;
-                }
+                Console.WriteLine(e);
+                throw;
             }
-     
-
-            board.ClearPathValues();
-            start.Status = Status.Open;
-            var path = ContinueLookingForPath(board, isMaximizing, start, end);
-            watch.Stop();
- 
-
-            return path;
+            
         }
 
         private PlayerType CurrentlySearchingAs(bool isMaximizing)
@@ -340,67 +345,83 @@ namespace Players.Minimax.List
 
         private List<ListNode> ContinueLookingForPath(ListMap map, bool isMaximizing, ListNode start, ListNode end)
         {
-            ListNode bestLookingNode = null;
-
-            bestLookingNode = map.Board
-                .Where(x => x.Location == NodeLocation.Board && x.Status == Status.Open)
-                .OrderBy(x => x.F)
-                .ThenByDescending(x => x.LookAtMe)
-                .ThenBy(x => x.RandomValue)
-                .FirstOrDefault();
-
-            if (bestLookingNode == null )
+            try
             {
-                return null;
-            }
-
-            // CLOSE IT
-            bestLookingNode.Status = Status.Closed;
-
-            // If we touch both ends it's a victory.
-            if (bestLookingNode.IsNeighboursWith(end) && bestLookingNode.IsNeighboursWith(start))
-            {
-                var preferredPath = new List<ListNode>();
-                var parent = bestLookingNode;
-                while (parent != null && parent.Location == NodeLocation.Board)
+                ListNode bestLookingNode = null;
+                if (map.Board.All(x => x.Status == Status.Untested))
                 {
-                    preferredPath.Add(parent);
-                    parent = parent.Parent;
+                    start.Status = Status.Open;
+                    bestLookingNode = start;
+                }
+                else
+                {
+                    bestLookingNode = map.Board
+                        .Where(x => x.Location == NodeLocation.Board && x.Status == Status.Open)
+                        .OrderBy(x => x.F)
+                        .ThenByDescending(x => x.LookAtMe)
+                        .ThenBy(x => x.RandomValue)
+                        .FirstOrDefault();
+
                 }
 
-                return preferredPath;
-            }
-            
-            // Look at the neighbours, paying special attention to those
-            // that have less to go.
-            var neighbours = bestLookingNode.Neighbours;
-
-            foreach (var node in neighbours)
-            {
-                if (node.Owner == bestLookingNode.Owner || node.Owner == Common.PlayerType.White)
+                if (bestLookingNode == null)
                 {
-                    if (node.Status == Status.Open)
+                    return null;
+                }
+
+                // CLOSE IT
+                bestLookingNode.Status = Status.Closed;
+
+                // If we touch both ends it's a victory.
+                if (bestLookingNode.IsNeighboursWith(end))
+                {
+                    var preferredPath = new List<ListNode>();
+                    var parent = bestLookingNode;
+                    while (parent != null && parent.Location == NodeLocation.Board)
                     {
-                        
-                        if (node.G > bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode ))
-                        { 
+                        preferredPath.Add(parent);
+                        parent = parent.Parent;
+                    }
+
+                    return preferredPath;
+                }
+
+                // Look at the neighbours, paying special attention to those
+                // that have less to go.
+                var neighbours = bestLookingNode.Neighbours.Where(x => x.Location == NodeLocation.Board);
+
+                foreach (var node in neighbours)
+                {
+                    if (node.Owner == bestLookingNode.Owner || node.Owner == Common.PlayerType.White)
+                    {
+                        if (node.Status == Status.Open)
+                        {
+
+                            if (node.G > bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode))
+                            {
+                                node.Parent = bestLookingNode;
+                                node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode);
+                                node.H = node.GetDistanceToEnd() * CostPerNodeTillEnd;
+                            }
+                        }
+                        else if (node.Status == Status.Untested)
+                        {
+                            node.Status = Status.Open;
                             node.Parent = bestLookingNode;
-                            node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode); 
+                            node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode);
                             node.H = node.GetDistanceToEnd() * CostPerNodeTillEnd;
                         }
                     }
-                    else if (node.Status == Status.Untested)
-                    {
-                        node.Status = Status.Open;
-                        node.Parent = bestLookingNode;
-                        node.G = bestLookingNode.G + (node.Owner == Common.PlayerType.White ? CostToMoveToUnclaimedNode : CostToMoveToClaimedNode);
-                        node.H = node.GetDistanceToEnd() * CostPerNodeTillEnd;
-                    }
+
+
                 }
-
-
+                return ContinueLookingForPath(map, isMaximizing, start, end);
             }
-            return ContinueLookingForPath(map, isMaximizing, start, end);
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
         }
 

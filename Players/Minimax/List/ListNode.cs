@@ -174,10 +174,10 @@ namespace Players.Minimax.List
         }
         public void DetachFrom(ListNode neighbour)
         {
-            var neighbour1 = Neighbours.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
-            if (neighbour1 != null)
+            var existingNeighbour = Neighbours.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
+            if (existingNeighbour != null)
             {
-                Neighbours.Remove(neighbour1);
+                Neighbours.Remove(existingNeighbour);
             }
             
         }
@@ -227,19 +227,21 @@ namespace Players.Minimax.List
         {
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
-
+            return RawDistanceToTop;
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToTop)
                 .FirstOrDefault(x => x.Owner == Owner) ?? this;
             return bestNode.RawDistanceToTop;
         }
         public int GetDistanceToLeft()
         {
+            return RawDistanceToLeft;
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToLeft)
                 .FirstOrDefault(x => x.Owner == Owner) ?? this;
             return bestNode.RawDistanceToLeft;
         }
         public int GetDistanceToBottom()
         {
+            return RawDistanceToBottom;
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToBottom)
@@ -249,6 +251,7 @@ namespace Players.Minimax.List
 
         public int GetDistanceToRight()
         {
+            return RawDistanceToRight;
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToRight)

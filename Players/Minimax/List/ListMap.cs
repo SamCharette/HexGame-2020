@@ -95,11 +95,6 @@ namespace Players.Minimax.List
             Left.PingNeighbours();
             Right.PingNeighbours();
         }
-        
-
-    
-
-
         public void AttachToEachOther(ListNode a, ListNode b)
         {
             a.AttachTo(b);
@@ -248,7 +243,10 @@ namespace Players.Minimax.List
                 node.PingNeighbours(false);
                 foreach (var hex in Board)
                 {
-                    DetachFromEachOther(hex, node);
+                    if (hex != Top && hex != Bottom && hex != Right && hex != Left)
+                    {
+                        DetachFromEachOther(hex, node);
+                    }
                 }
             }
         }
@@ -269,7 +267,7 @@ namespace Players.Minimax.List
                 var delta = Directions[(AxialDirections) i];
                 var possibleNeighbour = Board.FirstOrDefault(x =>
                     x.Row == node.Row + delta.Item1 && x.Column == node.Column + delta.Item2);
-                if (possibleNeighbour != null)
+                if (possibleNeighbour != null && possibleNeighbour.Location == NodeLocation.Board)
                 {
                     physicalNeighbours.Add(possibleNeighbour);
                 }

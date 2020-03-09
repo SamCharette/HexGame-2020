@@ -111,14 +111,19 @@ namespace Players.Minimax.List
         {
             Size = mapToClone.Size;
             Top = new ListNode(mapToClone.Top);
+            Top.Location = NodeLocation.Top;
             Bottom = new ListNode(mapToClone.Bottom);
+            Bottom.Location = NodeLocation.Bottom;
             Left = new ListNode(mapToClone.Left);
+            Left.Location = NodeLocation.Left;
             Right = new ListNode(mapToClone.Right);
+            Right.Location = NodeLocation.Right;
 
             Board = new List<ListNode>(Size * Size);
             foreach (var node in mapToClone.Board)
             {
                 var newNode = new ListNode(node);
+                newNode.Location = NodeLocation.Board;
                 Board.Add(newNode);
             }
             foreach (var node in mapToClone.Board)
@@ -244,7 +249,7 @@ namespace Players.Minimax.List
                 node.PingNeighbours(false);
                 foreach (var hex in Board)
                 {
-                    if (hex != Top && hex != Bottom && hex != Right && hex != Left)
+                    if (hex.Location == NodeLocation.Board)
                     {
                         DetachFromEachOther(hex, node);
                     }
@@ -260,6 +265,43 @@ namespace Players.Minimax.List
             }
             return new List<ListNode>();
         }
+
+        public int RemainingDistanceFromTop()
+        {
+            
+            var bestEndNode = Top.Neighbours
+                                  .OrderBy(x => x.GetDistanceToEnd())
+                                  .FirstOrDefault();
+            var distanceToEnd = bestEndNode?.GetDistanceToEnd() ?? Size;
+            return  distanceToEnd;
+        }
+        public int RemainingDistanceFromBottom()
+        {
+            var bestEndNode = Bottom.Neighbours
+                .OrderBy(x => x.GetDistanceToStart())
+                .FirstOrDefault();
+            var distanceToBeginning = bestEndNode?.GetDistanceToStart() ?? Size;
+            return distanceToBeginning;
+        }
+        public int RemainingDistanceFromRight()
+        {
+
+            var bestEndNode = PhysicalNeighboursOf(Right)
+                .OrderBy(x => x.GetDistanceToEnd())
+                .FirstOrDefault();
+            var distanceToEnd = bestEndNode?.GetDistanceToEnd() ?? Size;
+            return distanceToEnd;
+        }
+        public int RemainingDistanceFromLeft()
+        {
+
+            var bestEndNode = PhysicalNeighboursOf(Left)
+                .OrderBy(x => x.GetDistanceToStart())
+                .FirstOrDefault();
+            var distanceToBeginning = bestEndNode?.GetDistanceToStart() ?? Size;
+            return distanceToBeginning;
+        }
+
         public List<ListNode> PhysicalNeighboursOf(ListNode node)
         {
             var physicalNeighbours = new List<ListNode>();
@@ -274,23 +316,23 @@ namespace Players.Minimax.List
                 }
             }
 
-            // Now add the exterior neighbours if they are there
-            //if (node.IsNeighboursWith(Top))
-            //{
-            //    physicalNeighbours.Add(Top);
-            //}
-            //if (node.IsNeighboursWith(Bottom))
-            //{
-            //    physicalNeighbours.Add(Bottom);
-            //}
-            //if (node.IsNeighboursWith(Left))
-            //{
-            //    physicalNeighbours.Add(Left);
-            //}
-            //if (node.IsNeighboursWith(Right))
-            //{
-            //    physicalNeighbours.Add(Right);
-            //}
+//            Now add the exterior neighbours if they are there
+            if (node.IsNeighboursWith(Top))
+            {
+                physicalNeighbours.Add(Top);
+            }
+            if (node.IsNeighboursWith(Bottom))
+            {
+                physicalNeighbours.Add(Bottom);
+            }
+            if (node.IsNeighboursWith(Left))
+            {
+                physicalNeighbours.Add(Left);
+            }
+            if (node.IsNeighboursWith(Right))
+            {
+                physicalNeighbours.Add(Right);
+            }
             return physicalNeighbours;
         }
     }

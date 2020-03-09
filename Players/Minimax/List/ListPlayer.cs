@@ -248,10 +248,14 @@ namespace Players.Minimax.List
                     .AddRange(opponentBestPathFromHere
                         .OrderBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White & possibleMoves.All(y => y != x)));
+           
+            if (possibleMoves.Count == 0)
+            {
+                possibleMoves.AddRange(Memory.Board
+                    .OrderBy(x => x.RandomValue)
+                    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
 
-            //possibleMoves.AddRange(Memory.Board
-            //    .OrderBy(x => x.RandomValue)
-            //    .Where(x => x.Owner == Common.PlayerType.White && possibleMoves.All(y => y != x)));
+            }
             return possibleMoves;
         }
 
@@ -271,14 +275,14 @@ namespace Players.Minimax.List
             int player2Score;
             if (Me == Common.PlayerType.Blue)
             {
-                player1Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
-                player2Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+                player1Score = (Size - Memory.RemainingDistanceFromTop()) + (Size - Memory.RemainingDistanceFromBottom());
+                player2Score = (Size - Memory.RemainingDistanceFromLeft()) + (Size - Memory.RemainingDistanceFromRight());
 
             } 
             else
             {
-                player2Score = (Size - Memory.Top.RemainingDistance()) + (Size - Memory.Bottom.RemainingDistance());
-                player1Score = (Size - Memory.Left.RemainingDistance()) + (Size - Memory.Right.RemainingDistance());
+                player2Score = (Size - Memory.RemainingDistanceFromTop()) + (Size - Memory.RemainingDistanceFromBottom());
+                player1Score = (Size - Memory.RemainingDistanceFromLeft()) + (Size - Memory.RemainingDistanceFromRight());
 
             }
 

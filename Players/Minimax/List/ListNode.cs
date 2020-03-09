@@ -181,14 +181,20 @@ namespace Players.Minimax.List
             }
             
         }
-        
+        public int DistanceTo(ListNode node)
+        {
+
+            return (Math.Abs(Row - node.Row)
+                    + Math.Abs(Row + Column - node.Row - node.Column)
+                    + Math.Abs(Column - node.Column)) / 2;
+        }
         public int RemainingDistance()
         {
             var bestStartNode = Neighbours.OrderBy(x => x.GetDistanceToStart())
-                .FirstOrDefault(x => x.Owner == Owner) ?? this;
+                .FirstOrDefault() ?? this;
 
             var bestEndNode = Neighbours.OrderBy(x => x.GetDistanceToEnd())
-                                  .FirstOrDefault(x => x.Owner == Owner) ?? this;
+                                  .FirstOrDefault() ?? this;
 
             return bestStartNode.GetDistanceToStart() + bestEndNode.GetDistanceToEnd();
         }
@@ -227,35 +233,47 @@ namespace Players.Minimax.List
         {
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
-      
+            if (Location == NodeLocation.Top)
+            {
+                return 0;
+            }
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToTop)
-                .FirstOrDefault(x => x.Owner == Owner) ?? this;
+                .FirstOrDefault() ?? this;
             return bestNode.RawDistanceToTop;
         }
         public int GetDistanceToLeft()
         {
-    
+            if (Location == NodeLocation.Left)
+            {
+                return 0;
+            }
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToLeft)
-                .FirstOrDefault(x => x.Owner == Owner) ?? this;
+                .FirstOrDefault() ?? this;
             return bestNode.RawDistanceToLeft;
         }
         public int GetDistanceToBottom()
         {
-         
+            if (Location == NodeLocation.Bottom)
+            {
+                return 0;
+            }
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToBottom)
-                .FirstOrDefault(x => x.Owner == Owner) ?? this;
+                .FirstOrDefault() ?? this;
             return bestNode.RawDistanceToBottom;
         }
 
         public int GetDistanceToRight()
         {
-
+            if (Location == NodeLocation.Right)
+            {
+                return 0;
+            }
             // Using the adjacency graph, let's find the node connected that is closest 
             // to the top, as we are essentially that close from here because we are connected
             var bestNode = Neighbours.OrderBy(x => x.RawDistanceToRight)
-                .FirstOrDefault(x => x.Owner == Owner) ?? this;
+                .FirstOrDefault() ?? this;
             return bestNode.RawDistanceToRight;
         }
 

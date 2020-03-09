@@ -28,6 +28,14 @@ namespace Tests.Players.Minimax.List
             var player = new ListPlayer(1, 11, new Config());
             var path = player.StartLookingForBestPath(true, player.Memory);
             Assert.AreEqual(11, path.Count);
+            player.Memory.TakeHex(PlayerType.Blue, 1, 5);
+            path = player.StartLookingForBestPath(true, player.Memory);
+            Assert.AreNotEqual(path, null);
+            Assert.AreNotEqual(path.Count, 0);
+            player.Memory.TakeHex(PlayerType.Red, 1, 6);
+            path = player.StartLookingForBestPath(true, player.Memory);
+            Assert.AreNotEqual(path, null);
+            Assert.AreNotEqual(path.Count, 0);
         }
 
         [Test]

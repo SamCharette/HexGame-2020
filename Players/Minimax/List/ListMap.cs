@@ -166,26 +166,27 @@ namespace Players.Minimax.List
                 node.G = 0;
                 node.H = 0;
                 node.Status = Status.Untested;
+                node.Parent = null;
 
             }
 
-            Top.Status = Status.Untested;
-            Top.G = 0;
-            Top.H = 0;
-            Top.Owner = PlayerType.Blue;
-            Bottom.Status = Status.Untested;
-            Bottom.G = 0;
-            Bottom.H = 0;
-            Bottom.Owner = PlayerType.Blue;
+            //Top.Status = Status.Untested;
+            //Top.G = 0;
+            //Top.H = 0;
+            //Top.Owner = PlayerType.Blue;
+            //Bottom.Status = Status.Untested;
+            //Bottom.G = 0;
+            //Bottom.H = 0;
+            //Bottom.Owner = PlayerType.Blue;
 
-            Left.Status = Status.Untested;
-            Left.G = 0;
-            Left.H = 0;
-            Left.Owner = PlayerType.Red;
-            Right.Status = Status.Untested;
-            Right.G = 0;
-            Right.H = 0;
-            Right.Owner = PlayerType.Red;
+            //Left.Status = Status.Untested;
+            //Left.G = 0;
+            //Left.H = 0;
+            //Left.Owner = PlayerType.Red;
+            //Right.Status = Status.Untested;
+            //Right.G = 0;
+            //Right.H = 0;
+            //Right.Owner = PlayerType.Red;
         }
 
         public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()

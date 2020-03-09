@@ -180,7 +180,7 @@ namespace Players.Minimax.List
 
                     foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
-                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        Memory.TakeHex(Me, move.Row, move.Column);
                         bestValue = Math.Max(bestValue, LetMeThinkAboutIt(depth - 1, alpha, beta, false));
                         alpha = Math.Max(alpha, bestValue);
                         NodesChecked++;
@@ -202,7 +202,7 @@ namespace Players.Minimax.List
                     foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
 
-                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        Memory.TakeHex(Me, move.Row, move.Column);
                         bestValue = Math.Min(bestValue, LetMeThinkAboutIt( depth - 1, alpha, beta, true));
                         beta = Math.Min(beta, bestValue);
                         NodesChecked++;
@@ -238,7 +238,6 @@ namespace Players.Minimax.List
                     .AddRange(myBestPathFromHere
                         .OrderBy(x => x.F)
                         .ThenBy(x => x.GetDistanceToStart() + x.GetDistanceToEnd())
-                        .ThenBy(x => x.LookAtMe)
                         .ThenBy(x => x.RandomValue)
                         .Where(x => x.Owner == Common.PlayerType.White));
 
@@ -247,9 +246,8 @@ namespace Players.Minimax.List
             if (opponentBestPathFromHere != null)
                 possibleMoves
                     .AddRange(opponentBestPathFromHere
-                        .OrderBy(x => x.LookAtMe)
-                        .ThenBy(x => x.RandomValue)
-                        .Where(x => x.Owner == Common.PlayerType.White));
+                        .OrderBy(x => x.RandomValue)
+                        .Where(x => x.Owner == Common.PlayerType.White & possibleMoves.All(y => y != x)));
 
             //possibleMoves.AddRange(Memory.Board
             //    .OrderBy(x => x.RandomValue)
@@ -296,10 +294,11 @@ namespace Players.Minimax.List
             {
                 ListNode start;
                 ListNode end;
-                if (isMaximizing)
+                if (Me == Common.PlayerType.Blue)
                 {
-                    if (Me == Common.PlayerType.Blue)
+                    if (isMaximizing)
                     {
+
                         start = board.Top;
                         end = board.Bottom;
                     }
@@ -311,8 +310,9 @@ namespace Players.Minimax.List
                 }
                 else
                 {
-                    if (Me == Common.PlayerType.Blue)
+                    if (isMaximizing)
                     {
+                       
                         start = board.Left;
                         end = board.Right;
                     }
@@ -321,10 +321,12 @@ namespace Players.Minimax.List
                         start = board.Top;
                         end = board.Bottom;
                     }
+                
                 }
 
-
                 board.ClearPathValues();
+                start.Neighbours.ForEach(x => x.Status = Status.Open);
+
                 var path = ContinueLookingForPath(board, isMaximizing, start, end);
 
                 return path;
@@ -348,22 +350,15 @@ namespace Players.Minimax.List
             try
             {
                 ListNode bestLookingNode = null;
-                if (map.Board.All(x => x.Status == Status.Untested))
-                {
-                    start.Status = Status.Open;
-                    bestLookingNode = start;
-                }
-                else
-                {
-                    bestLookingNode = map.Board
-                        .Where(x => x.Location == NodeLocation.Board && x.Status == Status.Open)
-                        .OrderBy(x => x.F)
-                        .ThenByDescending(x => x.LookAtMe)
-                        .ThenBy(x => x.RandomValue)
-                        .FirstOrDefault();
+               
+                bestLookingNode = map.Board
+                    .Where(x => x.Location == NodeLocation.Board && x.Status == Status.Open)
+                    .OrderBy(x => x.F)
+                    .ThenByDescending(x => x.LookAtMe)
+                    .ThenBy(x => x.RandomValue)
+                    .FirstOrDefault();
 
-                }
-
+            
                 if (bestLookingNode == null)
                 {
                     return null;
@@ -388,7 +383,7 @@ namespace Players.Minimax.List
 
                 // Look at the neighbours, paying special attention to those
                 // that have less to go.
-                var neighbours = bestLookingNode.Neighbours.Where(x => x.Location == NodeLocation.Board);
+                var neighbours = Memory.PhysicalNeighboursOf(bestLookingNode);
 
                 foreach (var node in neighbours)
                 {

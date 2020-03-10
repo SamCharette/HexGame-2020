@@ -8,11 +8,11 @@ namespace Players.Minimax.List
     public class ListMap
     {
         public int Size { get; set; }
-        public List<ListNode> Board { get; set; }
-        public ListNode Top { get; set; }
-        public ListNode Bottom { get; set; }
-        public ListNode Left { get; set; }
-        public ListNode Right { get; set; }
+        public List<ListHex> Board { get; set; }
+        public ListHex Top { get; set; }
+        public ListHex Bottom { get; set; }
+        public ListHex Left { get; set; }
+        public ListHex Right { get; set; }
 
 
         public bool TakeHex(Common.PlayerType player, int row, int column)
@@ -49,14 +49,14 @@ namespace Players.Minimax.List
         public void Reset(int size)
         {
             Size = size;
-            Board = new List<ListNode> (Size * Size);
-            Top = new ListNode(Size, -1, -1);
+            Board = new List<ListHex> (Size * Size);
+            Top = new ListHex(Size, -1, -1);
             Top.Owner = PlayerType.Blue;
-            Bottom = new ListNode(Size, Size * 2, Size * 2 );
+            Bottom = new ListHex(Size, Size * 2, Size * 2 );
             Bottom.Owner = PlayerType.Blue;
-            Left = new ListNode(Size, -2, -2);
+            Left = new ListHex(Size, -2, -2);
             Left.Owner = PlayerType.Red;
-            Right = new ListNode(Size, Size * 2, Size * 3);
+            Right = new ListHex(Size, Size * 2, Size * 3);
             Right.Owner = PlayerType.Red;
 
             
@@ -72,13 +72,13 @@ namespace Players.Minimax.List
             { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
         };
 
-        public List<ListNode> GetFriendlyPhysicalNeighbours(ListNode a)
+        public List<ListHex> GetFriendlyPhysicalNeighbours(ListHex a)
         {
             return GetPhysicalNeighbours(a).Where(x => x.Owner == a.Owner).ToList();
         }
-        public List<ListNode> GetPhysicalNeighbours(ListNode a)
+        public List<ListHex> GetPhysicalNeighbours(ListHex a)
         {
-            var physicalNeighbours = new List<ListNode>();
+            var physicalNeighbours = new List<ListHex>();
             for (var i = 0; i < Size; i++)
             {
                 var delta = Directions[(AxialDirections) i];
@@ -90,19 +90,19 @@ namespace Players.Minimax.List
                 }
             }
 
-            if (IsNodeAtTop(a))
+            if (IsHexAtTop(a))
             {
                 physicalNeighbours.Add(Top);
             }
-            if (IsNodeAtBottom(a))
+            if (IsHexAtBottom(a))
             {
                 physicalNeighbours.Add(Bottom);
             }
-            if (IsNodeAtLeft(a))
+            if (IsHexAtLeft(a))
             {
                 physicalNeighbours.Add(Left);
             }
-            if (IsNodeAtRight(a))
+            if (IsHexAtRight(a))
             {
                 physicalNeighbours.Add(Right);
             }
@@ -110,28 +110,28 @@ namespace Players.Minimax.List
             return physicalNeighbours;
         }
 
-        public bool IsNodeAtTop(ListNode a)
+        public bool IsHexAtTop(ListHex a)
         {
             return a.Row == 0;
         }
-        public bool IsNodeAtBottom(ListNode a)
+        public bool IsHexAtBottom(ListHex a)
         {
             return a.Row == Size - 1;
         }
-        public bool IsNodeAtLeft(ListNode a)
+        public bool IsHexAtLeft(ListHex a)
         {
             return a.Column == 0;
         }
-        public bool IsNodeAtRight(ListNode a)
+        public bool IsHexAtRight(ListHex a)
         {
             return a.Column == Size - 1;
         }
-        public bool AreFriendlyNeighbours(ListNode a, ListNode b)
+        public bool AreFriendlyNeighbours(ListHex a, ListHex b)
         {
             return a.Owner == b.Owner && ArePhysicalNeighbours(a, b);
         }
 
-        public bool ArePhysicalNeighbours(ListNode a, ListNode b)
+        public bool ArePhysicalNeighbours(ListHex a, ListHex b)
         {
             // First check to see if they are next to the ends
             if (a == Top && b.Row == 0 || a.Row == 0 && b == Top)
@@ -164,9 +164,9 @@ namespace Players.Minimax.List
             return false;
         }
 
-        public void AttachAllFriendlyNeighbours(ListNode a, ListNode b)
+        public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
-            AttachNodes(a, b);
+            AttachHexes(a, b);
             foreach (var node in b.Attached)
             {
                 AttachAllFriendlyNeighbours(a, node);
@@ -174,13 +174,13 @@ namespace Players.Minimax.List
         }
 
         
-        public void AttachNodes(ListNode a, ListNode b)
+        public void AttachHexes(ListHex a, ListHex b)
         {
             a.AttachTo(b);
             b.AttachTo(a);
         }
 
-        public void DetachNodes(ListNode a, ListNode b)
+        public void DetachHexes(ListHex a, ListHex b)
         {
             a.DetachFrom(b);
             b.DetachFrom(a);

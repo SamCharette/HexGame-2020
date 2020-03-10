@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Players.Base;
 using Players.Common;
 
 namespace Players.Minimax.List

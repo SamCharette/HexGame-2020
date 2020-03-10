@@ -5,20 +5,20 @@ using Players.Common;
 
 namespace Players.Minimax.List
 {
-    public class ListNode
+    public class ListHex
     {
         public int Row { get; set; }
         public int Column { get; set; }
-        public List<ListNode> Attached { get; set; }
+        public List<ListHex> Attached { get; set; }
         public int F => G + H;
         public int G { get; set; }
         public int H { get; set; }
         public Common.PlayerType Owner { get;set; }
         
-        public ListNode Parent;
+        public ListHex Parent;
         public Guid RandomValue;
 
-        public ListNode(int size, int row, int column)
+        public ListHex(int size, int row, int column)
         {
             Parent = null;
             RandomValue = Guid.NewGuid();
@@ -28,7 +28,7 @@ namespace Players.Minimax.List
             Owner = PlayerType.White;
         }
 
-        public void AttachTo(ListNode node)
+        public void AttachTo(ListHex node)
         {
             if (!IsAttachedTo(node) && node.Owner == Owner)
             {
@@ -36,14 +36,14 @@ namespace Players.Minimax.List
             }
         }
 
-        public void DetachFrom(ListNode node)
+        public void DetachFrom(ListHex node)
         {
             if (IsAttachedTo(node))
             {
                 Attached.Remove(node);
             }
         }
-        public bool IsAttachedTo(ListNode node)
+        public bool IsAttachedTo(ListHex node)
         {
             return Attached.Contains(node);
         }

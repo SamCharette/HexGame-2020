@@ -29,29 +29,55 @@ namespace Players.Minimax.List
             Right = new ListNode(Size, Size * 2, Size * 3);
             Right.Owner = PlayerType.Red;
 
-            for (var column = 0; column < Size; column++) 
+            
+        }
+
+        public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
+        {
+            { AxialDirections.TopLeft, new Tuple<int, int>(0, -1) },
+            { AxialDirections.TopRight, new Tuple<int, int>(+1, -1) },
+            { AxialDirections.Right, new Tuple<int, int>(+1, 0) },
+            { AxialDirections.BottomRight, new Tuple<int, int>(0, +1) },
+            { AxialDirections.BottomLeft, new Tuple<int, int>(-1, +1) },
+            { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
+        };
+
+        public bool AreFriendlyNeighbours(ListNode a, ListNode b)
+        {
+            return a.Owner == b.Owner && ArePhysicalNeighbours(a, b);
+        }
+
+        public bool ArePhysicalNeighbours(ListNode a, ListNode b)
+        {
+            // First check to see if they are next to the ends
+            if (a == Top && b.Row == 0 || a.Row == 0 && b == Top)
             {
-                for (var row = 0; row < Size; row++)
+                return true;
+            }
+            if (a == Left && b.Column == 0 || a.Column == 0 && b == Left)
+            {
+                return true;
+            }
+            if (a == Bottom && b.Row == Size - 1 || a.Row == Size - 1 && b == Bottom)
+            {
+                return true;
+            }
+            if (a == Right && b.Row == Size - 1 || a.Row == Size - 1 && b == Right)
+            {
+                return true;
+            }
+
+            // Otherwise, check the physical neighbours via direction
+            for (var i = 0; i < 6; i++)
+            {
+                var delta = Directions[(AxialDirections) i];
+                var newLocation = new Tuple<int, int>(a.Row + delta.Item1, a.Column + delta.Item2);
+                if (newLocation.Item1 >= 0 && newLocation.Item1 < Size && newLocation.Item2 >= 0 && newLocation.Item2 < Size)
                 {
-                    var newNode = new ListNode(Size, row, column);
-                    if (column == 0)
-                    {
-                        AttachNodes(newNode, Left);
-                    }
-                    if (column == Size - 1)
-                    {
-                        AttachNodes(newNode, Right);
-                    }
-                    if (row == 0)
-                    {
-                        AttachNodes(newNode, Top);
-                    }
-                    if (row == Size - 1)
-                    {
-                        AttachNodes(newNode, Bottom);
-                    }
+                    return true;
                 }
             }
+            return false;
         }
 
         public void AttachNodes(ListNode a, ListNode b)

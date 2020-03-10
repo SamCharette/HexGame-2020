@@ -8,7 +8,6 @@ using Players;
 using Players.Base;
 using Players.Common;
 using Players.Minimax;
-using Players.Minimax.List;
 using Players.Minimax.Matrix;
 
 namespace Engine

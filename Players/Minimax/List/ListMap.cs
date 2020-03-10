@@ -29,9 +29,28 @@ namespace Players.Minimax.List
             Right = new ListNode(Size, Size * 2, Size * 3);
             Right.Owner = PlayerType.Red;
 
-            foreach (var node in Board)
+            for (var column = 0; column < Size; column++) 
             {
-
+                for (var row = 0; row < Size; row++)
+                {
+                    var newNode = new ListNode(Size, row, column);
+                    if (column == 0)
+                    {
+                        AttachNodes(newNode, Left);
+                    }
+                    if (column == Size - 1)
+                    {
+                        AttachNodes(newNode, Right);
+                    }
+                    if (row == 0)
+                    {
+                        AttachNodes(newNode, Top);
+                    }
+                    if (row == Size - 1)
+                    {
+                        AttachNodes(newNode, Bottom);
+                    }
+                }
             }
         }
 

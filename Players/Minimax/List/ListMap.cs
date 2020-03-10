@@ -72,6 +72,16 @@ namespace Players.Minimax.List
             { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
         };
 
+        public List<ListHex> GetOpenPhysicalNeighbours(ListHex a)
+        {
+            return GetPhysicalNeighbours(a).Where(x => x.Owner == PlayerType.White).ToList();
+
+        }
+        public List<ListHex> GetTraversablePhysicalNeighbours(ListHex a, Common.PlayerType player)
+        {
+            return GetPhysicalNeighbours(a).Where(x => x.Owner != player).ToList();
+
+        }
         public List<ListHex> GetFriendlyPhysicalNeighbours(ListHex a)
         {
             return GetPhysicalNeighbours(a).Where(x => x.Owner == a.Owner).ToList();

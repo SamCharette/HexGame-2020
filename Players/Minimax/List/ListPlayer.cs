@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -40,6 +42,100 @@ namespace Players.Minimax.List
 
         }
 
-        
+        public Common.PlayerType Opponent()
+        {
+            if (Me == Common.PlayerType.Blue)
+            {
+                return Common.PlayerType.Red;
+            }
+
+            return Common.PlayerType.Blue;
+        }
+
+        public List<ListHex> FindPath(ListHex start, ListHex end)
+        {
+            if (Memory.AreFriendlyNeighbours(start, end))
+            {
+                return new List<ListHex> 
+                {
+                    start,
+                    end
+                };
+            }
+            if (start.IsAttachedTo(end) || end.IsAttachedTo(start))
+            {
+                return new List<ListHex>
+                {
+                    start,
+                    end
+                };
+            }
+
+            return PathBetween(start, end);
+
+        }
+
+        public List<ListHex> PathBetween(ListHex start, ListHex end)
+        {
+            ListHex bestLookingHex = null;;
+
+            // GEt the best looking node
+            bestLookingHex = Memory.Board
+                .OrderBy(x => x.F)
+                .ThenBy(x => x.RandomValue)
+                .FirstOrDefault(z => z.Status == Status.Open);
+
+            if (bestLookingHex == null)
+            {
+                if (start.Status == Status.Untested)
+                {
+                    bestLookingHex = start;
+                }
+                return new List<ListHex>();
+            }
+            bestLookingHex.Status = Status.Closed;
+
+            if (bestLookingHex == end)
+            {
+                var preferredPath = new List<ListHex>();
+                Quip("Aha!  I found me a path!");
+                var parent = bestLookingHex;
+                while (parent != null)
+                {
+                    preferredPath.Add(parent);
+                    parent = parent.Parent;
+                }
+
+                return preferredPath;
+            }
+            var neighbours = Memory.GetTraversablePhysicalNeighbours(bestLookingHex, Me);
+
+            foreach (var node in neighbours)
+            {
+                if (node.Owner != Opponent())
+                {
+                    if (node.Status == Status.Open)
+                    {
+                        if (node.G > bestLookingHex.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode))
+                        {
+                            node.Parent = bestLookingHex;
+                            node.G = bestLookingHex.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode); ;
+                            node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                        }
+                    }
+                    else if (node.Status == Status.Untested)
+                    {
+                        node.Status = Status.Open;
+                        node.Parent = bestLookingHex;
+                        node.G = bestLookingHex.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode);
+                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                    }
+                }
+
+
+            }
+            return PathBetween(bestLookingHex, end);
+        }
+
     }
 }

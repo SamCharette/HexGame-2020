@@ -14,6 +14,7 @@ namespace Players.Minimax.List
         public int G { get; set; }
         public int H { get; set; }
         public Common.PlayerType Owner { get;set; }
+        public Status Status { get; set; }
         
         public ListHex Parent;
         public Guid RandomValue;
@@ -22,6 +23,7 @@ namespace Players.Minimax.List
         {
             Parent = null;
             RandomValue = Guid.NewGuid();
+            Status = Status.Untested;
             G = 0;
             H = 0;
             

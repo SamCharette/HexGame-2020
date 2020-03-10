@@ -98,6 +98,7 @@ namespace Players.Minimax.List
             PrunesMade = 0;
             
             int bestScore = AbsoluteWorst;
+            Monitors[CurrentScore] = bestScore;
 
             ListNode choice = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();

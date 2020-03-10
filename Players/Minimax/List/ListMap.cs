@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
+using System.Linq;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -16,10 +15,41 @@ namespace Players.Minimax.List
         public ListNode Right { get; set; }
 
 
+        public bool TakeHex(Common.PlayerType player, int row, int column)
+        {
+            var hexToTake =
+                Board.FirstOrDefault(x => x.Row == row 
+                                          && x.Column == column 
+                                          && x.Owner == PlayerType.White);
+            if (hexToTake == null)
+            {
+                return false;
+            }
+            hexToTake.Owner = player;
+            var neighbours = GetFriendlyPhysicalNeighbours(hexToTake);
+            foreach (var neighbour in neighbours)
+            {
+                AttachAllFriendlyNeighbours(hexToTake, neighbour);
+            }
+
+            return true;
+        }
+
+        public bool ReleaseHex(int row, int column)
+        {
+            var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);
+            if (hexToRelease != null)
+            {
+                Board.ForEach(x => x.DetachFrom(hexToRelease));
+                return true;
+            }
+            return false;
+        }
+
         public void Reset(int size)
         {
             Size = size;
-            Board = new List<ListNode>(Size);
+            Board = new List<ListNode> (Size * Size);
             Top = new ListNode(Size, -1, -1);
             Top.Owner = PlayerType.Blue;
             Bottom = new ListNode(Size, Size * 2, Size * 2 );
@@ -42,6 +72,60 @@ namespace Players.Minimax.List
             { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
         };
 
+        public List<ListNode> GetFriendlyPhysicalNeighbours(ListNode a)
+        {
+            return GetPhysicalNeighbours(a).Where(x => x.Owner == a.Owner).ToList();
+        }
+        public List<ListNode> GetPhysicalNeighbours(ListNode a)
+        {
+            var physicalNeighbours = new List<ListNode>();
+            for (var i = 0; i < Size; i++)
+            {
+                var delta = Directions[(AxialDirections) i];
+                var possibleNeighbour =
+                    Board.FirstOrDefault(x => x.Row == a.Row + delta.Item1 && x.Column == a.Column + delta.Item2);
+                if (possibleNeighbour != null)
+                {
+                    physicalNeighbours.Add(possibleNeighbour);
+                }
+            }
+
+            if (IsNodeAtTop(a))
+            {
+                physicalNeighbours.Add(Top);
+            }
+            if (IsNodeAtBottom(a))
+            {
+                physicalNeighbours.Add(Bottom);
+            }
+            if (IsNodeAtLeft(a))
+            {
+                physicalNeighbours.Add(Left);
+            }
+            if (IsNodeAtRight(a))
+            {
+                physicalNeighbours.Add(Right);
+            }
+
+            return physicalNeighbours;
+        }
+
+        public bool IsNodeAtTop(ListNode a)
+        {
+            return a.Row == 0;
+        }
+        public bool IsNodeAtBottom(ListNode a)
+        {
+            return a.Row == Size - 1;
+        }
+        public bool IsNodeAtLeft(ListNode a)
+        {
+            return a.Column == 0;
+        }
+        public bool IsNodeAtRight(ListNode a)
+        {
+            return a.Column == Size - 1;
+        }
         public bool AreFriendlyNeighbours(ListNode a, ListNode b)
         {
             return a.Owner == b.Owner && ArePhysicalNeighbours(a, b);
@@ -80,6 +164,16 @@ namespace Players.Minimax.List
             return false;
         }
 
+        public void AttachAllFriendlyNeighbours(ListNode a, ListNode b)
+        {
+            AttachNodes(a, b);
+            foreach (var node in b.Attached)
+            {
+                AttachAllFriendlyNeighbours(a, node);
+            }
+        }
+
+        
         public void AttachNodes(ListNode a, ListNode b)
         {
             a.AttachTo(b);

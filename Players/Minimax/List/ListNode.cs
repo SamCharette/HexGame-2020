@@ -7,7 +7,6 @@ namespace Players.Minimax.List
 {
     public class ListNode
     {
-        public int BoardSize { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
         public List<ListNode> Attached { get; set; }
@@ -25,9 +24,7 @@ namespace Players.Minimax.List
             RandomValue = Guid.NewGuid();
             G = 0;
             H = 0;
-            BoardSize = size;
-            Row = row;
-            Column = column;
+            
             Owner = PlayerType.White;
         }
 

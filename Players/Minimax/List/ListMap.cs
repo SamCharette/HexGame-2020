@@ -14,6 +14,10 @@ namespace Players.Minimax.List
         public ListHex Left { get; set; }
         public ListHex Right { get; set; }
 
+        public ListMap(int size)
+        {
+            Reset(size);
+        }
 
         public bool TakeHex(Common.PlayerType player, int row, int column)
         {
@@ -50,6 +54,14 @@ namespace Players.Minimax.List
         {
             Size = size;
             Board = new List<ListHex> (Size * Size);
+            for (var row = 0; row < Size; row++)
+            {
+                for (var column = 0; column < Size; column++)
+                {
+                    var hex = new ListHex(Size, row, column);
+                    Board.Add(hex);
+                }
+            }
             Top = new ListHex(Size, -1, -1);
             Top.Owner = PlayerType.Blue;
             Bottom = new ListHex(Size, Size * 2, Size * 2 );
@@ -61,7 +73,13 @@ namespace Players.Minimax.List
 
             
         }
-
+        public void CleanPathingVariables()
+        {
+            foreach (var hex in Board)
+            {
+                hex.ClearPathingVariables();
+            }
+        }
         public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
         {
             { AxialDirections.TopLeft, new Tuple<int, int>(0, -1) },
@@ -79,7 +97,8 @@ namespace Players.Minimax.List
         }
         public List<ListHex> GetTraversablePhysicalNeighbours(ListHex a, Common.PlayerType player)
         {
-            return GetPhysicalNeighbours(a).Where(x => x.Owner != player).ToList();
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            return GetPhysicalNeighbours(a).Where(x => x.Owner != opponent).ToList();
 
         }
         public List<ListHex> GetFriendlyPhysicalNeighbours(ListHex a)
@@ -88,8 +107,27 @@ namespace Players.Minimax.List
         }
         public List<ListHex> GetPhysicalNeighbours(ListHex a)
         {
+            if (a == Top)
+            {
+                return Board.Where(x => x.Row == 0).ToList();
+            }
+
+            if (a == Bottom)
+            {
+                return Board.Where(x => x.Row == Size - 1).ToList();
+            }
+
+            if (a == Left)
+            {
+                return Board.Where(x => x.Column == 0).ToList();
+            }
+
+            if (a == Right)
+            {
+                return Board.Where(x => x.Column == Size - 1).ToList();
+            }
             var physicalNeighbours = new List<ListHex>();
-            for (var i = 0; i < Size; i++)
+            for (var i = 0; i < 6; i++)
             {
                 var delta = Directions[(AxialDirections) i];
                 var possibleNeighbour =

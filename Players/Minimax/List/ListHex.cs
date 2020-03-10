@@ -24,10 +24,19 @@ namespace Players.Minimax.List
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
+            Attached = new List<ListHex>();
             G = 0;
             H = 0;
             
             Owner = PlayerType.White;
+        }
+
+        public void ClearPathingVariables()
+        {
+            G = 0;
+            H = 0;
+            Parent = null;
+            Status = Status.Untested;
         }
 
         public void AttachTo(ListHex node)
@@ -47,7 +56,7 @@ namespace Players.Minimax.List
         }
         public bool IsAttachedTo(ListHex node)
         {
-            return Attached.Contains(node);
+            return node != null && Attached.Contains(node);
         }
     }
 

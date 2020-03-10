@@ -32,7 +32,8 @@ namespace Players.Minimax.List
             Monitors.Add(NumberOfNodesChecked, 0);
             Monitors.Add(NumberOfPrunesMade, 0);
 
-            Memory.Reset(Size);
+            Memory = new ListMap(Size);
+            //Memory.Reset(Size);
 
             Startup();
         }
@@ -54,14 +55,14 @@ namespace Players.Minimax.List
 
         public List<ListHex> FindPath(ListHex start, ListHex end)
         {
-            if (Memory.AreFriendlyNeighbours(start, end))
-            {
-                return new List<ListHex> 
-                {
-                    start,
-                    end
-                };
-            }
+            //if (Memory.AreFriendlyNeighbours(start, end))
+            //{
+            //    return new List<ListHex> 
+            //    {
+            //        start,
+            //        end
+            //    };
+            //}
             if (start.IsAttachedTo(end) || end.IsAttachedTo(start))
             {
                 return new List<ListHex>
@@ -71,11 +72,13 @@ namespace Players.Minimax.List
                 };
             }
 
-            return PathBetween(start, end);
+            Memory.CleanPathingVariables();
+            start.Status = Status.Open;
+            return PathBetween(start, end, Me);
 
         }
 
-        public List<ListHex> PathBetween(ListHex start, ListHex end)
+        public List<ListHex> PathBetween(ListHex start, ListHex end, Common.PlayerType player)
         {
             ListHex bestLookingHex = null;;
 
@@ -87,18 +90,23 @@ namespace Players.Minimax.List
 
             if (bestLookingHex == null)
             {
-                if (start.Status == Status.Untested)
+                if (start.Status == Status.Untested || start.Status == Status.Open)
                 {
                     bestLookingHex = start;
                 }
-                return new List<ListHex>();
+                else
+                {
+                    return new List<ListHex>();
+                }
+               
             }
+
             bestLookingHex.Status = Status.Closed;
 
             if (bestLookingHex == end)
             {
                 var preferredPath = new List<ListHex>();
-                Quip("Aha!  I found me a path!");
+
                 var parent = bestLookingHex;
                 while (parent != null)
                 {
@@ -116,25 +124,25 @@ namespace Players.Minimax.List
                 {
                     if (node.Status == Status.Open)
                     {
-                        if (node.G > bestLookingHex.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode))
+                        if (node.G > bestLookingHex.G + (node.Owner == player ? CostToMoveToClaimedNode : CostToMoveToUnclaimedNode))
                         {
                             node.Parent = bestLookingHex;
-                            node.G = bestLookingHex.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode); ;
-                            node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                            node.G = bestLookingHex.G + (node.Owner == player ? CostToMoveToClaimedNode : CostToMoveToUnclaimedNode); ;
+                            node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
                     {
                         node.Status = Status.Open;
                         node.Parent = bestLookingHex;
-                        node.G = bestLookingHex.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode);
-                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                        node.G = bestLookingHex.G + (node.Owner == player ? CostToMoveToClaimedNode : CostToMoveToUnclaimedNode);
+                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                     }
                 }
 
 
             }
-            return PathBetween(bestLookingHex, end);
+            return PathBetween(bestLookingHex, end, player);
         }
 
     }

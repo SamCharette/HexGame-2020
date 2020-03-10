@@ -27,6 +27,8 @@ namespace Players.Minimax.List
             Attached = new List<ListHex>();
             G = 0;
             H = 0;
+            Row = row;
+            Column = column;
             
             Owner = PlayerType.White;
         }

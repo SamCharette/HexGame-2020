@@ -53,7 +53,7 @@ namespace Players.Minimax.List
         public void Reset(int size)
         {
             Size = size;
-            Board = new List<ListHex> (Size * Size);
+            Board = new List<ListHex> ();
             for (var row = 0; row < Size; row++)
             {
                 for (var column = 0; column < Size; column++)
@@ -138,22 +138,22 @@ namespace Players.Minimax.List
                 }
             }
 
-            if (IsHexAtTop(a))
-            {
-                physicalNeighbours.Add(Top);
-            }
-            if (IsHexAtBottom(a))
-            {
-                physicalNeighbours.Add(Bottom);
-            }
-            if (IsHexAtLeft(a))
-            {
-                physicalNeighbours.Add(Left);
-            }
-            if (IsHexAtRight(a))
-            {
-                physicalNeighbours.Add(Right);
-            }
+            //if (IsHexAtTop(a))
+            //{
+            //    physicalNeighbours.Add(Top);
+            //}
+            //if (IsHexAtBottom(a))
+            //{
+            //    physicalNeighbours.Add(Bottom);
+            //}
+            //if (IsHexAtLeft(a))
+            //{
+            //    physicalNeighbours.Add(Left);
+            //}
+            //if (IsHexAtRight(a))
+            //{
+            //    physicalNeighbours.Add(Right);
+            //}
 
             return physicalNeighbours;
         }
@@ -206,7 +206,10 @@ namespace Players.Minimax.List
                 var newLocation = new Tuple<int, int>(a.Row + delta.Item1, a.Column + delta.Item2);
                 if (newLocation.Item1 >= 0 && newLocation.Item1 < Size && newLocation.Item2 >= 0 && newLocation.Item2 < Size)
                 {
-                    return true;
+                    if (newLocation.Item1 == b.Row && newLocation.Item2 == b.Column)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;

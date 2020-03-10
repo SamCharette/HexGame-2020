@@ -55,32 +55,19 @@ namespace Players.Minimax.List
 
         public List<ListHex> FindPath(ListHex start, ListHex end)
         {
-            //if (Memory.AreFriendlyNeighbours(start, end))
-            //{
-            //    return new List<ListHex> 
-            //    {
-            //        start,
-            //        end
-            //    };
-            //}
-            if (start.IsAttachedTo(end) || end.IsAttachedTo(start))
-            {
-                return new List<ListHex>
-                {
-                    start,
-                    end
-                };
-            }
-
+        
             Memory.CleanPathingVariables();
-            start.Status = Status.Open;
+       
+            var neighbours = Memory.GetTraversablePhysicalNeighbours(start, Me);
+            neighbours.ForEach(x => x.Status = Status.Open);
             return PathBetween(start, end, Me);
 
         }
 
         public List<ListHex> PathBetween(ListHex start, ListHex end, Common.PlayerType player)
         {
-            ListHex bestLookingHex = null;;
+        
+            ListHex bestLookingHex = null;
 
             // GEt the best looking node
             bestLookingHex = Memory.Board
@@ -101,9 +88,7 @@ namespace Players.Minimax.List
                
             }
 
-            bestLookingHex.Status = Status.Closed;
-
-            if (bestLookingHex == end)
+            if (Memory.ArePhysicalNeighbours(bestLookingHex, end))
             {
                 var preferredPath = new List<ListHex>();
 
@@ -116,6 +101,10 @@ namespace Players.Minimax.List
 
                 return preferredPath;
             }
+
+            bestLookingHex.Status = Status.Closed;
+
+           
             var neighbours = Memory.GetTraversablePhysicalNeighbours(bestLookingHex, Me);
 
             foreach (var node in neighbours)
@@ -128,7 +117,7 @@ namespace Players.Minimax.List
                         {
                             node.Parent = bestLookingHex;
                             node.G = bestLookingHex.G + (node.Owner == player ? CostToMoveToClaimedNode : CostToMoveToUnclaimedNode); ;
-                            node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
+                            node.H = (player == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
@@ -136,13 +125,13 @@ namespace Players.Minimax.List
                         node.Status = Status.Open;
                         node.Parent = bestLookingHex;
                         node.G = bestLookingHex.G + (node.Owner == player ? CostToMoveToClaimedNode : CostToMoveToUnclaimedNode);
-                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
+                        node.H = (player == Common.PlayerType.Red ? _size - 1 - node.Column : _size - 1 - node.Row) * CostPerNodeTillEnd;
                     }
                 }
 
 
             }
-            return PathBetween(bestLookingHex, end, player);
+            return PathBetween(start, end, player);
         }
 
     }

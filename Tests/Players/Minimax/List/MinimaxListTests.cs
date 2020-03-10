@@ -30,7 +30,7 @@ namespace Tests.Players.Minimax.List
             var path = player.FindPath(player.Memory.Top, player.Memory.Bottom);
             Assert.AreEqual(11, path.Count);
             path = player.FindPath(player.Memory.Board.FirstOrDefault(x => x.Row == 6 && x.Column ==6), player.Memory.Bottom);
-            Assert.AreEqual(11, path.Count);
+            Assert.AreEqual(4, path.Count);
         }
 
         //[Test]

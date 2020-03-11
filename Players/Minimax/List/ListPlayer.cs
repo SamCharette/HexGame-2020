@@ -100,8 +100,11 @@ namespace Players.Minimax.List
                 return score;
             }
 
-            var possibleMoves = GetAPathForPlayer(isMaximizing);
-            if (possibleMoves.Any(x => x.Owner == Common.PlayerType.White))
+            var possibleMoves = GetAPathForPlayer(isMaximizing)
+                .Where(x => x.Owner == Common.PlayerType.White).ToList();
+            possibleMoves.AddRange(GetAPathForPlayer(!isMaximizing)
+                .Where(x => x.Owner == Common.PlayerType.White).ToList());
+            if (possibleMoves.Any())
             {
 
                 if (isMaximizing)
@@ -110,7 +113,7 @@ namespace Players.Minimax.List
 
                     foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
-                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        Memory.TakeHex(Me, move.Row, move.Column);
                         bestValue = Math.Max(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, false));
                         if (bestValue > alpha)
                         {
@@ -135,7 +138,7 @@ namespace Players.Minimax.List
                     foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
 
-                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        Memory.TakeHex(Opponent(), move.Row, move.Column);
                         bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
                         beta = Math.Min(beta, bestValue);
                         Monitors[NumberOfNodesChecked]++;

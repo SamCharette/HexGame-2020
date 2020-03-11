@@ -45,6 +45,7 @@ namespace Players.Minimax.List
             if (hexToRelease != null)
             {
                 Board.ForEach(x => x.DetachFrom(hexToRelease));
+                hexToRelease.Owner = PlayerType.White;
                 return true;
             }
             return false;

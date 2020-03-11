@@ -38,6 +38,7 @@ namespace Players.Minimax.List
             G = 0;
             H = 0;
             Parent = null;
+
             Status = Status.Untested;
         }
 

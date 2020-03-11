@@ -49,11 +49,27 @@ namespace Players.Minimax.List
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
-            Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
+            if (opponentMove != null)
+            {
+                Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
+            }
 
+            var myPath = GetAPathForMe();
+
+            Tuple<int,int> choice = null;
+            if (myPath.Count > 0)
+            {
+                var hex = myPath.OrderBy(x => x.RandomValue).FirstOrDefault(x => x.Owner == Common.PlayerType.White);
+                choice = new Tuple<int, int>(hex.Row, hex.Column);
+            }
+            else
+            {
+                var hex = JustGetARandomHex();
+                choice = new Tuple<int, int>(hex.Row, hex.Column);
+            }
             // When in doubt, choose random
-            var choice = JustGetARandomHex();
-            return new Tuple<int, int>(choice.Row, choice.Column);
+            Memory.TakeHex(Me, choice.Item1, choice.Item2);
+            return new Tuple<int, int>(choice.Item1, choice.Item2);
         }
 
         public PlayerType Opponent()
@@ -64,6 +80,13 @@ namespace Players.Minimax.List
             }
 
             return Common.PlayerType.Blue;
+        }
+
+        public List<ListHex> GetAPathForMe()
+        {
+            var start = Me == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
+            var end = Me == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
+            return FindPath(start, end, Me);
         }
 
         public int ScoreFromBoard()

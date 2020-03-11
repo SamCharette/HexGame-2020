@@ -44,7 +44,7 @@
     "settings": [
       {
         "key": "maxLevels",
-        "value": "3"
+        "value": "4"
       },
       {
         "key": "costToClaimedNode",
@@ -52,11 +52,11 @@
       },
       {
         "key": "costPerNodeTillEnd",
-        "value": "100"
+        "value": "10"
       },
       {
         "key": "costToUnclaimedNode",
-        "value": "10"
+        "value": "2"
       }
     ]
   },

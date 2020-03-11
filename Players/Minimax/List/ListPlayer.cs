@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -8,13 +9,14 @@ namespace Players.Minimax.List
     public class ListPlayer : MinimaxPlayer
     {
         public ListMap Memory { get; set; }
+        public Tuple<int,int> CurrentChoice { get; set; }
         public ListPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             PlayerNumber = playerNumber;
             Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
             Size = boardSize;
             MaxLevels = GetDefault(playerConfig, "maxLevels", 5);
-            CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 10);
+            CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 5);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 2);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
             talkative = Convert.ToInt32(playerConfig.talkative);
@@ -45,6 +47,7 @@ namespace Players.Minimax.List
             Monitors[NumberOfRandomMoves] = 0;
             Monitors[NumberOfNodesChecked] = 0;
             Monitors[NumberOfPrunesMade] = 0;
+            CurrentChoice = null;
         }
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
@@ -54,22 +57,112 @@ namespace Players.Minimax.List
                 Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
             }
 
-            var myPath = GetAPathForMe();
-
-            Tuple<int,int> choice = null;
-            if (myPath.Count > 0)
-            {
+            CurrentChoice = null;
+            
+            Monitors[CurrentScore] = ThinkAboutTheNextMove(MaxLevels, AbsoluteWorst, AbsoluteBest, true);
+            if (CurrentChoice == null)
+            { 
+                var myPath = GetAPathForMe();
                 var hex = myPath.OrderBy(x => x.RandomValue).FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-                choice = new Tuple<int, int>(hex.Row, hex.Column);
+                if (hex != null)
+                {
+                    CurrentChoice = new Tuple<int, int>(hex.Row, hex.Column);
+                }
+
             }
-            else
+            if (CurrentChoice == null)
             {
-                var hex = JustGetARandomHex();
-                choice = new Tuple<int, int>(hex.Row, hex.Column);
+                Monitors[NumberOfRandomMoves]++;
+                var hex = RandomHex();
+                CurrentChoice = new Tuple<int, int>(hex.Row, hex.Column);
+            } else
+            {
+                Monitors[NumberOfPlannedMoves]++;
             }
+            RelayPerformanceInformation();
             // When in doubt, choose random
-            Memory.TakeHex(Me, choice.Item1, choice.Item2);
-            return new Tuple<int, int>(choice.Item1, choice.Item2);
+            Memory.TakeHex(Me, CurrentChoice.Item1, CurrentChoice.Item2);
+            return new Tuple<int, int>(CurrentChoice.Item1, CurrentChoice.Item2);
+        }
+        public ListHex RandomHex()
+        {
+            var openNodes = Memory.Board.Where(x => x.Owner == Common.PlayerType.White);
+            var selectedNode = openNodes.OrderBy(x => x.RandomValue).FirstOrDefault();
+            return selectedNode;
+        }
+        public int ThinkAboutTheNextMove(int depth, int alpha, int beta, bool isMaximizing)
+        {
+            var score = 0;
+            if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
+            {
+                score = ScoreFromBoard();
+                Monitors[CurrentScore] = ScoreFromBoard();
+                return score;
+            }
+
+            var possibleMoves = GetAPathForPlayer(isMaximizing);
+            if (possibleMoves.Any(x => x.Owner == Common.PlayerType.White))
+            {
+
+                if (isMaximizing)
+                {
+                    var bestValue = AbsoluteWorst;
+
+                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
+                    {
+                        Memory.TakeHex(CurrentlySearchingAs(true), move.Row, move.Column);
+                        bestValue = Math.Max(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, false));
+                        if (bestValue > alpha)
+                        {
+                            alpha = bestValue;
+                            CurrentChoice = new Tuple<int, int>(move.Row, move.Column);
+                        }
+                        Monitors[NumberOfNodesChecked]++;
+                        Memory.ReleaseHex(move.Row, move.Column);
+                        if (beta <= alpha)
+                        {
+                            Monitors[NumberOfPrunesMade]++;
+                            break;
+                        }
+
+                    }
+
+                    return bestValue;
+                }
+                else
+                {
+                    var bestValue = AbsoluteBest;
+                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
+                    {
+
+                        Memory.TakeHex(CurrentlySearchingAs(false), move.Row, move.Column);
+                        bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
+                        beta = Math.Min(beta, bestValue);
+                        Monitors[NumberOfNodesChecked]++;
+                        Memory.ReleaseHex(move.Row, move.Column);
+                        if (beta <= alpha)
+                        {
+                            Monitors[NumberOfPrunesMade]++;
+                            break;
+                        }
+                    }
+                    return bestValue;
+                }
+            }
+
+            score = ScoreFromBoard();
+            Monitors[CurrentScore] = ScoreFromBoard();
+            return score;
+        }
+
+        public PlayerType CurrentlySearchingAs(bool isMaximizing)
+        {
+            return isMaximizing ? Me : Opponent();
+        }
+        public override void GameOver(int winningPlayerNumber)
+        {
+            RelayPerformanceInformation();
+            Memory = null;
         }
 
         public PlayerType Opponent()
@@ -82,11 +175,23 @@ namespace Players.Minimax.List
             return Common.PlayerType.Blue;
         }
 
+        public List<ListHex> GetAPathForPlayer(bool isMaximizing)
+        {
+            return isMaximizing ? GetAPathForMe() : GetAPathForOpponent();
+        }
+
         public List<ListHex> GetAPathForMe()
         {
             var start = Me == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
             var end = Me == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
             return FindPath(start, end, Me);
+        }
+
+        public List<ListHex> GetAPathForOpponent()
+        {
+            var start = Opponent() == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
+            var end = Opponent() == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
+            return FindPath(start, end, Opponent());
         }
 
         public int ScoreFromBoard()

@@ -194,7 +194,7 @@ namespace Players.Minimax.List
             {
                 return true;
             }
-            if (a == Right && b.Row == Size - 1 || a.Row == Size - 1 && b == Right)
+            if (a == Right && b.Column == Size - 1 || a.Column == Size - 1 && b == Right)
             {
                 return true;
             }
@@ -220,7 +220,7 @@ namespace Players.Minimax.List
             AttachHexes(a, b);
             foreach (var node in b.Attached)
             {
-                AttachAllFriendlyNeighbours(a, node);
+               AttachHexes(a, node);
             }
         }
 

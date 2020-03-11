@@ -43,7 +43,7 @@ namespace Players.Minimax.List
 
         public void AttachTo(ListHex node)
         {
-            if (!IsAttachedTo(node) && node.Owner == Owner)
+            if (node != null && !IsAttachedTo(node) && node.Owner == Owner)
             {
                 Attached.Add(node);
             }

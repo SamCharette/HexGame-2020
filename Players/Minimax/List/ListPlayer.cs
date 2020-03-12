@@ -67,13 +67,14 @@ namespace Players.Minimax.List
                 if (CanIWinWithThisMove(hex, Memory))
                 {
                     CurrentChoice = hex.ToTuple();
-
+                    break;
                 }
                 else
                 {
                     if (CanILoseWithThisMove(hex, Memory))
                     {
                         CurrentChoice = hex.ToTuple();
+                        break;
                     }
                 }
             
@@ -82,13 +83,6 @@ namespace Players.Minimax.List
             if (CurrentChoice == null)
             {
                 Monitors[CurrentScore] = ThinkAboutTheNextMove(MaxLevels, AbsoluteWorst, AbsoluteBest, true);
-                //var myPath = GetAPathForMe();
-                //var hex = myPath.OrderBy(x => x.RandomValue).FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-                //if (hex != null)
-                //{
-                //    CurrentChoice = new Tuple<int, int>(hex.Row, hex.Column);
-                //}
-
             }
             if (CurrentChoice == null)
             {

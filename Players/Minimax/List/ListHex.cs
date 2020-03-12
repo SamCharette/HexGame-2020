@@ -33,6 +33,10 @@ namespace Players.Minimax.List
             Owner = PlayerType.White;
         }
 
+        public Tuple<int, int> ToTuple()
+        {
+            return new Tuple<int, int>(Row, Column);
+        }
         public void ClearPathingVariables()
         {
             G = 0;

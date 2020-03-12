@@ -44,7 +44,7 @@ namespace Players.Minimax.List
             var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);
             if (hexToRelease != null)
             {
-                Board.ForEach(x => x.DetachFrom(hexToRelease));
+                Board.ForEach(x => DetachHexes(x, hexToRelease));
                 hexToRelease.Owner = PlayerType.White;
                 return true;
             }
@@ -139,22 +139,22 @@ namespace Players.Minimax.List
                 }
             }
 
-            //if (IsHexAtTop(a))
-            //{
-            //    physicalNeighbours.Add(Top);
-            //}
-            //if (IsHexAtBottom(a))
-            //{
-            //    physicalNeighbours.Add(Bottom);
-            //}
-            //if (IsHexAtLeft(a))
-            //{
-            //    physicalNeighbours.Add(Left);
-            //}
-            //if (IsHexAtRight(a))
-            //{
-            //    physicalNeighbours.Add(Right);
-            //}
+            if (IsHexAtTop(a))
+            {
+                physicalNeighbours.Add(Top);
+            }
+            if (IsHexAtBottom(a))
+            {
+                physicalNeighbours.Add(Bottom);
+            }
+            if (IsHexAtLeft(a))
+            {
+                physicalNeighbours.Add(Left);
+            }
+            if (IsHexAtRight(a))
+            {
+                physicalNeighbours.Add(Right);
+            }
 
             return physicalNeighbours;
         }
@@ -219,7 +219,7 @@ namespace Players.Minimax.List
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
             AttachHexes(a, b);
-            foreach (var node in b.Attached)
+            foreach (var node in b.Attached.Where(x => x.Owner == a.Owner))
             {
                AttachHexes(a, node);
             }

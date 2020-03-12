@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Players.Common;
@@ -57,17 +58,36 @@ namespace Players.Minimax.List
                 Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
             }
 
+            var turnStartTime = DateTime.Now;
+
             CurrentChoice = null;
+            foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
+            {
             
-            Monitors[CurrentScore] = ThinkAboutTheNextMove(MaxLevels, AbsoluteWorst, AbsoluteBest, true);
-            if (CurrentChoice == null)
-            { 
-                var myPath = GetAPathForMe();
-                var hex = myPath.OrderBy(x => x.RandomValue).FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-                if (hex != null)
+                if (CanIWinWithThisMove(hex, Memory))
                 {
-                    CurrentChoice = new Tuple<int, int>(hex.Row, hex.Column);
+                    CurrentChoice = hex.ToTuple();
+
                 }
+                else
+                {
+                    if (CanILoseWithThisMove(hex, Memory))
+                    {
+                        CurrentChoice = hex.ToTuple();
+                    }
+                }
+            
+            }
+
+            if (CurrentChoice == null)
+            {
+                Monitors[CurrentScore] = ThinkAboutTheNextMove(MaxLevels, AbsoluteWorst, AbsoluteBest, true);
+                //var myPath = GetAPathForMe();
+                //var hex = myPath.OrderBy(x => x.RandomValue).FirstOrDefault(x => x.Owner == Common.PlayerType.White);
+                //if (hex != null)
+                //{
+                //    CurrentChoice = new Tuple<int, int>(hex.Row, hex.Column);
+                //}
 
             }
             if (CurrentChoice == null)
@@ -79,9 +99,13 @@ namespace Players.Minimax.List
             {
                 Monitors[NumberOfPlannedMoves]++;
             }
-            RelayPerformanceInformation();
             // When in doubt, choose random
             Memory.TakeHex(Me, CurrentChoice.Item1, CurrentChoice.Item2);
+            var timeTaken = DateTime.Now.Subtract(turnStartTime).Milliseconds;
+
+            Monitors[TotalTimeThinking] += timeTaken;
+            Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] / (Monitors[NumberOfRandomMoves] + Monitors[NumberOfPlannedMoves]);
+            RelayPerformanceInformation();
             return new Tuple<int, int>(CurrentChoice.Item1, CurrentChoice.Item2);
         }
         public ListHex RandomHex()
@@ -92,14 +116,12 @@ namespace Players.Minimax.List
         }
         public int ThinkAboutTheNextMove(int depth, int alpha, int beta, bool isMaximizing)
         {
-            var score = 0;
             if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                score = ScoreFromBoard();
-                Monitors[CurrentScore] = ScoreFromBoard();
-                return score;
+                return ScoreFromBoard();
             }
 
+           
             var possibleMoves = GetAPathForPlayer(isMaximizing)
                 .Where(x => x.Owner == Common.PlayerType.White).ToList();
             possibleMoves.AddRange(GetAPathForPlayer(!isMaximizing)
@@ -113,6 +135,10 @@ namespace Players.Minimax.List
 
                     foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                     {
+                        if (depth == MaxLevels)
+                        {
+                            RelayPerformanceInformation();
+                        }
                         Memory.TakeHex(Me, move.Row, move.Column);
                         bestValue = Math.Max(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, false));
                         if (bestValue > alpha)
@@ -153,9 +179,7 @@ namespace Players.Minimax.List
                 }
             }
 
-            score = ScoreFromBoard();
-            Monitors[CurrentScore] = ScoreFromBoard();
-            return score;
+            return ScoreFromBoard();
         }
 
         public PlayerType CurrentlySearchingAs(bool isMaximizing)
@@ -202,6 +226,10 @@ namespace Players.Minimax.List
             // Get the player score
             var playerScore = 0;
             var opponentScore = 0;
+           
+            if (IsWinningScore(Me)) return AbsoluteBest;
+            if (IsWinningScore(Opponent())) return AbsoluteWorst;
+
             if (Me == Common.PlayerType.Blue)
             {
                 var path = FindPath(Memory.Top, Memory.Bottom, Me);
@@ -216,8 +244,43 @@ namespace Players.Minimax.List
                 opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
 
             }
-
             return playerScore - opponentScore;
+        }
+
+        private bool CanIWinWithThisMove(ListHex hex, ListMap board)
+        {
+            board = board ?? Memory;
+            if (hex != null)
+            {
+                board.TakeHex(Me, hex.Row, hex.Column);
+                var canIWinHere = IsWinningScore(Me);
+                board.ReleaseHex( hex.Row, hex.Column);
+                return canIWinHere;
+            }
+
+            return false;
+        }
+
+        private bool CanILoseWithThisMove(ListHex hex, ListMap board)
+        {
+            board = board ?? Memory;
+            if (hex != null)
+            {
+                board.TakeHex(Opponent(), hex.Row, hex.Column);
+                var canILoseHere = IsWinningScore(Opponent());
+                board.ReleaseHex(hex.Row, hex.Column);
+                return canILoseHere;
+            }
+
+            return false;
+        }
+
+        private bool IsWinningScore(PlayerType player)
+        {
+            var start = player == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
+            var end = player == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
+           
+            return start.IsAttachedTo(end);
         }
 
         public List<ListHex> FindPath(ListHex start, ListHex end, PlayerType player)

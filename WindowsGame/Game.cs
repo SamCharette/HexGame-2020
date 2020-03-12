@@ -139,6 +139,10 @@ namespace WindowsGame
             loadGameToolStripMenuItem.Enabled = false;
             reloadConfigurationToolStripMenuItem.Enabled = false;
             _playThrough = new List<Bitmap>();
+            totalMillisecondsPlayer1 = 0;
+            totalMillisecondsPlayer1 = 0;
+            preTurnTotalMillisecondsPlayer1 = 0;
+            preTurnTotalMillisecondsPlayer2 = 0;
 
             _board = new Board(boardSize,
                 boardSize,
@@ -359,7 +363,7 @@ namespace WindowsGame
 
         private void MakeGif(List<Bitmap> frames, string fileName)
         {
-            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 175))
+            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 350))
             {
                 var lastFrame = frames.FirstOrDefault();
                 gif.AddFrame(lastFrame, 750, GifQuality.Bit8);

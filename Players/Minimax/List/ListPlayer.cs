@@ -220,9 +220,16 @@ namespace Players.Minimax.List
             // Get the player score
             var playerScore = 0;
             var opponentScore = 0;
-           
-            if (IsWinningScore(Me)) return AbsoluteBest;
-            if (IsWinningScore(Opponent())) return AbsoluteWorst;
+
+            if (IsWinningScore(Me))
+            {
+                return AbsoluteBest;
+            }
+
+            if (IsWinningScore(Opponent()))
+            {
+                return AbsoluteWorst;
+            }
 
             if (Me == Common.PlayerType.Blue)
             {
@@ -284,7 +291,13 @@ namespace Players.Minimax.List
        
             var neighbours = Memory.GetTraversablePhysicalNeighbours(start, player);
             neighbours.ForEach(x => x.Status = Status.Open);
-            return PathBetween(start, end, player);
+            var path = PathBetween(start, end, player);
+            if (path.Count > Size)
+            {
+                Console.WriteLine("Path too long?");
+            }
+
+            return path;
 
         }
 

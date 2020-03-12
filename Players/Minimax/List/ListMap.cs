@@ -69,7 +69,7 @@ namespace Players.Minimax.List
             Bottom.Owner = PlayerType.Blue;
             Left = new ListHex(Size, -2, -2);
             Left.Owner = PlayerType.Red;
-            Right = new ListHex(Size, Size * 2, Size * 3);
+            Right = new ListHex(Size, Size * 2, Size * 2);
             Right.Owner = PlayerType.Red;
 
             
@@ -218,10 +218,13 @@ namespace Players.Minimax.List
 
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
-            AttachHexes(a, b);
-            foreach (var node in b.Attached.Where(x => x.Owner == a.Owner))
+            if (a.Owner == b.Owner)
             {
-               AttachHexes(a, node);
+                AttachHexes(a, b);
+                foreach (var node in b.Attached.Where(x => x.Owner == a.Owner))
+                {
+                    AttachHexes(a, node);
+                }
             }
         }
 

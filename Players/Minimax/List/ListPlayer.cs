@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -16,6 +14,7 @@ namespace Players.Minimax.List
             PlayerNumber = playerNumber;
             Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
             Size = boardSize;
+            
             MaxLevels = GetDefault(playerConfig, "maxLevels", 5);
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 5);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 2);
@@ -35,7 +34,10 @@ namespace Players.Minimax.List
 
             Startup();
         }
-
+        public override string PlayerType()
+        {
+            return "Minimax AI";
+        }
         public void Startup()
         {
             Memory = new ListMap(Size);
@@ -61,24 +63,24 @@ namespace Players.Minimax.List
             var turnStartTime = DateTime.Now;
 
             CurrentChoice = null;
-            foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
-            {
+            //foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
+            //{
+            //    Quip("Checking to see if there are any winners or losers.");
+            //    if (CanIWinWithThisMove(hex, Memory))
+            //    {
+            //        CurrentChoice = hex.ToTuple();
+            //        break;
+            //    }
+            //    else
+            //    {
+            //        if (CanILoseWithThisMove(hex, Memory))
+            //        {
+            //            CurrentChoice = hex.ToTuple();
+            //            break;
+            //        }
+            //    }
             
-                if (CanIWinWithThisMove(hex, Memory))
-                {
-                    CurrentChoice = hex.ToTuple();
-                    break;
-                }
-                else
-                {
-                    if (CanILoseWithThisMove(hex, Memory))
-                    {
-                        CurrentChoice = hex.ToTuple();
-                        break;
-                    }
-                }
-            
-            }
+            //}
 
             if (CurrentChoice == null)
             {
@@ -115,7 +117,14 @@ namespace Players.Minimax.List
                 return ScoreFromBoard();
             }
 
-           
+            if (IsWinningScore(isMaximizing ? Me : Opponent()))
+            {
+                return isMaximizing ? AbsoluteBest : AbsoluteWorst;
+            }
+
+    
+
+
             var possibleMoves = GetAPathForPlayer(isMaximizing)
                 .Where(x => x.Owner == Common.PlayerType.White).ToList();
             possibleMoves.AddRange(GetAPathForPlayer(!isMaximizing)
@@ -221,15 +230,15 @@ namespace Players.Minimax.List
             var playerScore = 0;
             var opponentScore = 0;
 
-            if (IsWinningScore(Me))
-            {
-                return AbsoluteBest;
-            }
+            //if (IsWinningScore(Me))
+            //{
+            //    return AbsoluteBest;
+            //}
 
-            if (IsWinningScore(Opponent()))
-            {
-                return AbsoluteWorst;
-            }
+            //if (IsWinningScore(Opponent()))
+            //{
+            //    return AbsoluteWorst;
+            //}
 
             if (Me == Common.PlayerType.Blue)
             {
@@ -250,12 +259,17 @@ namespace Players.Minimax.List
 
         private bool CanIWinWithThisMove(ListHex hex, ListMap board)
         {
+            Quip("Can I win with this move?");
             board = board ?? Memory;
             if (hex != null)
             {
                 board.TakeHex(Me, hex.Row, hex.Column);
                 var canIWinHere = IsWinningScore(Me);
                 board.ReleaseHex( hex.Row, hex.Column);
+                if (canIWinHere)
+                {
+                    Quip("Yes, there IS a winner");
+                }
                 return canIWinHere;
             }
 
@@ -292,10 +306,6 @@ namespace Players.Minimax.List
             var neighbours = Memory.GetTraversablePhysicalNeighbours(start, player);
             neighbours.ForEach(x => x.Status = Status.Open);
             var path = PathBetween(start, end, player);
-            if (path.Count > Size)
-            {
-                Console.WriteLine("Path too long?");
-            }
 
             return path;
 

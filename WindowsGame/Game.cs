@@ -363,7 +363,7 @@ namespace WindowsGame
 
         private void MakeGif(List<Bitmap> frames, string fileName)
         {
-            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 350))
+            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 450))
             {
                 var lastFrame = frames.FirstOrDefault();
                 gif.AddFrame(lastFrame, 750, GifQuality.Bit8);

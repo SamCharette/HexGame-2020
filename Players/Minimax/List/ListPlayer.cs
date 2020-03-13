@@ -63,24 +63,23 @@ namespace Players.Minimax.List
             var turnStartTime = DateTime.Now;
 
             CurrentChoice = null;
-            //foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
-            //{
-            //    Quip("Checking to see if there are any winners or losers.");
-            //    if (CanIWinWithThisMove(hex, Memory))
-            //    {
-            //        CurrentChoice = hex.ToTuple();
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        if (CanILoseWithThisMove(hex, Memory))
-            //        {
-            //            CurrentChoice = hex.ToTuple();
-            //            break;
-            //        }
-            //    }
-            
-            //}
+            foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
+            {
+                if (CanIWinWithThisMove(hex, Memory))
+                {
+                    CurrentChoice = hex.ToTuple();
+                    break;
+                }
+                //    else
+                //    {
+                //        if (CanILoseWithThisMove(hex, Memory))
+                //        {
+                //            CurrentChoice = hex.ToTuple();
+                //            break;
+                //        }
+                //    }
+                
+            }
 
             if (CurrentChoice == null)
             {
@@ -117,72 +116,78 @@ namespace Players.Minimax.List
                 return ScoreFromBoard();
             }
 
-            if (IsWinningScore(isMaximizing ? Me : Opponent()))
+            if (IsWinningMove(isMaximizing ? Me : Opponent()))
             {
                 return isMaximizing ? AbsoluteBest : AbsoluteWorst;
             }
 
-    
-
-
-            var possibleMoves = GetAPathForPlayer(isMaximizing)
+            var playerMoves = GetAPathForPlayer(isMaximizing)
                 .Where(x => x.Owner == Common.PlayerType.White).ToList();
-            possibleMoves.AddRange(GetAPathForPlayer(!isMaximizing)
-                .Where(x => x.Owner == Common.PlayerType.White).ToList());
-            if (possibleMoves.Any())
+            var opponentMoves = GetAPathForPlayer(!isMaximizing)
+                .Where(x => x.Owner == Common.PlayerType.White).ToList();
+
+            var possibleMoves = new List<ListHex>();
+            var bothLike = playerMoves.Where(x => opponentMoves.Contains(x)).ToList();
+
+            possibleMoves.AddRange(bothLike);
+            possibleMoves.AddRange(playerMoves.Where(x => !opponentMoves.Contains(x)));
+            possibleMoves.AddRange(opponentMoves.Where(x => !playerMoves.Contains(x)));
+
+            if (!possibleMoves.Any())
             {
-
-                if (isMaximizing)
-                {
-                    var bestValue = AbsoluteWorst;
-
-                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
-                    {
-                        if (depth == MaxLevels)
-                        {
-                            RelayPerformanceInformation();
-                        }
-                        Memory.TakeHex(Me, move.Row, move.Column);
-                        bestValue = Math.Max(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, false));
-                        if (bestValue > alpha)
-                        {
-                            alpha = bestValue;
-                            CurrentChoice = new Tuple<int, int>(move.Row, move.Column);
-                        }
-                        Monitors[NumberOfNodesChecked]++;
-                        Memory.ReleaseHex(move.Row, move.Column);
-                        if (beta <= alpha)
-                        {
-                            Monitors[NumberOfPrunesMade]++;
-                            break;
-                        }
-
-                    }
-
-                    return bestValue;
-                }
-                else
-                {
-                    var bestValue = AbsoluteBest;
-                    foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
-                    {
-
-                        Memory.TakeHex(Opponent(), move.Row, move.Column);
-                        bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
-                        beta = Math.Min(beta, bestValue);
-                        Monitors[NumberOfNodesChecked]++;
-                        Memory.ReleaseHex(move.Row, move.Column);
-                        if (beta <= alpha)
-                        {
-                            Monitors[NumberOfPrunesMade]++;
-                            break;
-                        }
-                    }
-                    return bestValue;
-                }
+                return ScoreFromBoard();
             }
 
-            return ScoreFromBoard();
+            if (isMaximizing)
+            {
+                var bestValue = AbsoluteWorst;
+
+                foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
+                {
+                    if (depth == MaxLevels)
+                    {
+                        RelayPerformanceInformation();
+                    }
+                    Memory.TakeHex(Me, move.Row, move.Column);
+                    bestValue = Math.Max(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, false));
+                    if (bestValue > alpha)
+                    {
+                        alpha = bestValue;
+                        CurrentChoice = new Tuple<int, int>(move.Row, move.Column);
+                    }
+                    Monitors[NumberOfNodesChecked]++;
+                    Memory.ReleaseHex(move.Row, move.Column);
+                    if (beta <= alpha)
+                    {
+                        Monitors[NumberOfPrunesMade]++;
+                        break;
+                    }
+
+                }
+
+                return bestValue;
+            }
+            else
+            {
+                var bestValue = AbsoluteBest;
+                foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
+                {
+
+                    Memory.TakeHex(Opponent(), move.Row, move.Column);
+                    bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
+                    beta = Math.Min(beta, bestValue);
+                    Monitors[NumberOfNodesChecked]++;
+                    Memory.ReleaseHex(move.Row, move.Column);
+                    if (beta <= alpha)
+                    {
+                        Monitors[NumberOfPrunesMade]++;
+                        break;
+                    }
+                }
+                return bestValue;
+            }
+            
+
         }
 
         public PlayerType CurrentlySearchingAs(bool isMaximizing)
@@ -230,15 +235,15 @@ namespace Players.Minimax.List
             var playerScore = 0;
             var opponentScore = 0;
 
-            //if (IsWinningScore(Me))
-            //{
-            //    return AbsoluteBest;
-            //}
+            if (IsWinningMove(Me))
+            {
+                return AbsoluteBest;
+            }
 
-            //if (IsWinningScore(Opponent()))
-            //{
-            //    return AbsoluteWorst;
-            //}
+            if (IsWinningMove(Opponent()))
+            {
+                return AbsoluteWorst;
+            }
 
             if (Me == Common.PlayerType.Blue)
             {
@@ -264,11 +269,11 @@ namespace Players.Minimax.List
             if (hex != null)
             {
                 board.TakeHex(Me, hex.Row, hex.Column);
-                var canIWinHere = IsWinningScore(Me);
+                var canIWinHere = IsWinningMove(Me);
                 board.ReleaseHex( hex.Row, hex.Column);
                 if (canIWinHere)
                 {
-                    Quip("Yes, there IS a winner");
+                    Quip("Yes, I CAN win if I get here (" + hex.Row + ", " + hex.Column + ")");
                 }
                 return canIWinHere;
             }
@@ -282,15 +287,19 @@ namespace Players.Minimax.List
             if (hex != null)
             {
                 board.TakeHex(Opponent(), hex.Row, hex.Column);
-                var canILoseHere = IsWinningScore(Opponent());
+                var canILoseHere = IsWinningMove(Opponent());
                 board.ReleaseHex(hex.Row, hex.Column);
+                if (canILoseHere)
+                {
+                    Quip("Bleh, THEY can win if they get here (" + hex.Row + ", " + hex.Column + ")");
+                }
                 return canILoseHere;
             }
 
             return false;
         }
 
-        private bool IsWinningScore(PlayerType player)
+        private bool IsWinningMove(PlayerType player)
         {
             var start = player == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
             var end = player == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;

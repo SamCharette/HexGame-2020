@@ -125,6 +125,8 @@ namespace WindowsGame
             _referee.Player1.RelayInformation += PerformanceInformationRelayed;
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
             _referee.Player2.RelayInformation += PerformanceInformationRelayed;
+            player1Metrics.Text = "";
+            player2Metrics.Text = "";
             StartGame();
         }
 

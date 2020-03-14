@@ -105,7 +105,7 @@ namespace Players.Base
             return choice;
         }
 
-        public BaseNode JustGetARandomHex()
+        public virtual BaseNode JustGetARandomHex()
         {
             var openNodes = _memory.Where(x => x.Owner == 0);
             System.Threading.Thread.Sleep(WaitTime);

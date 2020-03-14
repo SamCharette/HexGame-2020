@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using WindowsGame.Hexagonal;
@@ -40,6 +42,10 @@ namespace WindowsGame
         private Int64 preTurnTotalMillisecondsPlayer2 = 0;
         private DateTime gameStartTime;
         private Stopwatch playerTurnTimer;
+        private int gamesPlayed = 0;
+        private int blueWins = 0;
+        private int redWins = 0;
+        private string currentGameSaveDirectory;
 
         public Game()
         {
@@ -75,7 +81,12 @@ namespace WindowsGame
                 count++;
             }
 
-            textBoxHexBoardSize.Text = @"11";
+            textBoxHexBoardSize.Text = @"8";
+            numberOfGamesToPlay.Text = @"1";
+            lblGamesPlayed.Text = "Games Played: ";
+            lblBlueWIns.Text = "Blue Wins: ";
+            lblRedWins.Text = "Red Wins: ";
+
 
         }
         public void PerformanceInformationRelayed(object sender, EventArgs args)
@@ -115,7 +126,7 @@ namespace WindowsGame
             }
 
         }
-        public void Play()
+        public async Task Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
             //_referee.GameOver += GameOver;
@@ -125,11 +136,13 @@ namespace WindowsGame
             _referee.Player1.RelayInformation += PerformanceInformationRelayed;
             _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
             _referee.Player2.RelayInformation += PerformanceInformationRelayed;
-            StartGame();
+            player1Metrics.Text = "";
+            player2Metrics.Text = "";
+            await StartGame();
         }
 
 
-        public async void StartGame()
+        public async Task StartGame()
         {
             gameStartTime = DateTime.Now;
 
@@ -139,6 +152,10 @@ namespace WindowsGame
             loadGameToolStripMenuItem.Enabled = false;
             reloadConfigurationToolStripMenuItem.Enabled = false;
             _playThrough = new List<Bitmap>();
+            totalMillisecondsPlayer1 = 0;
+            totalMillisecondsPlayer1 = 0;
+            preTurnTotalMillisecondsPlayer1 = 0;
+            preTurnTotalMillisecondsPlayer2 = 0;
 
             _board = new Board(boardSize,
                 boardSize,
@@ -256,9 +273,15 @@ namespace WindowsGame
       
                 this.Refresh();
                 _playThrough.Add(_graphicsEngine.CreateImage());
-                buttonTestBoard.Enabled = true;
-                
-                MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
+                if (_referee.WinningPlayer.PlayerNumber == 1)
+                {
+                    blueWins++;
+                }
+                else
+                {
+                    redWins++;
+                }
+                //MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
             }
             catch (Exception e)
             {
@@ -266,9 +289,7 @@ namespace WindowsGame
                 Console.WriteLine("No winner today!");
 
             }
-            saveGameToolStripMenuItem.Enabled = true;
-            loadGameToolStripMenuItem.Enabled = true;
-            reloadConfigurationToolStripMenuItem.Enabled = true;
+         
         }
 
         private void UpdateTimerValues()
@@ -359,7 +380,7 @@ namespace WindowsGame
 
         private void MakeGif(List<Bitmap> frames, string fileName)
         {
-            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 175))
+            using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 450))
             {
                 var lastFrame = frames.FirstOrDefault();
                 gif.AddFrame(lastFrame, 750, GifQuality.Bit8);
@@ -409,8 +430,11 @@ namespace WindowsGame
             }
         }
 
-        private void buttonTestBoard_Click(object sender, EventArgs e)
+        private async void buttonTestBoard_Click(object sender, EventArgs e)
         {
+            gamesPlayed = 0;
+            redWins = 0;
+            blueWins = 0;
             if (textBoxHexBoardSize.Text == "")
             {
                 //Check to see if entered size fits a 1080p window.
@@ -425,15 +449,56 @@ namespace WindowsGame
                 return;
             }
             // calc width & height based on board size
- //           Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
- //           Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
+            //           Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
+            //           Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
 
             //center the window after resize
-//            CenterToScreen();
+            //            CenterToScreen();
 
-            Play();
+            currentGameSaveDirectory = Directory.GetCurrentDirectory() + "\\GameSaves\\" + DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss");
+            if (!Directory.Exists(currentGameSaveDirectory))
+            {
+                Directory.CreateDirectory(currentGameSaveDirectory);
+            }
+            UpdateGameWins();
+            var numberOfGames = Convert.ToInt32(numberOfGamesToPlay.Text);
+            for (var i = 0; i < numberOfGames; i++)
+            {
+                await Play();
+                gamesPlayed++;
+                SaveGame(currentGameSaveDirectory + "\\" + gamesPlayed + ".xml");
+                UpdateGameWins();
+                ClearUpData();
+                if (i < numberOfGames - 1)
+                {
+                    await Task.Delay(2500);
+                }
+            }
+
+            var isTie = blueWins == redWins;
+
+            var overallWinner = isTie ? "It's a tie!" : blueWins > redWins ? "Blue wins!" : "Red wins!";
+            MessageBox.Show(overallWinner);
+            saveGameToolStripMenuItem.Enabled = true;
+            loadGameToolStripMenuItem.Enabled = true;
+            reloadConfigurationToolStripMenuItem.Enabled = true;
+            buttonTestBoard.Enabled = true;
+
         }
 
+        private void ClearUpData()
+        {
+           
+            _referee = null;
+        }
+
+        private void UpdateGameWins()
+        {
+            lblGamesPlayed.Text = "Games Played: " + gamesPlayed;
+            lblBlueWIns.Text = "Blue Wins: " + blueWins;
+            lblRedWins.Text = "Red Wins: " + redWins;
+            Refresh();
+        }
 
         private void Form_MouseClick(object sender, MouseEventArgs e)
         {
@@ -551,46 +616,51 @@ namespace WindowsGame
             // Save the game and the moves.
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                using (var writer = XmlWriter.Create(saveFileDialog1.FileName))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("Match");
-                    writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
-                    writer.WriteElementString("Size", textBoxHexBoardSize.Text);
-                    writer.WriteStartElement("Players");
-                    writer.WriteStartElement("Player");
-                    writer.WriteElementString("Type", _referee.Player1.GetType().Name);
-                    writer.WriteElementString("Number", "1");
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Player");
-                    writer.WriteElementString("Type", _referee.Player2.GetType().Name);
-                    writer.WriteElementString("Number", "2");
-                    writer.WriteEndElement();
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Moves");
-                    var moveNumber = 1;
-                    foreach (var move in _referee.AllGameMoves)
-                    {
-                        writer.WriteStartElement("Move");
-                        writer.WriteElementString("Number", moveNumber.ToString());
-                        writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
-                        writer.WriteElementString("X", move.hex.Item1.ToString());
-                        writer.WriteElementString("Y", move.hex.Item2.ToString());
-                        writer.WriteEndElement();
-                        moveNumber++;
-                    }
-
-                    writer.WriteEndElement();
-                    writer.WriteEndElement();
-                    writer.WriteEndDocument();
-                    writer.Flush();
-                }
-
-                MakeGif(_playThrough, saveFileDialog1.FileName);
+                SaveGame(saveFileDialog1.FileName);
 
 
                 saveGameToolStripMenuItem.Enabled = false;
             }
+        }
+
+        private void SaveGame(string fileName)
+        {
+            using (var writer = XmlWriter.Create(fileName))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Match");
+                writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                writer.WriteElementString("Size", textBoxHexBoardSize.Text);
+                writer.WriteStartElement("Players");
+                writer.WriteStartElement("Player");
+                writer.WriteElementString("Type", _referee.Player1.GetType().Name);
+                writer.WriteElementString("Number", "1");
+                writer.WriteEndElement();
+                writer.WriteStartElement("Player");
+                writer.WriteElementString("Type", _referee.Player2.GetType().Name);
+                writer.WriteElementString("Number", "2");
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.WriteStartElement("Moves");
+                var moveNumber = 1;
+                foreach (var move in _referee.AllGameMoves)
+                {
+                    writer.WriteStartElement("Move");
+                    writer.WriteElementString("Number", moveNumber.ToString());
+                    writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
+                    writer.WriteElementString("X", move.hex.Item1.ToString());
+                    writer.WriteElementString("Y", move.hex.Item2.ToString());
+                    writer.WriteEndElement();
+                    moveNumber++;
+                }
+
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            MakeGif(_playThrough, fileName);
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -602,6 +672,11 @@ namespace WindowsGame
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

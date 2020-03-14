@@ -1,198 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Net.Mail;
-using System.Runtime.CompilerServices;
-using System.Text;
 using Players.Common;
-using Players.Minimax.List;
 
 namespace Players.Minimax.List
 {
-
     public class ListMap
     {
-        public int Size;
-        public List<ListNode> Board;
-        public ListNode Top;
-        public ListNode Bottom;
-        public ListNode Left;
-        public ListNode Right;
-
-        public ListMap()
-        {
-
-        }
-
-
+        public int Size { get; set; }
+        public List<ListHex> Board { get; set; }
+        public ListHex Top { get; set; }
+        public ListHex Bottom { get; set; }
+        public ListHex Left { get; set; }
+        public ListHex Right { get; set; }
 
         public ListMap(int size)
         {
+            Reset(size);
+        }
+
+        public bool TakeHex(Common.PlayerType player, int row, int column)
+        {
+            var hexToTake =
+                Board.FirstOrDefault(x => x.Row == row 
+                                          && x.Column == column 
+                                          && x.Owner == PlayerType.White);
+            if (hexToTake == null)
+            {
+                return false;
+            }
+            hexToTake.Owner = player;
+            var neighbours = GetFriendlyPhysicalNeighbours(hexToTake);
+            foreach (var neighbour in neighbours)
+            {
+                AttachAllFriendlyNeighbours(hexToTake, neighbour);
+            }
+
+            return true;
+        }
+
+        public bool ReleaseHex(int row, int column)
+        {
+            var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);
+            if (hexToRelease != null)
+            {
+                Board.ForEach(x => DetachHexes(x, hexToRelease));
+                hexToRelease.Owner = PlayerType.White;
+                return true;
+            }
+            return false;
+        }
+
+        public void Reset(int size)
+        {
             Size = size;
-            Board = new List<ListNode>(Size * Size);
-            // Make the nodes
-            Top = new ListNode(Size, -10, -10);
-            Top.Location = NodeLocation.Top;
-            Bottom = new ListNode(Size, 1000, 1000);
-            Bottom.Location = NodeLocation.Bottom;
-            Left = new ListNode(Size, -20, -20);
-            Left.Location = NodeLocation.Left;
-            Right = new ListNode(Size, 2000, 2000);
-            Right.Location = NodeLocation.Right;
-
-            for (var column = 0; column < Size; column++)
+            Board = new List<ListHex> ();
+            for (var row = 0; row < Size; row++)
             {
-
-                for (var row = 0; row < Size; row++)
+                for (var column = 0; column < Size; column++)
                 {
-                    var newNode = new ListNode(Size, row, column);
-                    if (column == 0)
-                    {
-                        AttachToEachOther(newNode, Left);
-                    }
-
-                    if (column == Size - 1)
-                    {
-                        AttachToEachOther(newNode, Right);
-                    }
-
-                    if (row == 0)
-                    {
-                        AttachToEachOther(newNode, Top);
-                    }
-
-                    if (row == Size - 1)
-                    {
-                        AttachToEachOther(newNode, Bottom);
-                    }
-
-                    Board.Add(newNode);
-                }
-
-                // Now go through the main nodes and attach all neighbours
-                foreach (var node in Board)
-                {
-                    // Get and set adjacencies with neighbours
-                    for (var i = 0; i < 6; i++)
-                    {
-                        var delta = Directions[(AxialDirections)i];
-                        var neighbourNode =
-                            Board.FirstOrDefault(x => x.Row == node.Row + delta.Item1
-                                                      && x.Column == node.Column + delta.Item2);
-
-                        if (neighbourNode != null)
-                        {
-                            AttachToEachOther(node, neighbourNode);
-                        }
-
-                    }
-                }
-                ClearPathValues();
-            }
-            Top.PingNeighbours();
-            Bottom.PingNeighbours();
-            Left.PingNeighbours();
-            Right.PingNeighbours();
-        }
-        
-
-    
-
-
-        public void AttachToEachOther(ListNode a, ListNode b)
-        {
-            a.AttachTo(b);
-            b.AttachTo(a);
-        }
-
-        public void DetachFromEachOther(ListNode a, ListNode b)
-        {
-            a.DetachFrom(b);
-            b.DetachFrom(a);
-        }
-
-        public ListMap(ListMap mapToClone)
-        {
-            Size = mapToClone.Size;
-            Top = new ListNode(mapToClone.Top);
-            Bottom = new ListNode(mapToClone.Bottom);
-            Left = new ListNode(mapToClone.Left);
-            Right = new ListNode(mapToClone.Right);
-
-            Board = new List<ListNode>(Size * Size);
-            foreach (var node in mapToClone.Board)
-            {
-                var newNode = new ListNode(node);
-                Board.Add(newNode);
-            }
-            foreach (var node in mapToClone.Board)
-            {
-                var clonedNode = Board.FirstOrDefault(x => x.Row == node.Row 
-                                                           && x.Column == node.Column);
-
-                foreach (var adjacentNode in node.Neighbours)
-                {
-                    var adjacentClonedNode =
-                        Board.FirstOrDefault(x => x.Row == adjacentNode.Row 
-                                                  && x.Column == adjacentNode.Column);
-                    if (clonedNode != null && adjacentClonedNode != null)
-                    {
-                        AttachToEachOther(clonedNode, adjacentClonedNode);
-                    }
-                    else
-                    {
-                        if (adjacentNode.Row == -10 && adjacentNode.Column == -10)
-                        {
-                            AttachToEachOther(clonedNode, Top);
-                        }
-                        if (adjacentNode.Row == -20 && adjacentNode.Column == -20)
-                        {
-                            AttachToEachOther(clonedNode, Left);
-                        }
-                        if (adjacentNode.Row == 1000 && adjacentNode.Column == 1000)
-                        {
-                            AttachToEachOther(clonedNode, Bottom);
-                        }
-                        if (adjacentNode.Row == 2000 && adjacentNode.Column == 2000)
-                        {
-                            AttachToEachOther(clonedNode, Right);
-                        }
-                    }
+                    var hex = new ListHex(Size, row, column);
+                    Board.Add(hex);
                 }
             }
-        }
-
-        public void ClearPathValues()
-        {
-            foreach (var node in Board)
-            {
-               
-                node.G = 0;
-                node.H = 0;
-                node.Status = Status.Untested;
-
-            }
-
-            Top.Status = Status.Untested;
-            Top.G = 0;
-            Top.H = 0;
+            Top = new ListHex(Size, -1, -1);
+            Top.HexName = "Top";
             Top.Owner = PlayerType.Blue;
-            Bottom.Status = Status.Untested;
-            Bottom.G = 0;
-            Bottom.H = 0;
+            Bottom = new ListHex(Size, Size * 2, Size * 2 );
+            Bottom.HexName = "Bottom";
             Bottom.Owner = PlayerType.Blue;
-
-            Left.Status = Status.Untested;
-            Left.G = 0;
-            Left.H = 0;
+            Left = new ListHex(Size, -2, -2);
+            Left.HexName = "Left";
             Left.Owner = PlayerType.Red;
-            Right.Status = Status.Untested;
-            Right.G = 0;
-            Right.H = 0;
+            Right = new ListHex(Size, Size * 3, Size * 3);
+            Right.HexName = "Right";
             Right.Owner = PlayerType.Red;
-        }
 
+            
+        }
+        public void CleanPathingVariables()
+        {
+            foreach (var hex in Board)
+            {
+                hex.ClearPathingVariables();
+            }
+        }
         public Dictionary<AxialDirections, Tuple<int, int>> Directions = new Dictionary<AxialDirections, Tuple<int, int>>()
         {
             { AxialDirections.TopLeft, new Tuple<int, int>(0, -1) },
@@ -203,96 +95,155 @@ namespace Players.Minimax.List
             { AxialDirections.Left, new Tuple<int, int>(-1, 0) }
         };
 
-
-
-        public bool TakeHex(Common.PlayerType owner, int row, int column)
+        public List<ListHex> GetOpenPhysicalNeighbours(ListHex a)
         {
-            var node = Board.FirstOrDefault(x =>
-                x.Row == row && x.Column == column && x.Owner == Common.PlayerType.White);
-            if (node == null)
-            {
-                return false;
-            }
+            return GetPhysicalNeighbours(a).Where(x => x.Owner == PlayerType.White).ToList();
 
-            node.Owner = owner;
-            var neighboursToUpdate = FriendlyNeighboursOf(node);
-            foreach (var neighbour in neighboursToUpdate)
-            {
-                AttachNeighboursFrom(node, neighbour);
-            }
-            node.PingNeighbours();
-
-            return true;
         }
+        public List<ListHex> GetTraversablePhysicalNeighbours(ListHex a, Common.PlayerType player)
+        {
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            return GetPhysicalNeighbours(a).Where(x => x.Owner != opponent).ToList();
 
-        public void AttachNeighboursFrom(ListNode source, ListNode current)
-        {
-            var friendlyNeighbours = FriendlyNeighboursOf(current);
-            var notAddedYet =
-                friendlyNeighbours.Where(x =>
-                    !source.Neighbours.Any(y => y.Row == x.Row && y.Column == x.Column));
-            foreach (var node in notAddedYet)
-            {
-                AttachToEachOther(source, node);
-                AttachNeighboursFrom(source, node);
-            }
         }
+        public List<ListHex> GetFriendlyPhysicalNeighbours(ListHex a)
+        {
+            return GetPhysicalNeighbours(a).Where(x => x.Owner == a.Owner).ToList();
+        }
+        public List<ListHex> GetPhysicalNeighbours(ListHex a)
+        {
+            if (a == Top)
+            {
+                return Board.Where(x => x.Row == 0).ToList();
+            }
 
-        public void ReleaseHex(int row, int column)
-        {
-            var node = Board.FirstOrDefault(x =>
-                x.Row == row && x.Column == column);
-            if (node != null)
+            if (a == Bottom)
             {
-                node.Owner = PlayerType.White;
-                node.PingNeighbours(false);
-                foreach (var hex in Board)
-                {
-                    DetachFromEachOther(hex, node);
-                }
+                return Board.Where(x => x.Row == Size - 1).ToList();
             }
-        }
 
-        public List<ListNode> FriendlyNeighboursOf(ListNode node)
-        {
-            if (node != null)
+            if (a == Left)
             {
-                return PhysicalNeighboursOf(node).Where(x => x.Owner == node.Owner).ToList();
+                return Board.Where(x => x.Column == 0).ToList();
             }
-            return new List<ListNode>();
-        }
-        public List<ListNode> PhysicalNeighboursOf(ListNode node)
-        {
-            var physicalNeighbours = new List<ListNode>();
-            for (int i = 0; i < 6; i++)
+
+            if (a == Right)
+            {
+                return Board.Where(x => x.Column == Size - 1).ToList();
+            }
+            var physicalNeighbours = new List<ListHex>();
+            for (var i = 0; i < 6; i++)
             {
                 var delta = Directions[(AxialDirections) i];
-                var possibleNeighbour = Board.FirstOrDefault(x =>
-                    x.Row == node.Row + delta.Item1 && x.Column == node.Column + delta.Item2);
+                var possibleNeighbour =
+                    Board.FirstOrDefault(x => x.Row == a.Row + delta.Item1 && x.Column == a.Column + delta.Item2);
                 if (possibleNeighbour != null)
                 {
                     physicalNeighbours.Add(possibleNeighbour);
                 }
             }
 
-            // Now add the exterior neighbours if they are there
-            //if (node.IsNeighboursWith(Top))
-            //{
-            //    physicalNeighbours.Add(Top);
-            //}
-            //if (node.IsNeighboursWith(Bottom))
-            //{
-            //    physicalNeighbours.Add(Bottom);
-            //}
-            //if (node.IsNeighboursWith(Left))
-            //{
-            //    physicalNeighbours.Add(Left);
-            //}
-            //if (node.IsNeighboursWith(Right))
-            //{
-            //    physicalNeighbours.Add(Right);
-            //}
+            if (IsHexAtTop(a))
+            {
+                physicalNeighbours.Add(Top);
+            }
+            if (IsHexAtBottom(a))
+            {
+                physicalNeighbours.Add(Bottom);
+            }
+            if (IsHexAtLeft(a))
+            {
+                physicalNeighbours.Add(Left);
+            }
+            if (IsHexAtRight(a))
+            {
+                physicalNeighbours.Add(Right);
+            }
+
             return physicalNeighbours;
         }
+
+        public bool IsHexAtTop(ListHex a)
+        {
+            return a.Row == 0;
+        }
+        public bool IsHexAtBottom(ListHex a)
+        {
+            return a.Row == Size - 1;
+        }
+        public bool IsHexAtLeft(ListHex a)
+        {
+            return a.Column == 0;
+        }
+        public bool IsHexAtRight(ListHex a)
+        {
+            return a.Column == Size - 1;
+        }
+        public bool AreFriendlyNeighbours(ListHex a, ListHex b)
+        {
+            return a.Owner == b.Owner && ArePhysicalNeighbours(a, b);
+        }
+
+        public bool ArePhysicalNeighbours(ListHex a, ListHex b)
+        {
+            // First check to see if they are next to the ends
+            if (a == Top && b.Row == 0 || a.Row == 0 && b == Top)
+            {
+                return true;
+            }
+            if (a == Left && b.Column == 0 || a.Column == 0 && b == Left)
+            {
+                return true;
+            }
+            if (a == Bottom && b.Row == Size - 1 || a.Row == Size - 1 && b == Bottom)
+            {
+                return true;
+            }
+            if (a == Right && b.Column == Size - 1 || a.Column == Size - 1 && b == Right)
+            {
+                return true;
+            }
+
+            // Otherwise, check the physical neighbours via direction
+            for (var i = 0; i < 6; i++)
+            {
+                var delta = Directions[(AxialDirections) i];
+                var newLocation = new Tuple<int, int>(a.Row + delta.Item1, a.Column + delta.Item2);
+                if (newLocation.Item1 >= 0 && newLocation.Item1 < Size && newLocation.Item2 >= 0 && newLocation.Item2 < Size)
+                {
+                    if (newLocation.Item1 == b.Row && newLocation.Item2 == b.Column)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
+        {
+            if (a.Owner == b.Owner)
+            {
+                AttachHexes(a, b);
+                foreach (var node in b.Attached.Where(x => x.Owner == a.Owner))
+                {
+                    AttachHexes(a, node);
+                }
+            }
+        }
+
+        
+        public void AttachHexes(ListHex a, ListHex b)
+        {
+            a.AttachTo(b);
+            b.AttachTo(a);
+        }
+
+        public void DetachHexes(ListHex a, ListHex b)
+        {
+            a.DetachFrom(b);
+            b.DetachFrom(a);
+        }
+
     }
 }

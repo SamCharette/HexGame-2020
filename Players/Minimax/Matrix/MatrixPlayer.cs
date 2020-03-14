@@ -4,7 +4,6 @@ using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using Players.Base;
 using Players.Common;
-using Players.Minimax.List;
 
 namespace Players.Minimax.Matrix
 {

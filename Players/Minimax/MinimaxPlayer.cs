@@ -10,6 +10,24 @@ namespace Players.Minimax
     {
         public PlayerType Me;
         public int Size;
+
+        protected const int AbsoluteWorst = -9999;
+        protected const int AbsoluteBest = 9999;
+        protected const string MovesExamined = "Total Moves Examined";
+        protected const string MovesExaminedThisTurn = "Moves Examined This Turn";
+        protected const string CurrentScore = "Current Score";
+        protected const string AverageTimeToDecision = "Average time to decision";
+        protected const string TotalTimeThinking = "Total time thinking";
+        protected const string NumberOfRandomMoves = "# of random moves";
+        protected const string NumberOfPlannedMoves = "# of planned moves";
+        protected const string NumberOfNodesChecked = "Nodes Checked";
+        protected const string NumberOfPrunesMade = "Prunes Made";
+
+        public int MaxLevels { get; set; }
+        public int CostToMoveToClaimedNode { get; set; }
+        public int CostToMoveToUnclaimedNode { get; set; }
+        public int CostPerNodeTillEnd { get; set; }
+
         public MinimaxPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             PlayerNumber = playerNumber;

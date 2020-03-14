@@ -45,6 +45,7 @@ namespace WindowsGame
         private int gamesPlayed = 0;
         private int blueWins = 0;
         private int redWins = 0;
+        private string currentGameSaveDirectory;
 
         public Game()
         {
@@ -453,12 +454,19 @@ namespace WindowsGame
 
             //center the window after resize
             //            CenterToScreen();
+
+            currentGameSaveDirectory = Directory.GetCurrentDirectory() + "\\GameSaves\\" + DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss");
+            if (!Directory.Exists(currentGameSaveDirectory))
+            {
+                Directory.CreateDirectory(currentGameSaveDirectory);
+            }
             UpdateGameWins();
             var numberOfGames = Convert.ToInt32(numberOfGamesToPlay.Text);
             for (var i = 0; i < numberOfGames; i++)
             {
                 await Play();
                 gamesPlayed++;
+                SaveGame(currentGameSaveDirectory + "\\" + gamesPlayed + ".xml");
                 UpdateGameWins();
                 ClearUpData();
                 if (i < numberOfGames - 1)
@@ -608,46 +616,51 @@ namespace WindowsGame
             // Save the game and the moves.
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                using (var writer = XmlWriter.Create(saveFileDialog1.FileName))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("Match");
-                    writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
-                    writer.WriteElementString("Size", textBoxHexBoardSize.Text);
-                    writer.WriteStartElement("Players");
-                    writer.WriteStartElement("Player");
-                    writer.WriteElementString("Type", _referee.Player1.GetType().Name);
-                    writer.WriteElementString("Number", "1");
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Player");
-                    writer.WriteElementString("Type", _referee.Player2.GetType().Name);
-                    writer.WriteElementString("Number", "2");
-                    writer.WriteEndElement();
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Moves");
-                    var moveNumber = 1;
-                    foreach (var move in _referee.AllGameMoves)
-                    {
-                        writer.WriteStartElement("Move");
-                        writer.WriteElementString("Number", moveNumber.ToString());
-                        writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
-                        writer.WriteElementString("X", move.hex.Item1.ToString());
-                        writer.WriteElementString("Y", move.hex.Item2.ToString());
-                        writer.WriteEndElement();
-                        moveNumber++;
-                    }
-
-                    writer.WriteEndElement();
-                    writer.WriteEndElement();
-                    writer.WriteEndDocument();
-                    writer.Flush();
-                }
-
-                MakeGif(_playThrough, saveFileDialog1.FileName);
+                SaveGame(saveFileDialog1.FileName);
 
 
                 saveGameToolStripMenuItem.Enabled = false;
             }
+        }
+
+        private void SaveGame(string fileName)
+        {
+            using (var writer = XmlWriter.Create(fileName))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Match");
+                writer.WriteElementString("Date", DateTime.Now.ToShortDateString());
+                writer.WriteElementString("Size", textBoxHexBoardSize.Text);
+                writer.WriteStartElement("Players");
+                writer.WriteStartElement("Player");
+                writer.WriteElementString("Type", _referee.Player1.GetType().Name);
+                writer.WriteElementString("Number", "1");
+                writer.WriteEndElement();
+                writer.WriteStartElement("Player");
+                writer.WriteElementString("Type", _referee.Player2.GetType().Name);
+                writer.WriteElementString("Number", "2");
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.WriteStartElement("Moves");
+                var moveNumber = 1;
+                foreach (var move in _referee.AllGameMoves)
+                {
+                    writer.WriteStartElement("Move");
+                    writer.WriteElementString("Number", moveNumber.ToString());
+                    writer.WriteElementString("Player", move.player.PlayerNumber.ToString());
+                    writer.WriteElementString("X", move.hex.Item1.ToString());
+                    writer.WriteElementString("Y", move.hex.Item2.ToString());
+                    writer.WriteEndElement();
+                    moveNumber++;
+                }
+
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            MakeGif(_playThrough, fileName);
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)

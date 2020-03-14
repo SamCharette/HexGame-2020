@@ -64,12 +64,16 @@ namespace Players.Minimax.List
                 }
             }
             Top = new ListHex(Size, -1, -1);
+            Top.HexName = "Top";
             Top.Owner = PlayerType.Blue;
             Bottom = new ListHex(Size, Size * 2, Size * 2 );
+            Bottom.HexName = "Bottom";
             Bottom.Owner = PlayerType.Blue;
             Left = new ListHex(Size, -2, -2);
+            Left.HexName = "Left";
             Left.Owner = PlayerType.Red;
-            Right = new ListHex(Size, Size * 2, Size * 2);
+            Right = new ListHex(Size, Size * 3, Size * 3);
+            Right.HexName = "Right";
             Right.Owner = PlayerType.Red;
 
             

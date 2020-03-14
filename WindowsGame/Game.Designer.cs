@@ -40,6 +40,11 @@
             this.lblTotalTime = new System.Windows.Forms.Label();
             this.lblBlueTime = new System.Windows.Forms.Label();
             this.lblRedTime = new System.Windows.Forms.Label();
+            this.lblGamesPlayed = new System.Windows.Forms.Label();
+            this.lblBlueWIns = new System.Windows.Forms.Label();
+            this.lblRedWins = new System.Windows.Forms.Label();
+            this.numberOfGamesToPlay = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -164,7 +169,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1213, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1213, 30);
             this.menuStrip1.TabIndex = 23;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -176,7 +181,7 @@
             this.reloadConfigurationToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // saveGameToolStripMenuItem
@@ -212,7 +217,7 @@
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
             this.helpToolStripMenuItem.Text = "Help";
             // 
             // aboutToolStripMenuItem
@@ -275,11 +280,70 @@
             this.lblRedTime.TabIndex = 28;
             this.lblRedTime.Text = "Red Time:";
             // 
+            // lblGamesPlayed
+            // 
+            this.lblGamesPlayed.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblGamesPlayed.AutoSize = true;
+            this.lblGamesPlayed.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGamesPlayed.Location = new System.Drawing.Point(32, 610);
+            this.lblGamesPlayed.Name = "lblGamesPlayed";
+            this.lblGamesPlayed.Size = new System.Drawing.Size(151, 25);
+            this.lblGamesPlayed.TabIndex = 29;
+            this.lblGamesPlayed.Text = "Games Played: ";
+            this.lblGamesPlayed.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // lblBlueWIns
+            // 
+            this.lblBlueWIns.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblBlueWIns.AutoSize = true;
+            this.lblBlueWIns.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBlueWIns.Location = new System.Drawing.Point(382, 610);
+            this.lblBlueWIns.Name = "lblBlueWIns";
+            this.lblBlueWIns.Size = new System.Drawing.Size(112, 25);
+            this.lblBlueWIns.TabIndex = 30;
+            this.lblBlueWIns.Text = "Blue Wins: ";
+            // 
+            // lblRedWins
+            // 
+            this.lblRedWins.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblRedWins.AutoSize = true;
+            this.lblRedWins.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRedWins.Location = new System.Drawing.Point(692, 610);
+            this.lblRedWins.Name = "lblRedWins";
+            this.lblRedWins.Size = new System.Drawing.Size(108, 25);
+            this.lblRedWins.TabIndex = 31;
+            this.lblRedWins.Text = "Red Wins: ";
+            // 
+            // numberOfGamesToPlay
+            // 
+            this.numberOfGamesToPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.numberOfGamesToPlay.Location = new System.Drawing.Point(970, 558);
+            this.numberOfGamesToPlay.Margin = new System.Windows.Forms.Padding(4);
+            this.numberOfGamesToPlay.Name = "numberOfGamesToPlay";
+            this.numberOfGamesToPlay.Size = new System.Drawing.Size(108, 22);
+            this.numberOfGamesToPlay.TabIndex = 32;
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(967, 538);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(65, 17);
+            this.label1.TabIndex = 33;
+            this.label1.Text = "# Games";
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1213, 676);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.numberOfGamesToPlay);
+            this.Controls.Add(this.lblRedWins);
+            this.Controls.Add(this.lblBlueWIns);
+            this.Controls.Add(this.lblGamesPlayed);
             this.Controls.Add(this.lblRedTime);
             this.Controls.Add(this.lblBlueTime);
             this.Controls.Add(this.lblTotalTime);
@@ -337,5 +401,10 @@
         private System.Windows.Forms.Label lblTotalTime;
         private System.Windows.Forms.Label lblBlueTime;
         private System.Windows.Forms.Label lblRedTime;
+        private System.Windows.Forms.Label lblGamesPlayed;
+        private System.Windows.Forms.Label lblBlueWIns;
+        private System.Windows.Forms.Label lblRedWins;
+        private System.Windows.Forms.TextBox numberOfGamesToPlay;
+        private System.Windows.Forms.Label label1;
     }
 }

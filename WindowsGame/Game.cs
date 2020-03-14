@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using WindowsGame.Hexagonal;
@@ -40,6 +42,9 @@ namespace WindowsGame
         private Int64 preTurnTotalMillisecondsPlayer2 = 0;
         private DateTime gameStartTime;
         private Stopwatch playerTurnTimer;
+        private int gamesPlayed = 0;
+        private int blueWins = 0;
+        private int redWins = 0;
 
         public Game()
         {
@@ -75,7 +80,12 @@ namespace WindowsGame
                 count++;
             }
 
-            textBoxHexBoardSize.Text = @"11";
+            textBoxHexBoardSize.Text = @"8";
+            numberOfGamesToPlay.Text = @"1";
+            lblGamesPlayed.Text = "Games Played: ";
+            lblBlueWIns.Text = "Blue Wins: ";
+            lblRedWins.Text = "Red Wins: ";
+
 
         }
         public void PerformanceInformationRelayed(object sender, EventArgs args)
@@ -115,7 +125,7 @@ namespace WindowsGame
             }
 
         }
-        public void Play()
+        public async Task Play()
         {
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
             //_referee.GameOver += GameOver;
@@ -127,11 +137,11 @@ namespace WindowsGame
             _referee.Player2.RelayInformation += PerformanceInformationRelayed;
             player1Metrics.Text = "";
             player2Metrics.Text = "";
-            StartGame();
+            await StartGame();
         }
 
 
-        public async void StartGame()
+        public async Task StartGame()
         {
             gameStartTime = DateTime.Now;
 
@@ -262,9 +272,15 @@ namespace WindowsGame
       
                 this.Refresh();
                 _playThrough.Add(_graphicsEngine.CreateImage());
-                buttonTestBoard.Enabled = true;
-                
-                MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
+                if (_referee.WinningPlayer.PlayerNumber == 1)
+                {
+                    blueWins++;
+                }
+                else
+                {
+                    redWins++;
+                }
+                //MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
             }
             catch (Exception e)
             {
@@ -272,9 +288,7 @@ namespace WindowsGame
                 Console.WriteLine("No winner today!");
 
             }
-            saveGameToolStripMenuItem.Enabled = true;
-            loadGameToolStripMenuItem.Enabled = true;
-            reloadConfigurationToolStripMenuItem.Enabled = true;
+         
         }
 
         private void UpdateTimerValues()
@@ -415,8 +429,11 @@ namespace WindowsGame
             }
         }
 
-        private void buttonTestBoard_Click(object sender, EventArgs e)
+        private async void buttonTestBoard_Click(object sender, EventArgs e)
         {
+            gamesPlayed = 0;
+            redWins = 0;
+            blueWins = 0;
             if (textBoxHexBoardSize.Text == "")
             {
                 //Check to see if entered size fits a 1080p window.
@@ -431,15 +448,49 @@ namespace WindowsGame
                 return;
             }
             // calc width & height based on board size
- //           Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
- //           Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
+            //           Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
+            //           Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
 
             //center the window after resize
-//            CenterToScreen();
+            //            CenterToScreen();
+            UpdateGameWins();
+            var numberOfGames = Convert.ToInt32(numberOfGamesToPlay.Text);
+            for (var i = 0; i < numberOfGames; i++)
+            {
+                await Play();
+                gamesPlayed++;
+                UpdateGameWins();
+                ClearUpData();
+                if (i < numberOfGames - 1)
+                {
+                    await Task.Delay(2500);
+                }
+            }
 
-            Play();
+            var isTie = blueWins == redWins;
+
+            var overallWinner = isTie ? "It's a tie!" : blueWins > redWins ? "Blue wins!" : "Red wins!";
+            MessageBox.Show(overallWinner);
+            saveGameToolStripMenuItem.Enabled = true;
+            loadGameToolStripMenuItem.Enabled = true;
+            reloadConfigurationToolStripMenuItem.Enabled = true;
+            buttonTestBoard.Enabled = true;
+
         }
 
+        private void ClearUpData()
+        {
+           
+            _referee = null;
+        }
+
+        private void UpdateGameWins()
+        {
+            lblGamesPlayed.Text = "Games Played: " + gamesPlayed;
+            lblBlueWIns.Text = "Blue Wins: " + blueWins;
+            lblRedWins.Text = "Red Wins: " + redWins;
+            Refresh();
+        }
 
         private void Form_MouseClick(object sender, MouseEventArgs e)
         {
@@ -608,6 +659,11 @@ namespace WindowsGame
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

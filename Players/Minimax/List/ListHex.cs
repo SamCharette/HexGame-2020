@@ -15,9 +15,28 @@ namespace Players.Minimax.List
         public int H { get; set; }
         public Common.PlayerType Owner { get;set; }
         public Status Status { get; set; }
-        
+        private string _hexName;
+
+        public string HexName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hexName))
+                {
+                    return "(" + Row + "," + Column + ")";
+                }
+
+                return _hexName;
+            }
+            set
+            {
+                _hexName = value;
+            }
+        }
+
         public ListHex Parent;
         public Guid RandomValue;
+
 
         public ListHex(int size, int row, int column)
         {

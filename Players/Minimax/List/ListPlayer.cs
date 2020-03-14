@@ -116,10 +116,6 @@ namespace Players.Minimax.List
                 return ScoreFromBoard();
             }
 
-            if (IsWinningMove(isMaximizing ? Me : Opponent()))
-            {
-                return isMaximizing ? AbsoluteBest : AbsoluteWorst;
-            }
 
             var playerMoves = GetAPathForPlayer(isMaximizing)
                 .Where(x => x.Owner == Common.PlayerType.White).ToList();
@@ -130,8 +126,8 @@ namespace Players.Minimax.List
             var bothLike = playerMoves.Where(x => opponentMoves.Contains(x)).ToList();
 
             possibleMoves.AddRange(bothLike);
-            possibleMoves.AddRange(playerMoves.Where(x => !opponentMoves.Contains(x)));
-            possibleMoves.AddRange(opponentMoves.Where(x => !playerMoves.Contains(x)));
+            possibleMoves.AddRange(playerMoves.Where(x => !bothLike.Contains(x)));
+            possibleMoves.AddRange(opponentMoves.Where(x => !bothLike.Contains(x)));
 
             if (!possibleMoves.Any())
             {
@@ -144,6 +140,12 @@ namespace Players.Minimax.List
 
                 foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                 {
+                    if (IsWinningMove(Me))
+                    {
+                        CurrentChoice = move.ToTuple();
+                        RelayPerformanceInformation();
+                        return AbsoluteBest;
+                    }
                     if (depth == MaxLevels)
                     {
                         RelayPerformanceInformation();
@@ -172,7 +174,11 @@ namespace Players.Minimax.List
                 var bestValue = AbsoluteBest;
                 foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                 {
-
+                    if (IsWinningMove(Opponent()))
+                    {
+                        RelayPerformanceInformation();
+                        return AbsoluteWorst;
+                    }
                     Memory.TakeHex(Opponent(), move.Row, move.Column);
                     bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
                     beta = Math.Min(beta, bestValue);
@@ -264,7 +270,6 @@ namespace Players.Minimax.List
 
         private bool CanIWinWithThisMove(ListHex hex, ListMap board)
         {
-            Quip("Can I win with this move?");
             board = board ?? Memory;
             if (hex != null)
             {

@@ -81,12 +81,26 @@ namespace Players.Minimax.List
         {
             if (IsAttachedTo(node))
             {
+                var beforeCount = Attached.Count();
                 Attached.Remove(node);
+                if (Attached.Count == beforeCount)
+                {
+                    Console.WriteLine("Detachment failed: " + node.HexName + "-" + HexName);
+                }
             }
         }
         public bool IsAttachedTo(ListHex node)
         {
-            return node != null && Attached.Contains(node);
+            if (node != null) 
+            {
+                var nodeToRemove = Attached.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                if (nodeToRemove != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

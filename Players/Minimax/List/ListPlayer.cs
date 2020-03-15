@@ -59,7 +59,7 @@ namespace Players.Minimax.List
             {
                 Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
             }
-
+            
             var turnStartTime = DateTime.Now;
 
             CurrentChoice = null;

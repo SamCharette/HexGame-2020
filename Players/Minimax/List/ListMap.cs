@@ -45,7 +45,12 @@ namespace Players.Minimax.List
             if (hexToRelease != null)
             {
                 Board.ForEach(x => DetachHexes(x, hexToRelease));
+                DetachHexes(hexToRelease, Top);
+                DetachHexes(hexToRelease, Bottom);
+                DetachHexes(hexToRelease, Left);
+                DetachHexes(hexToRelease, Right);
                 hexToRelease.Owner = PlayerType.White;
+
                 return true;
             }
             return false;

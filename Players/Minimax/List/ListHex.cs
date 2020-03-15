@@ -92,6 +92,10 @@ namespace Players.Minimax.List
             H = 0;
             Parent = null;
             var toDetach = Attached.Where(x => x.Owner != Owner).ToList();
+            if (toDetach.Any())
+            {
+                Console.WriteLine(this.ToString() + " detaching " + toDetach.Count() + " items: " + string.Join(", ", toDetach));
+            }
             toDetach.ForEach(DetachFrom);
 
 
@@ -110,10 +114,8 @@ namespace Players.Minimax.List
 
         public void DetachFrom(ListHex node)
         {
-            if (IsAttachedTo(node))
-            {
+         
                 Attached.Remove(node);
-            }
         }
         public bool IsAttachedTo(ListHex node)
         {

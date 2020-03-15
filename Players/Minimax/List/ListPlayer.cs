@@ -63,23 +63,23 @@ namespace Players.Minimax.List
             var turnStartTime = DateTime.Now;
 
             CurrentChoice = null;
-            foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
-            {
-                if (CanIWinWithThisMove(hex, Memory))
-                {
-                    CurrentChoice = hex.ToTuple();
-                    break;
-                }
-                else
-                {
-                    if (CanILoseIfIDontTakeThisHex(hex, Memory))
-                    {
-                        CurrentChoice = hex.ToTuple();
-                        break;
-                    }
-                }
+            //foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
+            //{
+            //    if (CanIWinWithThisMove(hex))
+            //    {
+            //        CurrentChoice = hex.ToTuple();
+            //        break;
+            //    }
+            //    else
+            //    {
+            //        if (CanILoseIfIDontTakeThisHex(hex))
+            //        {
+            //            CurrentChoice = hex.ToTuple();
+            //            break;
+            //        }
+            //    }
 
-            }
+            //}
 
             if (CurrentChoice == null)
             {
@@ -250,14 +250,14 @@ namespace Players.Minimax.List
             return playerScore - opponentScore;
         }
 
-        private bool CanIWinWithThisMove(ListHex hex, ListMap board)
+        private bool CanIWinWithThisMove(ListHex hex)
         {
-            board = board ?? Memory;
+
             if (hex != null)
             {
-                board.TakeHex(Me, hex.Row, hex.Column);
+                Memory.TakeHex(Me, hex.Row, hex.Column);
                 var canIWinHere = IsWinningMove(Me);
-                board.ReleaseHex( hex.Row, hex.Column);
+                Memory.ReleaseHex( hex.Row, hex.Column);
                 if (canIWinHere)
                 {
                     Quip("Yes, I CAN win if I get here (" + hex.Row + ", " + hex.Column + ")");
@@ -268,14 +268,14 @@ namespace Players.Minimax.List
             return false;
         }
 
-        private bool CanILoseIfIDontTakeThisHex(ListHex hex, ListMap board)
+        private bool CanILoseIfIDontTakeThisHex(ListHex hex)
         {
-            board = board ?? Memory;
+           
             if (hex != null)
             {
-                board.TakeHex(Opponent(), hex.Row, hex.Column);
+                Memory.TakeHex(Opponent(), hex.Row, hex.Column);
                 var canILoseHere = IsWinningMove(Opponent());
-                board.ReleaseHex(hex.Row, hex.Column);
+                Memory.ReleaseHex(hex.Row, hex.Column);
                 if (canILoseHere)
                 {
                     Quip("Bleh, THEY can win if they get here (" + hex.Row + ", " + hex.Column + ")");

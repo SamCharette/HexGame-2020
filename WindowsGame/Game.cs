@@ -382,8 +382,8 @@ namespace WindowsGame
         {
             using (var gif = AnimatedGif.AnimatedGif.Create(fileName + ".gif", 450))
             {
-                var lastFrame = frames.FirstOrDefault();
-                gif.AddFrame(lastFrame, 750, GifQuality.Bit8);
+                var lastFrame = frames.LastOrDefault();
+                gif.AddFrame(lastFrame, 0, GifQuality.Bit8);
                 foreach (var frame in frames)
                 {
                     gif.AddFrame(frame, -1, GifQuality.Bit8);
@@ -391,6 +391,7 @@ namespace WindowsGame
                 }
 
                 gif.AddFrame(lastFrame, 1000, GifQuality.Bit8);
+                
             }
         }
 
@@ -464,6 +465,7 @@ namespace WindowsGame
             var numberOfGames = Convert.ToInt32(numberOfGamesToPlay.Text);
             for (var i = 0; i < numberOfGames; i++)
             {
+                ClearUpData();
                 await Play();
                 gamesPlayed++;
                 gameName = _referee.WinningPlayer.Name 
@@ -476,7 +478,6 @@ namespace WindowsGame
                     SaveGame(currentGameSaveDirectory + "\\" + gamesPlayed + "--" + gameName + ".xml");
                 }
                 UpdateGameWins();
-                ClearUpData();
                 if (i < numberOfGames - 1)
                 {
                     await Task.Delay(2500);

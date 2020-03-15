@@ -10,7 +10,7 @@ namespace Players.Minimax.List
     {
         public int Row { get; set; }
         public int Column { get; set; }
-        public List<ListHex> Attached { get; set; }
+        public HashSet<ListHex> Attached { get; set; }
         public int F => G + H;
         public int G { get; set; }
         public int H { get; set; }
@@ -44,7 +44,7 @@ namespace Players.Minimax.List
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
-            Attached = new List<ListHex>();
+            Attached = new HashSet<ListHex>();
             G = 0;
             H = 0;
             Row = row;
@@ -100,7 +100,9 @@ namespace Players.Minimax.List
 
         public void AttachTo(ListHex node)
         {
-            if (node != null && !IsAttachedTo(node) && !Equals(node) && node.Owner == Owner)
+            if (node != null
+                && !Equals(node) 
+                && node.Owner == Owner)
             {
                 Attached.Add(node);
             }
@@ -110,19 +112,15 @@ namespace Players.Minimax.List
         {
             if (IsAttachedTo(node))
             {
-                var beforeCount = Attached.Count();
                 Attached.Remove(node);
-                if (Attached.Count == beforeCount)
-                {
-                    Console.WriteLine("Detachment failed: " + node.HexName + "-" + HexName);
-                }
             }
         }
         public bool IsAttachedTo(ListHex node)
         {
             if (node != null) 
             {
-                var nodeToCheck = Attached.FirstOrDefault(x => Equals(node));
+                var nodeToCheck = Attached
+                    .FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
                 if (nodeToCheck != null)
                 {
                     return true;

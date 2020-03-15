@@ -19,6 +19,10 @@ namespace Players.Minimax.List
             Reset(size);
         }
 
+        public ListHex FindHex(int row, int col)
+        {
+            return FindHex(new Tuple<int, int>(row, col));
+        }
         public ListHex FindHex(Tuple<int, int> coordinates)
         {
             if (coordinates.Item1 == -1)
@@ -38,7 +42,7 @@ namespace Players.Minimax.List
                 return Right;
             }
 
-            var hexOnBoard = Board.FirstOrDefault(x => x.Equals(coordinates));
+            var hexOnBoard = Board.FirstOrDefault(x => x.Row == coordinates.Item1 && x.Column == coordinates.Item2);
 
             return hexOnBoard;
 
@@ -59,6 +63,7 @@ namespace Players.Minimax.List
             foreach (var neighbour in neighbours)
             {
                 AttachAllFriendlyNeighbours(hexToTake, neighbour);
+                AttachAllFriendlyNeighbours(neighbour, hexToTake);
             }
 
             return true;
@@ -249,15 +254,14 @@ namespace Players.Minimax.List
 
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
-            if (a.Owner == b.Owner)
+            AttachHexes(a, b);
+            var friendsOfFriends = 
+                b.Attached.Where(x => x.Owner == a.Owner).ToList();
+            foreach (var node in friendsOfFriends)
             {
-                AttachHexes(a, b);
-                var friendsOfFriends = b.Attached.Where(x => x.Owner == a.Owner).ToList();
-                foreach (var node in friendsOfFriends)
-                {
-                    AttachHexes(a, node);
-                }
+                AttachHexes(a, node);
             }
+            
         }
 
         

@@ -141,12 +141,7 @@ namespace Players.Minimax.List
 
                 foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                 {
-                    if (IsWinningMove(Me))
-                    {
-                        CurrentChoice = move.ToTuple();
-                        RelayPerformanceInformation();
-                        return AbsoluteBest;
-                    }
+       
                     if (depth == MaxLevels)
                     {
                         RelayPerformanceInformation();
@@ -175,11 +170,7 @@ namespace Players.Minimax.List
                 var bestValue = AbsoluteBest;
                 foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                 {
-                    if (IsWinningMove(Opponent()))
-                    {
-                        RelayPerformanceInformation();
-                        return AbsoluteWorst;
-                    }
+                    
                     Memory.TakeHex(Opponent(), move.Row, move.Column);
                     bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
                     beta = Math.Min(beta, bestValue);
@@ -242,15 +233,6 @@ namespace Players.Minimax.List
             var playerScore = 0;
             var opponentScore = 0;
 
-            if (IsWinningMove(Me))
-            {
-                return AbsoluteBest;
-            }
-
-            if (IsWinningMove(Opponent()))
-            {
-                return AbsoluteWorst;
-            }
 
             if (Me == Common.PlayerType.Blue)
             {

@@ -225,7 +225,8 @@ namespace Players.Minimax.List
             if (a.Owner == b.Owner)
             {
                 AttachHexes(a, b);
-                foreach (var node in b.Attached.Where(x => x.Owner == a.Owner))
+                var friendsOfFriends = b.Attached.Where(x => x.Owner == a.Owner).ToList();
+                foreach (var node in friendsOfFriends)
                 {
                     AttachHexes(a, node);
                 }

@@ -70,15 +70,15 @@ namespace Players.Minimax.List
                     CurrentChoice = hex.ToTuple();
                     break;
                 }
-                //    else
-                //    {
-                //        if (CanILoseWithThisMove(hex, Memory))
-                //        {
-                //            CurrentChoice = hex.ToTuple();
-                //            break;
-                //        }
-                //    }
-                
+                else
+                {
+                    if (CanILoseIfIDontTakeThisHex(hex, Memory))
+                    {
+                        CurrentChoice = hex.ToTuple();
+                        break;
+                    }
+                }
+
             }
 
             if (CurrentChoice == null)
@@ -286,7 +286,7 @@ namespace Players.Minimax.List
             return false;
         }
 
-        private bool CanILoseWithThisMove(ListHex hex, ListMap board)
+        private bool CanILoseIfIDontTakeThisHex(ListHex hex, ListMap board)
         {
             board = board ?? Memory;
             if (hex != null)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Players.Common;
 
@@ -61,6 +62,9 @@ namespace Players.Minimax.List
             G = 0;
             H = 0;
             Parent = null;
+            var toDetach = Attached.Where(x => x.Owner != Owner).ToList();
+            toDetach.ForEach(DetachFrom);
+
 
             Status = Status.Untested;
         }

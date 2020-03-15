@@ -448,14 +448,14 @@ namespace WindowsGame
                 MessageBox.Show("Must enter an integer between 5 and 20", "Invalid board size numnuts!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            // calc width & height based on board size
+            //// calc width & height based on board size
             //           Game.ActiveForm.Width = 569 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 60);
             //           Game.ActiveForm.Height = 370 + ((Int32.Parse(textBoxHexBoardSize.Text) - 5) * 38);
 
-            //center the window after resize
+            ////center the window after resize
             //            CenterToScreen();
-
-            currentGameSaveDirectory = Directory.GetCurrentDirectory() + "\\GameSaves\\" + DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss");
+            var gameName = comboBoxPlayer1Type.Text + "-v-" + comboBoxPlayer2Type.Text;
+            currentGameSaveDirectory = Directory.GetCurrentDirectory() + "\\GameSaves\\" +gameName + "-" + DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss");
             if (!Directory.Exists(currentGameSaveDirectory))
             {
                 Directory.CreateDirectory(currentGameSaveDirectory);
@@ -466,7 +466,15 @@ namespace WindowsGame
             {
                 await Play();
                 gamesPlayed++;
-                SaveGame(currentGameSaveDirectory + "\\" + gamesPlayed + ".xml");
+                gameName = _referee.WinningPlayer.Name 
+                               + "-" 
+                               + _referee.LosingPlayer().Name 
+                               + "-"
+                               + _referee.AllGameMoves.Count();
+                if (numberOfGames > 1)
+                {
+                    SaveGame(currentGameSaveDirectory + "\\" + gamesPlayed + "--" + gameName + ".xml");
+                }
                 UpdateGameWins();
                 ClearUpData();
                 if (i < numberOfGames - 1)

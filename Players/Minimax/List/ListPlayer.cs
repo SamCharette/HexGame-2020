@@ -101,7 +101,8 @@ namespace Players.Minimax.List
             Monitors[TotalTimeThinking] += timeTaken;
             Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] / (Monitors[NumberOfRandomMoves] + Monitors[NumberOfPlannedMoves]);
             RelayPerformanceInformation();
-            return new Tuple<int, int>(CurrentChoice.Item1, CurrentChoice.Item2);
+            Quip(CurrentChoice + " Considered a winning move? " + IsWinningMove(Me));
+            return CurrentChoice;
         }
         public ListHex RandomHex()
         {

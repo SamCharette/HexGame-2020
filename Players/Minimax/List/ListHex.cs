@@ -57,6 +57,35 @@ namespace Players.Minimax.List
         {
             return new Tuple<int, int>(Row, Column);
         }
+        public override string ToString()
+        {
+            return ToTuple().ToString();
+        }
+        public ListHex(Tuple<int,int> tupleData)
+        {
+            Row = tupleData.Item1;
+            Column = tupleData.Item2;
+        }
+        public bool Equals(ListHex other)
+        {
+            if (Row == other.Row && Column == other.Column)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool Equals(Tuple<int,int> coordinates)
+        {
+            if (Row == coordinates.Item1 && Column == coordinates.Item2)
+            {
+                return true;
+            }
+            return false;
+        }
+        public Tuple<int,int> AddDelta(Tuple<int,int> delta)
+        {
+            return new Tuple<int, int>(Row + delta.Item1, Column + delta.Item2);
+        }
         public void ClearPathingVariables()
         {
             G = 0;
@@ -93,8 +122,8 @@ namespace Players.Minimax.List
         {
             if (node != null) 
             {
-                var nodeToRemove = Attached.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
-                if (nodeToRemove != null)
+                var nodeToCheck = Attached.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                if (nodeToCheck != null)
                 {
                     return true;
                 }

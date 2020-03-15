@@ -19,6 +19,31 @@ namespace Players.Minimax.List
             Reset(size);
         }
 
+        public ListHex FindHex(Tuple<int, int> coordinates)
+        {
+            if (coordinates.Item1 == -1)
+            {
+                return Top;
+            }
+            if (coordinates.Item1 == -2)
+            {
+                return Bottom;
+            }
+            if (coordinates.Item1 == Size * 2)
+            {
+                return Left;
+            }
+            if (coordinates.Item1 == Size * 3)
+            {
+                return Right;
+            }
+
+            var hexOnBoard = Board.FirstOrDefault(x => x.Equals(coordinates));
+
+            return hexOnBoard;
+
+        }
+
         public bool TakeHex(Common.PlayerType player, int row, int column)
         {
             var hexToTake =
@@ -44,12 +69,12 @@ namespace Players.Minimax.List
             var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);
             if (hexToRelease != null)
             {
+                hexToRelease.Owner = PlayerType.White;
                 Board.ForEach(x => DetachHexes(x, hexToRelease));
                 DetachHexes(hexToRelease, Top);
                 DetachHexes(hexToRelease, Bottom);
                 DetachHexes(hexToRelease, Left);
                 DetachHexes(hexToRelease, Right);
-                hexToRelease.Owner = PlayerType.White;
 
                 return true;
             }
@@ -140,8 +165,7 @@ namespace Players.Minimax.List
             for (var i = 0; i < 6; i++)
             {
                 var delta = Directions[(AxialDirections) i];
-                var possibleNeighbour =
-                    Board.FirstOrDefault(x => x.Row == a.Row + delta.Item1 && x.Column == a.Column + delta.Item2);
+                var possibleNeighbour = FindHex(a.AddDelta(delta));
                 if (possibleNeighbour != null)
                 {
                     physicalNeighbours.Add(possibleNeighbour);
@@ -192,19 +216,19 @@ namespace Players.Minimax.List
         public bool ArePhysicalNeighbours(ListHex a, ListHex b)
         {
             // First check to see if they are next to the ends
-            if (a == Top && b.Row == 0 || a.Row == 0 && b == Top)
+            if (a.Equals(Top) && b.Row == 0 || a.Row == 0 && b.Equals(Top))
             {
                 return true;
             }
-            if (a == Left && b.Column == 0 || a.Column == 0 && b == Left)
+            if (a.Equals(Left) && b.Column == 0 || a.Column == 0 && b.Equals(Left))
             {
                 return true;
             }
-            if (a == Bottom && b.Row == Size - 1 || a.Row == Size - 1 && b == Bottom)
+            if (a.Equals(Bottom) && b.Row == Size - 1 || a.Row == Size - 1 && b.Equals(Bottom))
             {
                 return true;
             }
-            if (a == Right && b.Column == Size - 1 || a.Column == Size - 1 && b == Right)
+            if (a.Equals(Right) && b.Column == Size - 1 || a.Column == Size - 1 && b.Equals(Right))
             {
                 return true;
             }
@@ -213,13 +237,11 @@ namespace Players.Minimax.List
             for (var i = 0; i < 6; i++)
             {
                 var delta = Directions[(AxialDirections) i];
-                var newLocation = new Tuple<int, int>(a.Row + delta.Item1, a.Column + delta.Item2);
-                if (newLocation.Item1 >= 0 && newLocation.Item1 < Size && newLocation.Item2 >= 0 && newLocation.Item2 < Size)
+                var newLocation = a.AddDelta(delta);
+                var hex = FindHex(newLocation);
+                if (hex != null && b.Equals(hex))
                 {
-                    if (newLocation.Item1 == b.Row && newLocation.Item2 == b.Column)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
             return false;

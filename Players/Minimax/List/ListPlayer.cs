@@ -305,7 +305,7 @@ namespace Players.Minimax.List
             return false;
         }
 
-        private bool IsWinningMove(PlayerType player)
+        public bool IsWinningMove(PlayerType player)
         {
             var start = player == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
             var end = player == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;

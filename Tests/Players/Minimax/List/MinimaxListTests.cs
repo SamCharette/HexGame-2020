@@ -52,5 +52,18 @@ namespace Tests.Players.Minimax.List
             Assert.AreEqual(1, player.ScoreFromBoard());
         }
 
+        [Test]
+        public void IsWinningMove_ShouldReturnTrue_WhenItFreakingIs()
+        {
+            var player = new ListPlayer(1, 5, new Config());
+            player.Memory.TakeHex(player.Me, 3, 0);
+            player.Memory.TakeHex(player.Me, 3, 1);
+            player.Memory.TakeHex(player.Me, 3, 2);
+            player.Memory.TakeHex(player.Me, 3, 3);
+            player.Memory.TakeHex(player.Me, 3, 4);
+            var isAWinner = player.IsWinningMove(player.Me);
+            Assert.AreEqual(true, isAWinner);
+        }
+
     }
 }

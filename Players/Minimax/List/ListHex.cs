@@ -100,7 +100,7 @@ namespace Players.Minimax.List
 
         public void AttachTo(ListHex node)
         {
-            if (node != null && !IsAttachedTo(node) && node.Owner == Owner)
+            if (node != null && !IsAttachedTo(node) && !Equals(node) && node.Owner == Owner)
             {
                 Attached.Add(node);
             }
@@ -122,7 +122,7 @@ namespace Players.Minimax.List
         {
             if (node != null) 
             {
-                var nodeToCheck = Attached.FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                var nodeToCheck = Attached.FirstOrDefault(x => Equals(node));
                 if (nodeToCheck != null)
                 {
                     return true;

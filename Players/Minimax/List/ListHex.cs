@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Players.Common;
 
@@ -9,7 +10,7 @@ namespace Players.Minimax.List
     {
         public int Row { get; set; }
         public int Column { get; set; }
-        public List<ListHex> Attached { get; set; }
+        public HashSet<ListHex> Attached { get; set; }
         public int F => G + H;
         public int G { get; set; }
         public int H { get; set; }
@@ -43,7 +44,7 @@ namespace Players.Minimax.List
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
-            Attached = new List<ListHex>();
+            Attached = new HashSet<ListHex>();
             G = 0;
             H = 0;
             Row = row;
@@ -56,18 +57,56 @@ namespace Players.Minimax.List
         {
             return new Tuple<int, int>(Row, Column);
         }
+        public override string ToString()
+        {
+            return ToTuple().ToString();
+        }
+        public ListHex(Tuple<int,int> tupleData)
+        {
+            Row = tupleData.Item1;
+            Column = tupleData.Item2;
+        }
+        public bool Equals(ListHex other)
+        {
+            if (Row == other.Row && Column == other.Column)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool Equals(Tuple<int,int> coordinates)
+        {
+            if (Row == coordinates.Item1 && Column == coordinates.Item2)
+            {
+                return true;
+            }
+            return false;
+        }
+        public Tuple<int,int> AddDelta(Tuple<int,int> delta)
+        {
+            return new Tuple<int, int>(Row + delta.Item1, Column + delta.Item2);
+        }
         public void ClearPathingVariables()
         {
             G = 0;
             H = 0;
             Parent = null;
+            var toDetach = Attached.Where(x => x.Owner != Owner).ToList();
+            if (toDetach.Any())
+            {
+                Console.WriteLine(this.ToString() + " detaching " + toDetach.Count() + " items: " + string.Join(", ", toDetach));
+            }
+            toDetach.ForEach(DetachFrom);
+
 
             Status = Status.Untested;
         }
 
         public void AttachTo(ListHex node)
         {
-            if (node != null && !IsAttachedTo(node) && node.Owner == Owner)
+            if (node != null
+                && !Equals(node) 
+                && node.Owner == Owner)
             {
                 Attached.Add(node);
             }
@@ -75,14 +114,22 @@ namespace Players.Minimax.List
 
         public void DetachFrom(ListHex node)
         {
-            if (IsAttachedTo(node))
-            {
+         
                 Attached.Remove(node);
-            }
         }
         public bool IsAttachedTo(ListHex node)
         {
-            return node != null && Attached.Contains(node);
+            if (node != null) 
+            {
+                var nodeToCheck = Attached
+                    .FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                if (nodeToCheck != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

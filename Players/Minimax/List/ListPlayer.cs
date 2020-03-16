@@ -59,27 +59,27 @@ namespace Players.Minimax.List
             {
                 Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
             }
-
+            
             var turnStartTime = DateTime.Now;
 
             CurrentChoice = null;
-            foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
-            {
-                if (CanIWinWithThisMove(hex, Memory))
-                {
-                    CurrentChoice = hex.ToTuple();
-                    break;
-                }
-                //    else
-                //    {
-                //        if (CanILoseWithThisMove(hex, Memory))
-                //        {
-                //            CurrentChoice = hex.ToTuple();
-                //            break;
-                //        }
-                //    }
-                
-            }
+            //foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
+            //{
+            //    if (CanIWinWithThisMove(hex))
+            //    {
+            //        CurrentChoice = hex.ToTuple();
+            //        break;
+            //    }
+            //    else
+            //    {
+            //        if (CanILoseIfIDontTakeThisHex(hex))
+            //        {
+            //            CurrentChoice = hex.ToTuple();
+            //            break;
+            //        }
+            //    }
+
+            //}
 
             if (CurrentChoice == null)
             {
@@ -101,7 +101,7 @@ namespace Players.Minimax.List
             Monitors[TotalTimeThinking] += timeTaken;
             Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] / (Monitors[NumberOfRandomMoves] + Monitors[NumberOfPlannedMoves]);
             RelayPerformanceInformation();
-            return new Tuple<int, int>(CurrentChoice.Item1, CurrentChoice.Item2);
+            return CurrentChoice;
         }
         public ListHex RandomHex()
         {
@@ -140,12 +140,7 @@ namespace Players.Minimax.List
 
                 foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                 {
-                    if (IsWinningMove(Me))
-                    {
-                        CurrentChoice = move.ToTuple();
-                        RelayPerformanceInformation();
-                        return AbsoluteBest;
-                    }
+       
                     if (depth == MaxLevels)
                     {
                         RelayPerformanceInformation();
@@ -174,11 +169,7 @@ namespace Players.Minimax.List
                 var bestValue = AbsoluteBest;
                 foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
                 {
-                    if (IsWinningMove(Opponent()))
-                    {
-                        RelayPerformanceInformation();
-                        return AbsoluteWorst;
-                    }
+                    
                     Memory.TakeHex(Opponent(), move.Row, move.Column);
                     bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
                     beta = Math.Min(beta, bestValue);
@@ -241,15 +232,6 @@ namespace Players.Minimax.List
             var playerScore = 0;
             var opponentScore = 0;
 
-            if (IsWinningMove(Me))
-            {
-                return AbsoluteBest;
-            }
-
-            if (IsWinningMove(Opponent()))
-            {
-                return AbsoluteWorst;
-            }
 
             if (Me == Common.PlayerType.Blue)
             {
@@ -268,14 +250,14 @@ namespace Players.Minimax.List
             return playerScore - opponentScore;
         }
 
-        private bool CanIWinWithThisMove(ListHex hex, ListMap board)
+        private bool CanIWinWithThisMove(ListHex hex)
         {
-            board = board ?? Memory;
+
             if (hex != null)
             {
-                board.TakeHex(Me, hex.Row, hex.Column);
+                Memory.TakeHex(Me, hex.Row, hex.Column);
                 var canIWinHere = IsWinningMove(Me);
-                board.ReleaseHex( hex.Row, hex.Column);
+                Memory.ReleaseHex( hex.Row, hex.Column);
                 if (canIWinHere)
                 {
                     Quip("Yes, I CAN win if I get here (" + hex.Row + ", " + hex.Column + ")");
@@ -286,14 +268,14 @@ namespace Players.Minimax.List
             return false;
         }
 
-        private bool CanILoseWithThisMove(ListHex hex, ListMap board)
+        private bool CanILoseIfIDontTakeThisHex(ListHex hex)
         {
-            board = board ?? Memory;
+           
             if (hex != null)
             {
-                board.TakeHex(Opponent(), hex.Row, hex.Column);
+                Memory.TakeHex(Opponent(), hex.Row, hex.Column);
                 var canILoseHere = IsWinningMove(Opponent());
-                board.ReleaseHex(hex.Row, hex.Column);
+                Memory.ReleaseHex(hex.Row, hex.Column);
                 if (canILoseHere)
                 {
                     Quip("Bleh, THEY can win if they get here (" + hex.Row + ", " + hex.Column + ")");
@@ -304,7 +286,7 @@ namespace Players.Minimax.List
             return false;
         }
 
-        private bool IsWinningMove(PlayerType player)
+        public bool IsWinningMove(PlayerType player)
         {
             var start = player == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
             var end = player == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;

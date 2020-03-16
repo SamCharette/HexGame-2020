@@ -45,6 +45,21 @@ namespace Engine
             PlayerMadeMove?.Invoke(this, e);
         }
 
+        public Player LosingPlayer()
+        {
+            if (WinningPlayer != null && WinningPlayer == Player1)
+            {
+                return Player2;
+            }
+
+            if (WinningPlayer != null)
+            {
+                return Player1;
+            }
+
+            return null;
+        }
+
         protected virtual void OnGameEnd(GameOverArgs e)
         {
             Player1.GameOver(WinningPlayer.PlayerNumber);

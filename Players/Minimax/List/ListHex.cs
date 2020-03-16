@@ -96,8 +96,13 @@ namespace Players.Minimax.List
             {
                 Console.WriteLine(this.ToString() + " detaching " + toDetach.Count() + " items: " + string.Join(", ", toDetach));
             }
-            toDetach.ForEach(DetachFrom);
 
+            foreach (var hexToDetach in toDetach)
+            {
+                DetachFrom(hexToDetach);
+                hexToDetach.DetachFrom(this);
+            }
+         
 
             Status = Status.Untested;
         }

@@ -83,8 +83,22 @@ namespace Players.Minimax.List
 
             if (CurrentChoice == null)
             {
-                Monitors[CurrentScore] = ThinkAboutTheNextMove(MaxLevels, AbsoluteWorst, AbsoluteBest, true);
+                var bestScore = AbsoluteWorst;
+                var possibleMoves = PossibleMoves(true);
+                foreach (var move in possibleMoves)
+                {
+                    var score = ThinkAboutTheNextMove(move, MaxLevels, AbsoluteWorst, AbsoluteBest, true);
+                    if (score > bestScore)
+                    {
+                        RelayPerformanceInformation();
+
+                        CurrentChoice = move.ToTuple();
+                        bestScore = score;
+                    }
+                }
             }
+            RelayPerformanceInformation();
+
             if (CurrentChoice == null)
             {
                 Monitors[NumberOfRandomMoves]++;
@@ -95,8 +109,8 @@ namespace Players.Minimax.List
                 Monitors[NumberOfPlannedMoves]++;
             }
             // When in doubt, choose random
-            Memory.TakeHex(Me, CurrentChoice.Item1, CurrentChoice.Item2);
-            var timeTaken = DateTime.Now.Subtract(turnStartTime).Milliseconds;
+            Memory.TakeHex(Me, CurrentChoice);
+            var timeTaken =(int) DateTime.Now.Subtract(turnStartTime).TotalMilliseconds;
 
             Monitors[TotalTimeThinking] += timeTaken;
             Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] / (Monitors[NumberOfRandomMoves] + Monitors[NumberOfPlannedMoves]);
@@ -109,14 +123,68 @@ namespace Players.Minimax.List
             var selectedNode = openNodes.OrderBy(x => x.RandomValue).FirstOrDefault();
             return selectedNode;
         }
-        public int ThinkAboutTheNextMove(int depth, int alpha, int beta, bool isMaximizing)
+        public int ThinkAboutTheNextMove(
+            ListHex currentMove,
+            int depth, 
+            int alpha, 
+            int beta, 
+            bool isMaximizing)
         {
             if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
                 return ScoreFromBoard();
             }
+            Memory.TakeHex(isMaximizing ? Me : Opponent(), currentMove);
 
+            var possibleMoves = PossibleMoves(isMaximizing);
 
+            if (!possibleMoves.Any())
+            {
+                Memory.ReleaseHex(currentMove);
+                return ScoreFromBoard();
+            }
+
+            if (isMaximizing)
+            {
+
+                foreach (var move in possibleMoves)
+                {
+                    alpha = Math.Max(alpha, ThinkAboutTheNextMove(move, depth - 1, alpha, beta, false));
+                    Monitors[NumberOfNodesChecked]++;
+                    if (beta <= alpha)
+                    {
+                        Monitors[NumberOfPrunesMade]++;
+                        break;
+                    }
+
+                }
+                Memory.ReleaseHex(currentMove);
+
+                return alpha;
+            }
+            else
+            {
+                foreach (var move in possibleMoves)
+                {
+                    beta = Math.Min(beta, ThinkAboutTheNextMove(move, depth - 1, alpha, beta, true));
+                    Monitors[NumberOfNodesChecked]++;
+
+                    if (beta <= alpha)
+                    {
+                        Monitors[NumberOfPrunesMade]++;
+                        break;
+                    }
+                }
+
+                Memory.ReleaseHex(currentMove);
+                return beta;
+            }
+            
+
+        }
+
+        private List<ListHex> PossibleMoves(bool isMaximizing)
+        {
             var playerMoves = GetAPathForPlayer(isMaximizing)
                 .Where(x => x.Owner == Common.PlayerType.White).ToList();
             var opponentMoves = GetAPathForPlayer(!isMaximizing)
@@ -128,63 +196,7 @@ namespace Players.Minimax.List
             possibleMoves.AddRange(bothLike);
             possibleMoves.AddRange(playerMoves.Where(x => !bothLike.Contains(x)));
             possibleMoves.AddRange(opponentMoves.Where(x => !bothLike.Contains(x)));
-
-            if (!possibleMoves.Any())
-            {
-                return ScoreFromBoard();
-            }
-
-            if (isMaximizing)
-            {
-                var bestValue = AbsoluteWorst;
-
-                foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
-                {
-       
-                    if (depth == MaxLevels)
-                    {
-                        RelayPerformanceInformation();
-                    }
-                    Memory.TakeHex(Me, move.Row, move.Column);
-                    bestValue = Math.Max(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, false));
-                    if (bestValue > alpha)
-                    {
-                        alpha = bestValue;
-                        CurrentChoice = new Tuple<int, int>(move.Row, move.Column);
-                    }
-                    Monitors[NumberOfNodesChecked]++;
-                    Memory.ReleaseHex(move.Row, move.Column);
-                    if (beta <= alpha)
-                    {
-                        Monitors[NumberOfPrunesMade]++;
-                        break;
-                    }
-
-                }
-
-                return bestValue;
-            }
-            else
-            {
-                var bestValue = AbsoluteBest;
-                foreach (var move in possibleMoves.Where(x => x.Owner == Common.PlayerType.White))
-                {
-                    
-                    Memory.TakeHex(Opponent(), move.Row, move.Column);
-                    bestValue = Math.Min(bestValue, ThinkAboutTheNextMove(depth - 1, alpha, beta, true));
-                    beta = Math.Min(beta, bestValue);
-                    Monitors[NumberOfNodesChecked]++;
-                    Memory.ReleaseHex(move.Row, move.Column);
-                    if (beta <= alpha)
-                    {
-                        Monitors[NumberOfPrunesMade]++;
-                        break;
-                    }
-                }
-                return bestValue;
-            }
-            
-
+            return possibleMoves;
         }
 
         public PlayerType CurrentlySearchingAs(bool isMaximizing)

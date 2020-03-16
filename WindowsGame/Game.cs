@@ -81,7 +81,7 @@ namespace WindowsGame
                 count++;
             }
 
-            textBoxHexBoardSize.Text = @"8";
+            textBoxHexBoardSize.Text = @"7";
             numberOfGamesToPlay.Text = @"1";
             lblGamesPlayed.Text = "Games Played: ";
             lblBlueWIns.Text = "Blue Wins: ";

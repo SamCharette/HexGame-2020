@@ -83,19 +83,23 @@ namespace Players.Minimax.List
 
             if (CurrentChoice == null)
             {
+                Monitors[MovesExaminedThisTurn] = 0;
                 var bestScore = AbsoluteWorst;
                 var possibleMoves = PossibleMoves(true);
                 foreach (var move in possibleMoves)
                 {
+                    Monitors[MovesExaminedThisTurn]++;
                     var score = ThinkAboutTheNextMove(move, MaxLevels, AbsoluteWorst, AbsoluteBest, true);
                     if (score > bestScore)
                     {
-                        RelayPerformanceInformation();
 
                         CurrentChoice = move.ToTuple();
                         bestScore = score;
                     }
+                    RelayPerformanceInformation();
                 }
+
+                Monitors[MovesExamined] += Monitors[MovesExaminedThisTurn];
             }
             RelayPerformanceInformation();
 
@@ -245,20 +249,25 @@ namespace Players.Minimax.List
             var opponentScore = 0;
 
 
-            if (Me == Common.PlayerType.Blue)
-            {
-                var path = FindPath(Memory.Top, Memory.Bottom, Me);
-                playerScore = Size - path.Count(x => x.Owner == Common.PlayerType.White);
-                var opponentPath = FindPath(Memory.Left, Memory.Right, Opponent());
-                opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
-            } else
-            {
-                var path = FindPath(Memory.Left, Memory.Right, Me);
-                playerScore = Size - path.Count(x => x.Owner == Common.PlayerType.White);
-                var opponentPath = FindPath(Memory.Top, Memory.Bottom, Opponent());
-                opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
+            //if (Me == Common.PlayerType.Blue)
+            //{
+            //    var path = FindPath(Memory.Top, Memory.Bottom, Me);
+            //    playerScore = Size - path.Count(x => x.Owner == Common.PlayerType.White);
+            //    var opponentPath = FindPath(Memory.Left, Memory.Right, Opponent());
+            //    opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
+            //} else
+            //{
+            //    var path = FindPath(Memory.Left, Memory.Right, Me);
+            //    playerScore = Size - path.Count(x => x.Owner == Common.PlayerType.White);
+            //    var opponentPath = FindPath(Memory.Top, Memory.Bottom, Opponent());
+            //    opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
 
-            }
+            //}
+            var path = FindPath(Memory.Top, Memory.Bottom, Me);
+            playerScore = Size - path.Count(x => x.Owner == Common.PlayerType.White);
+            var opponentPath = FindPath(Memory.Left, Memory.Right, Opponent());
+            opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
+
             return playerScore - opponentScore;
         }
 

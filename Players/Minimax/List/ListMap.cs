@@ -48,6 +48,16 @@ namespace Players.Minimax.List
 
         }
 
+        public bool TakeHex(PlayerType player, ListHex node)
+        {
+            return TakeHex(player, node.Row, node.Column);
+        }
+
+        public bool TakeHex(PlayerType player, Tuple<int,int> coordinates)
+        {
+            return TakeHex(player, coordinates.Item1, coordinates.Item2);
+        }
+
         public bool TakeHex(Common.PlayerType player, int row, int column)
         {
             var hexToTake =
@@ -69,6 +79,14 @@ namespace Players.Minimax.List
             return true;
         }
 
+        public bool ReleaseHex(Tuple<int, int> coordinates)
+        {
+            return ReleaseHex(coordinates.Item1, coordinates.Item2);
+        }
+        public bool ReleaseHex(ListHex hex)
+        {
+            return ReleaseHex(hex.Row, hex.Column);
+        }
         public bool ReleaseHex(int row, int column)
         {
             var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);

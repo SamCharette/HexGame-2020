@@ -21,23 +21,60 @@ namespace Players.Minimax.List
         {
             Reset(size);
         }
-        public static T DeepClone<T>(T obj)
+        public ListMap()
         {
-            using (var ms = new MemoryStream())
+
+        }
+
+        public ListMap DeepCopy()
+        {
+            var newMap = (ListMap) this.MemberwiseClone();
+            foreach (var hex in Board.ToList())
             {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(ms, obj);
-                ms.Position = 0;
-
-                return (T)formatter.Deserialize(ms);
+                newMap.Board.Add(new ListHex(Size, hex.Row,hex.Column));
             }
-        }
-        public ListMap(ListMap source)
-        {
-            DeepClone(source);
+            foreach (var hex in Board.ToList())
+            {
+                var newHex = newMap.Board.FirstOrDefault(x => x.Equals(hex));
+                if (newHex != null)
+                {
+                    foreach (var neighbour in hex.Attached)
+                    {
+                        ListHex newNeighbour;
+                        if (neighbour.HexName == "Top")
+                        {
+                            newNeighbour = newMap.Top;
+                        }
+                        else if (neighbour.HexName == "Bottom")
+                        {
+                            newNeighbour = newMap.Bottom;
+                        }
+                        if (neighbour.HexName == "Left")
+                        {
+                            newNeighbour = newMap.Left;
+                        }
+                        if (neighbour.HexName == "Right")
+                        {
+                            newNeighbour = newMap.Right;
+                        }
+                        else
+                        {
+                            newNeighbour = newMap.Board.FirstOrDefault(x => x.Equals(neighbour));
+                        }
 
-        }
+                        if (newNeighbour != null)
+                        {
+                            newHex.Attached.Add(newNeighbour);
+                            newNeighbour.Attached.Add(newHex);
+                        }
 
+                    }
+
+                }
+            }
+
+            return newMap;
+        }
         public ListHex FindHex(int row, int col)
         {
             return FindHex(new Tuple<int, int>(row, col));

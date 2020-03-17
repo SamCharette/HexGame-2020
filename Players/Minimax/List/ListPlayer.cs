@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Players.Common;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace Players.Minimax.List
 {
@@ -112,6 +114,7 @@ namespace Players.Minimax.List
                 CurrentThreadsInUse = 0;
                 Monitors[MovesExaminedThisTurn] = 0;
                 ProposedPath = GetAPathForMe(Memory);
+                MoveScores = new HashSet<Tuple<ListHex, int>>();
                 var theirPath = GetAPathForOpponent(Memory);
                 var possibleMoves = GetPossibleMovesFrom(ProposedPath, theirPath, true);
                
@@ -124,9 +127,10 @@ namespace Players.Minimax.List
                 {
                     if (CurrentThreadsInUse < threadsAllowed && MoveQueue.Count > 0)
                     {
-                        var thread = new Thread(StartSearchingForScore);
+                        //var thread = new Thread(StartSearchingForScore);
+                        StartSearchingForScore();
                         CurrentThreadsInUse++;
-                        thread.Start();
+                        //thread.Start();
                     }
                     
                 }
@@ -159,7 +163,7 @@ namespace Players.Minimax.List
         {
             var move = MoveQueue.Dequeue();
             Monitors[MovesExaminedThisTurn]++;
-            var searchInThisMap = new ListMap(Memory);
+            var searchInThisMap = Memory;//Memory.DeepCopy();
             var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
             MoveScores.Add(new Tuple<ListHex, int>(move, score));
             CurrentThreadsInUse--;

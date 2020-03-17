@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -24,6 +26,13 @@ namespace Players.Minimax.List
     {
         public ListMap Memory { get; set; }
         public Tuple<int,int> CurrentChoice { get; set; }
+        public Queue<ListHex> MoveQueue { get; set; }
+        public List<ListHex> ProposedPath { get; set; }
+        public HashSet<Tuple<ListHex,int>> MoveScores { get; set; }
+
+        public int MaximumThreads => Environment.ProcessorCount / 2;
+
+        public int CurrentThreadsInUse { get; set; }
         public ListPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             PlayerNumber = playerNumber;
@@ -98,22 +107,31 @@ namespace Players.Minimax.List
 
             if (CurrentChoice == null)
             {
+                MoveQueue = new Queue<ListHex>();
+                var threadsAllowed = Environment.ProcessorCount / 2;
+                CurrentThreadsInUse = 0;
                 Monitors[MovesExaminedThisTurn] = 0;
-                var bestScore = AbsoluteWorst;
-                var possibleMoves = PossibleMoves(true);
+                ProposedPath = GetAPathForMe(Memory);
+                var theirPath = GetAPathForOpponent(Memory);
+                var possibleMoves = GetPossibleMovesFrom(ProposedPath, theirPath, true);
+               
                 foreach (var move in possibleMoves)
                 {
-                    Monitors[MovesExaminedThisTurn]++;
-                    var score = ThinkAboutTheNextMove(move, MaxLevels, AbsoluteWorst, AbsoluteBest, true);
-                    if (score > bestScore)
-                    {
-
-                        CurrentChoice = move.ToTuple();
-                        bestScore = score;
-                    }
-                    RelayPerformanceInformation();
+                    MoveQueue.Enqueue(move);
                 }
 
+                while (MoveQueue.Count > 0 || CurrentThreadsInUse > 0)
+                {
+                    if (CurrentThreadsInUse < threadsAllowed && MoveQueue.Count > 0)
+                    {
+                        var thread = new Thread(StartSearchingForScore);
+                        CurrentThreadsInUse++;
+                        thread.Start();
+                    }
+                    
+                }
+
+                CurrentChoice = MoveScores?.OrderByDescending(x => x.Item2)?.FirstOrDefault()?.Item1.ToTuple();
                 Monitors[MovesExamined] += Monitors[MovesExaminedThisTurn];
             }
             RelayPerformanceInformation();
@@ -136,6 +154,18 @@ namespace Players.Minimax.List
             RelayPerformanceInformation();
             return CurrentChoice;
         }
+
+        public void StartSearchingForScore()
+        {
+            var move = MoveQueue.Dequeue();
+            Monitors[MovesExaminedThisTurn]++;
+            var searchInThisMap = new ListMap(Memory);
+            var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
+            MoveScores.Add(new Tuple<ListHex, int>(move, score));
+            CurrentThreadsInUse--;
+            RelayPerformanceInformation();
+        }
+
         public ListHex RandomHex()
         {
             var openNodes = Memory.Board.Where(x => x.Owner == Common.PlayerType.White);
@@ -143,6 +173,8 @@ namespace Players.Minimax.List
             return selectedNode;
         }
         public int ThinkAboutTheNextMove(
+            ListMap map,
+            List<ListHex> path,
             ListHex currentMove,
             int depth, 
             int alpha, 
@@ -151,16 +183,17 @@ namespace Players.Minimax.List
         {
             if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                return ScoreFromBoard();
+                return ScoreFromBoard(map);
             }
             Memory.TakeHex(isMaximizing ? Me : Opponent(), currentMove);
 
-            var possibleMoves = PossibleMoves(isMaximizing);
+            var myPath = GetAPathForPlayer(map, isMaximizing);
 
+            var possibleMoves = GetPossibleMovesFrom( path, myPath, isMaximizing);
             if (!possibleMoves.Any())
             {
                 Memory.ReleaseHex(currentMove);
-                return ScoreFromBoard();
+                return ScoreFromBoard(map);
             }
 
             if (isMaximizing)
@@ -168,7 +201,7 @@ namespace Players.Minimax.List
 
                 foreach (var move in possibleMoves)
                 {
-                    alpha = Math.Max(alpha, ThinkAboutTheNextMove(move, depth - 1, alpha, beta, false));
+                    alpha = Math.Max(alpha, ThinkAboutTheNextMove(map, myPath, move, depth - 1, alpha, beta, false));
                     Monitors[NumberOfNodesChecked]++;
                     if (beta <= alpha)
                     {
@@ -185,7 +218,7 @@ namespace Players.Minimax.List
             {
                 foreach (var move in possibleMoves)
                 {
-                    beta = Math.Min(beta, ThinkAboutTheNextMove(move, depth - 1, alpha, beta, true));
+                    beta = Math.Min(beta, ThinkAboutTheNextMove(map, myPath, move, depth - 1, alpha, beta, true));
                     Monitors[NumberOfNodesChecked]++;
 
                     if (beta <= alpha)
@@ -202,20 +235,15 @@ namespace Players.Minimax.List
 
         }
 
-        private List<ListHex> PossibleMoves(bool isMaximizing)
+        private List<ListHex> GetPossibleMovesFrom(List<ListHex> myPath, List<ListHex> theirPath, bool isMaximizing)
         {
-            var playerMoves = GetAPathForPlayer(isMaximizing)
-                .Where(x => x.Owner == Common.PlayerType.White).ToList();
-            var opponentMoves = GetAPathForPlayer(!isMaximizing)
-                .Where(x => x.Owner == Common.PlayerType.White).ToList();
-
             var possibleMoves = new List<ListHex>();
-            var bothLike = playerMoves.Where(x => opponentMoves.Contains(x)).ToList();
+            var bothLike = myPath.Where(theirPath.Contains).ToList();
 
             possibleMoves.AddRange(bothLike);
-            possibleMoves.AddRange(playerMoves.Where(x => !bothLike.Contains(x)));
-            possibleMoves.AddRange(opponentMoves.Where(x => !bothLike.Contains(x)));
-            return possibleMoves;
+            possibleMoves.AddRange(myPath.Where(x => !bothLike.Contains(x)));
+            possibleMoves.AddRange(theirPath.Where(x => !bothLike.Contains(x)));
+            return possibleMoves.Where(x => x.Owner == Common.PlayerType.White).ToList();
         }
 
         public PlayerType CurrentlySearchingAs(bool isMaximizing)
@@ -238,26 +266,26 @@ namespace Players.Minimax.List
             return Common.PlayerType.Blue;
         }
 
-        public List<ListHex> GetAPathForPlayer(bool isMaximizing)
+        public List<ListHex> GetAPathForPlayer(ListMap map, bool isMaximizing)
         {
-            return isMaximizing ? GetAPathForMe() : GetAPathForOpponent();
+            return isMaximizing ? GetAPathForMe(map) : GetAPathForOpponent(map);
         }
 
-        public List<ListHex> GetAPathForMe()
+        public List<ListHex> GetAPathForMe(ListMap map)
         {
-            var start = Me == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
-            var end = Me == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
-            return FindPath(start, end, Me);
+            var start = Me == Common.PlayerType.Blue ? map.Top : map.Left;
+            var end = Me == Common.PlayerType.Blue ? map.Bottom : map.Right;
+            return FindPath(map, start, end, Me);
         }
 
-        public List<ListHex> GetAPathForOpponent()
+        public List<ListHex> GetAPathForOpponent(ListMap map)
         {
-            var start = Opponent() == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
-            var end = Opponent() == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
-            return FindPath(start, end, Opponent());
+            var start = Opponent() == Common.PlayerType.Blue ? map.Top : map.Left;
+            var end = Opponent() == Common.PlayerType.Blue ? map.Bottom : map.Right;
+            return FindPath(map, start, end, Opponent());
         }
 
-        public int ScoreFromBoard()
+        public int ScoreFromBoard(ListMap map)
         {
             // Get the player score
             var playerScore = 0;
@@ -278,9 +306,9 @@ namespace Players.Minimax.List
             //    opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
 
             //}
-            var path = FindPath(Memory.Top, Memory.Bottom, Me);
+            var path = FindPath(map, map.Top, map.Bottom, Me);
             playerScore = Size - path.Count(x => x.Owner == Common.PlayerType.White);
-            var opponentPath = FindPath(Memory.Left, Memory.Right, Opponent());
+            var opponentPath = FindPath(map, map.Left, map.Right, Opponent());
             opponentScore = Size - opponentPath.Count(x => x.Owner == Common.PlayerType.White);
 
             return playerScore - opponentScore;
@@ -330,23 +358,23 @@ namespace Players.Minimax.List
             return start.IsAttachedTo(end);
         }
 
-        public List<ListHex> FindPath(ListHex start, ListHex end, PlayerType player)
+        public List<ListHex> FindPath(ListMap map, ListHex start, ListHex end, PlayerType player)
         {
-        
-            Memory.CleanPathingVariables();
+
+            map.CleanPathingVariables();
        
-            var neighbours = Memory.GetTraversablePhysicalNeighbours(start, player);
+            var neighbours = map.GetTraversablePhysicalNeighbours(start, player);
             neighbours.ForEach(x => x.Status = Status.Open);
-            var path = PathBetween(start, end, player);
+            var path = PathBetween(map, start, end, player);
 
             return path;
 
         }
 
-        public List<ListHex> PathBetween(ListHex start, ListHex end, Common.PlayerType player)
+        public List<ListHex> PathBetween(ListMap map, ListHex start, ListHex end, Common.PlayerType player)
         {
             // Get the best looking node
-            var bestLookingHex = Memory.Board
+            var bestLookingHex = map.Board
                 .OrderBy(x => x.F)
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
@@ -364,7 +392,7 @@ namespace Players.Minimax.List
                
             }
 
-            if (Memory.ArePhysicalNeighbours(bestLookingHex, end))
+            if (map.ArePhysicalNeighbours(bestLookingHex, end))
             {
                 var preferredPath = new List<ListHex>();
 
@@ -381,7 +409,7 @@ namespace Players.Minimax.List
             bestLookingHex.Status = Status.Closed;
 
            
-            var neighbours = Memory.GetTraversablePhysicalNeighbours(bestLookingHex, Me);
+            var neighbours = map.GetTraversablePhysicalNeighbours(bestLookingHex, Me);
 
             foreach (var node in neighbours)
             {
@@ -407,7 +435,7 @@ namespace Players.Minimax.List
 
 
             }
-            return PathBetween(start, end, player);
+            return PathBetween(map, start, end, player);
         }
 
     }

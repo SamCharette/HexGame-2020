@@ -39,8 +39,7 @@ namespace Players.Minimax.Matrix
             MyMoves.Clear();
             EnemyMoves = Matrix<int>.Build.Dense(Size, Size);
             EnemyMoves.Clear();
-            EmptyMatrix = Matrix<int>.Build.Dense(Size, Size);
-            EmptyMatrix.;
+
             //Startup();
         }
 

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Players.Common;
 
 namespace Players.Minimax.List
 {
+    [Serializable]
     public class ListMap
     {
         public int Size { get; set; }
@@ -17,6 +20,22 @@ namespace Players.Minimax.List
         public ListMap(int size)
         {
             Reset(size);
+        }
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+        public ListMap(ListMap source)
+        {
+            DeepClone(source);
+
         }
 
         public ListHex FindHex(int row, int col)

@@ -26,16 +26,13 @@ namespace Players.Minimax.List
 
         }
 
-        public ListMap DeepCopy()
+        public  ListMap(ListMap source)
         {
-            var newMap = (ListMap) this.MemberwiseClone();
-            foreach (var hex in Board.ToList())
+            var newMap = new ListMap(source.Size);
+            newMap.Reset(Size);
+            foreach (var hex in source.Board.ToList())
             {
-                newMap.Board.Add(new ListHex(Size, hex.Row,hex.Column));
-            }
-            foreach (var hex in Board.ToList())
-            {
-                var newHex = newMap.Board.FirstOrDefault(x => x.Equals(hex));
+                var newHex = newMap.Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
                 if (newHex != null)
                 {
                     foreach (var neighbour in hex.Attached)
@@ -59,21 +56,19 @@ namespace Players.Minimax.List
                         }
                         else
                         {
-                            newNeighbour = newMap.Board.FirstOrDefault(x => x.Equals(neighbour));
+                            newNeighbour = newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
                         }
 
                         if (newNeighbour != null)
                         {
                             newHex.Attached.Add(newNeighbour);
-                            newNeighbour.Attached.Add(newHex);
                         }
 
                     }
 
                 }
             }
-
-            return newMap;
+            
         }
         public ListHex FindHex(int row, int col)
         {
@@ -125,7 +120,7 @@ namespace Players.Minimax.List
                 return false;
             }
             hexToTake.Owner = player;
-            var neighbours = GetFriendlyPhysicalNeighbours(hexToTake);
+            var neighbours = GetFriendlyPhysicalNeighbours(hexToTake).ToList();
             foreach (var neighbour in neighbours)
             {
                 AttachAllFriendlyNeighbours(hexToTake, neighbour);
@@ -331,7 +326,7 @@ namespace Players.Minimax.List
             AttachHexes(a, b);
             var friendsOfFriends = 
                 b.Attached.Where(x => x.Owner == a.Owner).ToList();
-            foreach (var node in friendsOfFriends)
+            foreach (var node in friendsOfFriends.ToList())
             {
                 AttachHexes(a, node);
             }

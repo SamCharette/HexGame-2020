@@ -6,6 +6,8 @@ using System.Threading;
 using Players.Common;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace Players.Minimax.List
 {
@@ -33,6 +35,8 @@ namespace Players.Minimax.List
         public HashSet<Tuple<ListHex,int>> MoveScores { get; set; }
 
         public int MaximumThreads => Environment.ProcessorCount / 2;
+        private object WorkingLock;
+        public List<Task> Threads { get; set; }
 
         public int CurrentThreadsInUse { get; set; }
         public ListPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
@@ -57,6 +61,7 @@ namespace Players.Minimax.List
             Monitors.Add(NumberOfRandomMoves, 0);
             Monitors.Add(NumberOfNodesChecked, 0);
             Monitors.Add(NumberOfPrunesMade, 0);
+            WorkingLock = new object();
 
             Startup();
         }
@@ -110,9 +115,10 @@ namespace Players.Minimax.List
             if (CurrentChoice == null)
             {
                 MoveQueue = new Queue<ListHex>();
-                var threadsAllowed = Environment.ProcessorCount / 2;
+                var threadsAllowed = Math.Min(Environment.ProcessorCount / 2, 1);
                 CurrentThreadsInUse = 0;
                 Monitors[MovesExaminedThisTurn] = 0;
+                Threads = new List<Task>();
                 ProposedPath = GetAPathForMe(Memory);
                 MoveScores = new HashSet<Tuple<ListHex, int>>();
                 var theirPath = GetAPathForOpponent(Memory);
@@ -120,20 +126,18 @@ namespace Players.Minimax.List
                
                 foreach (var move in possibleMoves)
                 {
+                    Quip("Enqueueing move: " + move);
                     MoveQueue.Enqueue(move);
                 }
 
                 while (MoveQueue.Count > 0 || CurrentThreadsInUse > 0)
                 {
-                    if (CurrentThreadsInUse < threadsAllowed && MoveQueue.Count > 0)
-                    {
-                        //var thread = new Thread(StartSearchingForScore);
-                        StartSearchingForScore();
-                        CurrentThreadsInUse++;
-                        //thread.Start();
-                    }
+         
+                        Threads.Add( Task.Factory.StartNew(StartSearchingForScore));
                     
                 }
+
+                Task.WaitAll(Threads.ToArray());
 
                 CurrentChoice = MoveScores?.OrderByDescending(x => x.Item2)?.FirstOrDefault()?.Item1.ToTuple();
                 Monitors[MovesExamined] += Monitors[MovesExaminedThisTurn];
@@ -161,13 +165,25 @@ namespace Players.Minimax.List
 
         public void StartSearchingForScore()
         {
-            var move = MoveQueue.Dequeue();
-            Monitors[MovesExaminedThisTurn]++;
-            var searchInThisMap = Memory;//Memory.DeepCopy();
-            var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
-            MoveScores.Add(new Tuple<ListHex, int>(move, score));
-            CurrentThreadsInUse--;
-            RelayPerformanceInformation();
+            Quip("Trying to get into a new thread.");
+            bool gotIn = false;
+            ListHex move;
+            ListMap searchInThisMap;
+
+            Quip("I think I got into a new thread.");
+                move = MoveQueue.Dequeue();
+                Monitors[MovesExaminedThisTurn]++;
+                searchInThisMap = new ListMap(Memory);
+                gotIn = true;
+                //CurrentThreadsInUse++;
+
+            
+                Quip("I'm pretty sure I got in now.");
+                var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
+                MoveScores.Add(new Tuple<ListHex, int>(move, score));
+                //CurrentThreadsInUse--;
+                RelayPerformanceInformation();
+            
         }
 
         public ListHex RandomHex()
@@ -272,6 +288,8 @@ namespace Players.Minimax.List
 
         public List<ListHex> GetAPathForPlayer(ListMap map, bool isMaximizing)
         {
+            map.CleanPathingVariables();
+
             return isMaximizing ? GetAPathForMe(map) : GetAPathForOpponent(map);
         }
 

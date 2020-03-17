@@ -8,13 +8,11 @@ using Players.Common;
 
 namespace Players.Minimax.Matrix
 {
-    public class MatrixNode
+    public class MatrixHex
     {
         public int Row { get; set; }
         public int Column { get; set; }
         public PlayerType Owner { get; set; }
-    
-
         public Matrix<int> Neighbours { get; set; }
         public int Size { get; set; }
 
@@ -28,14 +26,17 @@ namespace Players.Minimax.Matrix
             }
         }
 
-        public MatrixNode(int boardSize)
+        public MatrixHex(int boardSize)
         {
             Size = boardSize;
             Neighbours = Matrix<int>.Build.Dense(Size,Size);
             Neighbours[Row, Column] = 1;
         }
-
-       
+        
+        public Tuple<int,int> ToTuple()
+        {
+            return new Tuple<int, int>(Row, Column);
+        }
 
         public bool ReachesLeft()
         {
@@ -73,7 +74,6 @@ namespace Players.Minimax.Matrix
 
             return false;
         }
-
         public bool ReachesBottom()
         {
             for (var i = 0; i < Size; i++)
@@ -86,7 +86,7 @@ namespace Players.Minimax.Matrix
 
             return false;
         }
-        public void AttachTo(MatrixNode newNeighbour)
+        public void AttachTo(MatrixHex newNeighbour)
         {
             Neighbours[newNeighbour.Row, newNeighbour.Column] = 1;
         }

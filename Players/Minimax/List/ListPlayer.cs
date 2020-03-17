@@ -5,6 +5,21 @@ using Players.Common;
 
 namespace Players.Minimax.List
 {
+    /*
+    *  This player is currently (Mar-16-2020) doing ok.  It's slow though.
+    *
+    *  Things to look at:
+    *
+    *  Scoring - better scoring function?
+    *  Pathfinding - called way too often, I bet.  Should only restart pathfinding
+    *      if current path is broken (like dozer)
+    *  Final Move Recognition - Should be able to identify when there is a final move it can
+    *       make so that it doesn't lose by choosing a different one
+    *  Threatened Game State - should be able to identify when the opponent is one
+    *       move away from winning so that it can stop them.
+    *
+    *
+    */
     public class ListPlayer : MinimaxPlayer
     {
         public ListMap Memory { get; set; }

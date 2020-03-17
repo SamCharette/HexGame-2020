@@ -72,6 +72,7 @@ namespace Players.Minimax.List
         public void Startup()
         {
             Memory = new ListMap(Size);
+            Memory.Name = "Memory";
             Monitors[MovesExamined] = 0;
             Monitors[MovesExaminedThisTurn] = 0;
             Monitors[CurrentScore] = 0;
@@ -94,23 +95,6 @@ namespace Players.Minimax.List
             var turnStartTime = DateTime.Now;
 
             CurrentChoice = null;
-            //foreach (var hex in Memory.Board.Where(x => x.Owner == Common.PlayerType.White))
-            //{
-            //    if (CanIWinWithThisMove(hex))
-            //    {
-            //        CurrentChoice = hex.ToTuple();
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        if (CanILoseIfIDontTakeThisHex(hex))
-            //        {
-            //            CurrentChoice = hex.ToTuple();
-            //            break;
-            //        }
-            //    }
-
-            //}
 
             if (CurrentChoice == null)
             {
@@ -130,11 +114,15 @@ namespace Players.Minimax.List
                     MoveQueue.Enqueue(move);
                 }
 
-                while (MoveQueue.Count > 0 || CurrentThreadsInUse > 0)
+                var i = 0;
+                while (MoveQueue.Any())
                 {
-         
-                        Threads.Add( Task.Factory.StartNew(StartSearchingForScore));
-                    
+                    i++;
+                    var move = MoveQueue.Dequeue();
+                    var newMap = new ListMap(Memory);
+                    newMap.Name = "Thread Memory " + i;
+                    var newMapMove = newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                    Threads.Add(Task.Factory.StartNew(() =>StartSearchingForScore(newMap, newMapMove)));
                 }
 
                 Task.WaitAll(Threads.ToArray());
@@ -163,26 +151,18 @@ namespace Players.Minimax.List
             return CurrentChoice;
         }
 
-        public void StartSearchingForScore()
+        public void StartSearchingForScore(ListMap searchInThisMap, ListHex move)
         {
-            Quip("Trying to get into a new thread.");
-            bool gotIn = false;
-            ListHex move;
-            ListMap searchInThisMap;
 
-            Quip("I think I got into a new thread.");
-                move = MoveQueue.Dequeue();
-                Monitors[MovesExaminedThisTurn]++;
-                searchInThisMap = new ListMap(Memory);
-                gotIn = true;
-                //CurrentThreadsInUse++;
+            RelayPerformanceInformation();
+            Monitors[MovesExaminedThisTurn]++;
+            //CurrentThreadsInUse++;
 
-            
-                Quip("I'm pretty sure I got in now.");
-                var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
-                MoveScores.Add(new Tuple<ListHex, int>(move, score));
-                //CurrentThreadsInUse--;
-                RelayPerformanceInformation();
+        
+            Quip("I'm pretty sure I got in now.");
+            var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
+            MoveScores.Add(new Tuple<ListHex, int>(move, score));
+            //CurrentThreadsInUse--;
             
         }
 

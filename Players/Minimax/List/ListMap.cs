@@ -10,6 +10,7 @@ namespace Players.Minimax.List
     [Serializable]
     public class ListMap
     {
+        public string Name { get; set; }
         public int Size { get; set; }
         public List<ListHex> Board { get; set; }
         public ListHex Top { get; set; }
@@ -28,48 +29,72 @@ namespace Players.Minimax.List
 
         public  ListMap(ListMap source)
         {
-            var newMap = new ListMap(source.Size);
-            newMap.Reset(Size);
+            Size = source.Size;
+            Reset(source.Size);
             foreach (var hex in source.Board.ToList())
             {
-                var newHex = newMap.Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
+                var newHex = Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
                 if (newHex != null)
                 {
-                    foreach (var neighbour in hex.Attached)
+                    foreach (var neighbour in hex.Attached.ToList())
                     {
-                        ListHex newNeighbour;
-                        if (neighbour.HexName == "Top")
-                        {
-                            newNeighbour = newMap.Top;
-                        }
-                        else if (neighbour.HexName == "Bottom")
-                        {
-                            newNeighbour = newMap.Bottom;
-                        }
-                        if (neighbour.HexName == "Left")
-                        {
-                            newNeighbour = newMap.Left;
-                        }
-                        if (neighbour.HexName == "Right")
-                        {
-                            newNeighbour = newMap.Right;
-                        }
-                        else
-                        {
-                            newNeighbour = newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
-                        }
-
-                        if (newNeighbour != null)
-                        {
-                            newHex.Attached.Add(newNeighbour);
-                        }
-
+                        AttachNewNeighbours(neighbour, this, newHex);
                     }
 
+                }
+                foreach (var hexAttachedToTop in source.Top.Attached.ToList())
+                {
+                    AttachNewNeighbours(hexAttachedToTop, this, Top);
+                }
+                foreach (var hexAttachedToBottom in source.Bottom.Attached.ToList())
+                {
+                    AttachNewNeighbours(hexAttachedToBottom, this, Bottom);
+                }
+                foreach (var hexAttachedToLeft in source.Left.Attached.ToList())
+                {
+                    AttachNewNeighbours(hexAttachedToLeft, this, Left);
+                }
+                foreach (var hexAttachedToRight in source.Right.Attached.ToList())
+                {
+                    AttachNewNeighbours(hexAttachedToRight, this, Right);
                 }
             }
             
         }
+
+        private void AttachNewNeighbours(ListHex neighbour, ListMap newMap, ListHex newHex)
+        {
+            
+            ListHex newNeighbour;
+            if (neighbour.HexName == "Top")
+            {
+                newNeighbour = newMap.Top;
+            }
+            else if (neighbour.HexName == "Bottom")
+            {
+                newNeighbour = newMap.Bottom;
+            }
+
+            else if (neighbour.HexName == "Left")
+            {
+                newNeighbour = newMap.Left;
+            }
+
+            else if (neighbour.HexName == "Right")
+            {
+                newNeighbour = newMap.Right;
+            }
+            else
+            {
+                newNeighbour = newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
+            }
+
+            if (newNeighbour != null)
+            {
+                newHex.Attached.Add(newNeighbour);
+            }
+        }
+
         public ListHex FindHex(int row, int col)
         {
             return FindHex(new Tuple<int, int>(row, col));
@@ -158,7 +183,7 @@ namespace Players.Minimax.List
         public void Reset(int size)
         {
             Size = size;
-            Board = new List<ListHex> ();
+            Board = new List<ListHex> (Size);
             for (var row = 0; row < Size; row++)
             {
                 for (var column = 0; column < Size; column++)
@@ -324,12 +349,12 @@ namespace Players.Minimax.List
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
             AttachHexes(a, b);
-            var friendsOfFriends = 
-                b.Attached.Where(x => x.Owner == a.Owner).ToList();
-            foreach (var node in friendsOfFriends.ToList())
-            {
-                AttachHexes(a, node);
-            }
+            //var friendsOfFriends = 
+            //    b.Attached.Where(x => x.Owner == a.Owner).ToList();
+            //foreach (var node in friendsOfFriends.ToList())
+            //{
+            //    AttachHexes(a, node);
+            //}
             
         }
 

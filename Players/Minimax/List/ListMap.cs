@@ -20,6 +20,7 @@ namespace Players.Minimax.List
         public ListHex Bottom { get; set; }
         public ListHex Left { get; set; }
         public ListHex Right { get; set; }
+        private object LockObject = new object();
 
         public ListMap(int size)
         {
@@ -32,39 +33,42 @@ namespace Players.Minimax.List
 
         public  ListMap(ListMap source)
         {
-            Size = source.Size;
-            Reset(source.Size);
-            foreach (var hex in source.Board.ToList())
+            lock(source.LockObject)
             {
-                var newHex = Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
-                if (newHex != null)
+
+                Size = source.Size;
+                Reset(source.Size);
+                foreach (var hex in source.Board.ToList())
                 {
-                    foreach (var neighbour in hex.Attached.ToList())
+                    var newHex = Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
+                    if (newHex != null)
                     {
-                        AttachNewNeighbours(neighbour.Value, this, newHex);
+                        foreach (var neighbour in hex.Attached.ToList())
+                        {
+                            AttachNewNeighbours(neighbour.Value, this, newHex);
+                        }
+
                     }
 
-                }
-                foreach (var hexAttachedToTop in source.Top.Attached.ToList())
-                {
-                    AttachNewNeighbours(hexAttachedToTop.Value, this, Top);
-                }
-                foreach (var hexAttachedToBottom in source.Bottom.Attached.ToList())
-                {
-                    AttachNewNeighbours(hexAttachedToBottom.Value, this, Bottom);
-                }
-                foreach (var hexAttachedToLeft in source.Left.Attached.ToList())
-                {
-                    AttachNewNeighbours(hexAttachedToLeft.Value, this, Left);
-                }
-                foreach (var hexAttachedToRight in source.Right.Attached.ToList())
-                {
-                    AttachNewNeighbours(hexAttachedToRight.Value, this, Right);
+                    AttachEdge(Top, newHex);
+                    AttachEdge(Bottom, newHex);
+                    AttachEdge(Left, newHex);
+                    AttachEdge(Right, newHex);
                 }
             }
-            
-        }
 
+        }
+        private void AttachEdge(ListHex edge, ListHex attachTo)
+        {
+            var attachedList = edge?.Attached.ToList();
+            if (attachedList != null && attachedList.Any())
+            {
+                foreach (var hex in attachedList)
+                {
+                    AttachNewNeighbours(attachTo, this, hex.Value);
+                }
+            }
+        }
         private void AttachNewNeighbours(ListHex neighbour, ListMap newMap, ListHex newHex)
         {
             if (neighbour != null)
@@ -142,23 +146,26 @@ namespace Players.Minimax.List
 
         public bool TakeHex(Common.PlayerType player, int row, int column)
         {
-            var hexToTake =
-                Board.FirstOrDefault(x => x.Row == row 
-                                          && x.Column == column 
-                                          && x.Owner == PlayerType.White);
-            if (hexToTake == null)
+            lock(LockObject)
             {
-                return false;
-            }
-            hexToTake.Owner = player;
-            var neighbours = GetFriendlyPhysicalNeighbours(hexToTake).ToList();
-            foreach (var neighbour in neighbours)
-            {
-                AttachAllFriendlyNeighbours(hexToTake, neighbour);
-               // AttachAllFriendlyNeighbours(neighbour, hexToTake);
-            }
+                var hexToTake =
+                    Board.FirstOrDefault(x => x.Row == row
+                                              && x.Column == column
+                                              && x.Owner == PlayerType.White);
+                if (hexToTake == null)
+                {
+                    return false;
+                }
+                hexToTake.Owner = player;
+                var neighbours = GetFriendlyPhysicalNeighbours(hexToTake).ToList();
+                foreach (var neighbour in neighbours)
+                {
+                    AttachAllFriendlyNeighbours(hexToTake, neighbour);
+                    // AttachAllFriendlyNeighbours(neighbour, hexToTake);
+                }
 
-            return true;
+                return true;
+            }
         }
 
         public bool ReleaseHex(Tuple<int, int> coordinates)
@@ -171,22 +178,25 @@ namespace Players.Minimax.List
         }
         public bool ReleaseHex(int row, int column)
         {
-            var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);
-            if (hexToRelease != null)
+            lock(LockObject)
             {
-                hexToRelease.Owner = PlayerType.White;
-                foreach (var hex in Board)
+                var hexToRelease = Board.FirstOrDefault(x => x.Row == row && x.Column == column);
+                if (hexToRelease != null)
                 {
-                    DetachHexes(hexToRelease, hex);
-                }
-                DetachHexes(hexToRelease, Top);
-                DetachHexes(hexToRelease, Bottom);
-                DetachHexes(hexToRelease, Left);
-                DetachHexes(hexToRelease, Right);
+                    hexToRelease.Owner = PlayerType.White;
+                    foreach (var hex in Board)
+                    {
+                        DetachHexes(hexToRelease, hex);
+                    }
+                    DetachHexes(hexToRelease, Top);
+                    DetachHexes(hexToRelease, Bottom);
+                    DetachHexes(hexToRelease, Left);
+                    DetachHexes(hexToRelease, Right);
 
-                return true;
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         public void Reset(int size)

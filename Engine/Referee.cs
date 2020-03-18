@@ -211,7 +211,10 @@ namespace Engine
                 Quip("FOUL!  Taking a second turn!");
                 GameEndsOnFoul();
             }
-
+            if (_lastPlay == null)
+            {
+                Quip("Last play is null.");
+            }
             hexWanted = await Task.Run(() => player.SelectHex(_lastPlay));
 
             if (hexWanted == null)

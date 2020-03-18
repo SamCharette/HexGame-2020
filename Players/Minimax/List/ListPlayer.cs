@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,7 +33,7 @@ namespace Players.Minimax.List
         public Tuple<int,int> CurrentChoice { get; set; }
         public Queue<ListHex> MoveQueue { get; set; }
         public List<ListHex> ProposedPath { get; set; }
-        public HashSet<Tuple<ListHex,int>> MoveScores { get; set; }
+        public ConcurrentDictionary<ListHex,int> MoveScores { get; set; }
         public int StartingLevels { get; set; }
         public int CurrentLevels {
             get
@@ -106,7 +107,10 @@ namespace Players.Minimax.List
         {
             if (opponentMove != null)
             {
-                Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
+                if (!Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2))
+                {
+                    Quip("Problem setting opponent's move. " + opponentMove);
+                }
             }
             
             var turnStartTime = DateTime.Now;
@@ -116,18 +120,20 @@ namespace Players.Minimax.List
             if (CurrentChoice == null)
             {
                 MoveQueue = new Queue<ListHex>();
-                var threadsAllowed = Math.Min(Environment.ProcessorCount / 2, 1);
+                MoveScores = new ConcurrentDictionary<ListHex, int>();
+                ProposedPath = new List<ListHex>();
+                Threads = new List<Task>();
                 CurrentThreadsInUse = 0;
                 Monitors[MovesExaminedThisTurn] = 0;
-                Threads = new List<Task>();
-                ProposedPath = GetAPathForMe(Memory);
-                MoveScores = new HashSet<Tuple<ListHex, int>>();
-                var theirPath = GetAPathForOpponent(Memory);
+
+
+                ProposedPath = GetAPathForMe(Memory).Where(x => x.Owner == Common.PlayerType.White).ToList();
+                var theirPath = GetAPathForOpponent(Memory).Where(x => x.Owner == Common.PlayerType.White).ToList();
                 var possibleMoves = GetPossibleMovesFrom(ProposedPath, theirPath, true);
                
                 foreach (var move in possibleMoves)
                 {
-                    Quip("Enqueueing move: " + move);
+                    //      Quip("Enqueueing move: " + move);
                     if (move.Owner == Common.PlayerType.White)
                     {
                         MoveQueue.Enqueue(move);
@@ -142,17 +148,15 @@ namespace Players.Minimax.List
                 {
                     if (MoveQueue.Any() && CurrentThreadsInUse < MaximumThreads)
                     {
-                        ListHex move;
-                        ListMap newMap;
-                        lock(WorkingLock)
-                        {
-
-                         move = MoveQueue.Dequeue();
-                        newMap = new ListMap(Memory);
-                        }
-                        var newMapMove = newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
                         CurrentThreadsInUse++;
-                        Threads.Add(Task.Factory.StartNew(() => StartSearchingForScore(newMap, newMapMove)));
+
+                        lock (WorkingLock)
+                        {
+                            var move = MoveQueue.Dequeue();
+                            var newMap = new ListMap(Memory);
+                            var newMapMove = newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                            Threads.Add(Task.Factory.StartNew(() => StartSearchingForScore(newMap, newMapMove)));
+                        }
 
                     }
 
@@ -160,7 +164,7 @@ namespace Players.Minimax.List
 
                 Task.WaitAll(Threads.ToArray());
 
-                CurrentChoice = MoveScores?.OrderByDescending(x => x.Item2)?.FirstOrDefault()?.Item1.ToTuple();
+                CurrentChoice = MoveScores.ToList().OrderByDescending(x => x.Value).FirstOrDefault().Key.ToTuple();
                 Monitors[MovesExamined] += Monitors[MovesExaminedThisTurn];
             }
             RelayPerformanceInformation();
@@ -191,9 +195,9 @@ namespace Players.Minimax.List
             RelayPerformanceInformation();
             Monitors[MovesExaminedThisTurn]++;
             var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, CurrentLevels, AbsoluteWorst, AbsoluteBest, false);
-  
-                MoveScores.Add(new Tuple<ListHex, int>(move, score));
-                CurrentThreadsInUse--;
+
+            MoveScores[move] = score;
+            CurrentThreadsInUse--;
 
         }
 
@@ -212,18 +216,24 @@ namespace Players.Minimax.List
             int beta, 
             bool isMaximizing)
         {
-            if (depth == 0 || Memory.Board.All(x => x.Owner != Common.PlayerType.White))
+            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
             {
                 return ScoreFromBoard(map);
             }
-            Memory.TakeHex(isMaximizing ? Me : Opponent(), currentMove);
+            if (!map.TakeHex(isMaximizing ? Me : Opponent(), currentMove))
+            {
+                Quip("Problem taking hex as part of my searching." + currentMove);
+            }
 
             var myPath = GetAPathForPlayer(map, !isMaximizing);
 
             var possibleMoves = GetPossibleMovesFrom( path, myPath, isMaximizing);
             if (!possibleMoves.Any())
             {
-                Memory.ReleaseHex(currentMove);
+                if (!map.ReleaseHex(currentMove))
+                {
+                    Quip("Problem releasing hex when no moves are found " + currentMove);
+                }
                 return ScoreFromBoard(map);
             }
 
@@ -241,7 +251,10 @@ namespace Players.Minimax.List
                     }
 
                 }
-                Memory.ReleaseHex(currentMove);
+                if (!map.ReleaseHex(currentMove))
+                {
+                    Quip("Problem releasing hex after maximizing " + currentMove);
+                }
 
                 return alpha;
             }
@@ -259,7 +272,10 @@ namespace Players.Minimax.List
                     }
                 }
 
-                Memory.ReleaseHex(currentMove);
+                if (!map.ReleaseHex(currentMove))
+                {
+                    Quip("Problem releasing hex after minimizing " + currentMove);
+                }
                 return beta;
             }
             
@@ -346,46 +362,46 @@ namespace Players.Minimax.List
             return  playerScore;
         }
 
-        private bool CanIWinWithThisMove(ListHex hex)
-        {
+      //  private bool CanIWinWithThisMove(ListHex hex)
+       // {
 
-            if (hex != null)
-            {
-                Memory.TakeHex(Me, hex.Row, hex.Column);
-                var canIWinHere = IsWinningMove(Me);
-                Memory.ReleaseHex( hex.Row, hex.Column);
-                if (canIWinHere)
-                {
-                    Quip("Yes, I CAN win if I get here (" + hex.Row + ", " + hex.Column + ")");
-                }
-                return canIWinHere;
-            }
+            //if (hex != null)
+            //{
+            //    Memory.TakeHex(Me, hex.Row, hex.Column);
+            //    var canIWinHere = IsWinningMove(Me);
+            //    Memory.ReleaseHex( hex.Row, hex.Column);
+            //    if (canIWinHere)
+            //    {
+            //        Quip("Yes, I CAN win if I get here (" + hex.Row + ", " + hex.Column + ")");
+            //    }
+            //    return canIWinHere;
+            //}
 
-            return false;
-        }
+            //return false;
+     //   }
 
-        private bool CanILoseIfIDontTakeThisHex(ListHex hex)
-        {
+        //private bool CanILoseIfIDontTakeThisHex(ListHex hex)
+        //{
            
-            if (hex != null)
-            {
-                Memory.TakeHex(Opponent(), hex.Row, hex.Column);
-                var canILoseHere = IsWinningMove(Opponent());
-                Memory.ReleaseHex(hex.Row, hex.Column);
-                if (canILoseHere)
-                {
-                    Quip("Bleh, THEY can win if they get here (" + hex.Row + ", " + hex.Column + ")");
-                }
-                return canILoseHere;
-            }
+            //if (hex != null)
+            //{
+            //    Memory.TakeHex(Opponent(), hex.Row, hex.Column);
+            //    var canILoseHere = IsWinningMove(Opponent());
+            //    Memory.ReleaseHex(hex.Row, hex.Column);
+            //    if (canILoseHere)
+            //    {
+            //        Quip("Bleh, THEY can win if they get here (" + hex.Row + ", " + hex.Column + ")");
+            //    }
+            //    return canILoseHere;
+            //}
 
-            return false;
-        }
+            //return false;
+    //    }
 
-        public bool IsWinningMove(PlayerType player)
+        public bool IsWinningMove(PlayerType player, ListMap map)
         {
-            var start = player == Common.PlayerType.Blue ? Memory.Top : Memory.Left;
-            var end = player == Common.PlayerType.Blue ? Memory.Bottom : Memory.Right;
+            var start = player == Common.PlayerType.Blue ? map.Top : map.Left;
+            var end = player == Common.PlayerType.Blue ? map.Bottom : map.Right;
            
             return start.IsAttachedTo(end);
         }

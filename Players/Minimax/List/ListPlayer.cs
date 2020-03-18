@@ -52,15 +52,16 @@ namespace Players.Minimax.List
             talkative = Convert.ToInt32(playerConfig.talkative);
             
             Name = playerConfig.name;
-            Monitors.Add(MovesExamined, 0);
-            Monitors.Add(MovesExaminedThisTurn, 0);
-            Monitors.Add(CurrentScore, 0);
-            Monitors.Add(AverageTimeToDecision, 0);
-            Monitors.Add(TotalTimeThinking, 0);
-            Monitors.Add(NumberOfPlannedMoves, 0);
-            Monitors.Add(NumberOfRandomMoves, 0);
-            Monitors.Add(NumberOfNodesChecked, 0);
-            Monitors.Add(NumberOfPrunesMade, 0);
+            Monitors[MovesExamined] = 0;
+            Monitors[MovesExaminedThisTurn] = 0;
+            Monitors[CurrentScore] = 0;
+            Monitors[AverageTimeToDecision] = 0;
+            Monitors[TotalTimeThinking] = 0;
+            Monitors[NumberOfPlannedMoves] = 0;
+            Monitors[NumberOfRandomMoves] = 0;
+            Monitors[NumberOfNodesChecked] = 0;
+            Monitors[NumberOfPrunesMade] = 0;
+
             WorkingLock = new object();
 
             Startup();
@@ -111,18 +112,28 @@ namespace Players.Minimax.List
                 foreach (var move in possibleMoves)
                 {
                     Quip("Enqueueing move: " + move);
-                    MoveQueue.Enqueue(move);
+                    if (move.Owner == Common.PlayerType.White)
+                    {
+                        MoveQueue.Enqueue(move);
+                    }
+                    else
+                    {
+                        Quip("Egads! " + move + " is already taken!");
+                    }
                 }
 
-                var i = 0;
-                while (MoveQueue.Any())
+                while (MoveQueue.Any() || CurrentThreadsInUse > 0)
                 {
-                    i++;
-                    var move = MoveQueue.Dequeue();
-                    var newMap = new ListMap(Memory);
-                    newMap.Name = "Thread Memory " + i;
-                    var newMapMove = newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
-                    Threads.Add(Task.Factory.StartNew(() =>StartSearchingForScore(newMap, newMapMove)));
+                    if (MoveQueue.Any() && CurrentThreadsInUse < MaximumThreads)
+                    {
+                        var move = MoveQueue.Dequeue();
+                        var newMap = new ListMap(Memory);
+                        var newMapMove = newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
+                        CurrentThreadsInUse++;
+                        Threads.Add(Task.Factory.StartNew(() => StartSearchingForScore(newMap, newMapMove)));
+
+                    }
+
                 }
 
                 Task.WaitAll(Threads.ToArray());
@@ -141,7 +152,8 @@ namespace Players.Minimax.List
             {
                 Monitors[NumberOfPlannedMoves]++;
             }
-            // When in doubt, choose random
+
+            Quip("Taking hex: " + CurrentChoice);
             Memory.TakeHex(Me, CurrentChoice);
             var timeTaken =(int) DateTime.Now.Subtract(turnStartTime).TotalMilliseconds;
 
@@ -156,14 +168,14 @@ namespace Players.Minimax.List
 
             RelayPerformanceInformation();
             Monitors[MovesExaminedThisTurn]++;
-            //CurrentThreadsInUse++;
 
-        
-            Quip("I'm pretty sure I got in now.");
-            var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
-            MoveScores.Add(new Tuple<ListHex, int>(move, score));
-            //CurrentThreadsInUse--;
-            
+            lock(searchInThisMap)
+            {
+                var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, MaxLevels, AbsoluteWorst, AbsoluteBest, false);
+                MoveScores.Add(new Tuple<ListHex, int>(move, score));
+                CurrentThreadsInUse--;
+            }
+
         }
 
         public ListHex RandomHex()
@@ -172,7 +184,7 @@ namespace Players.Minimax.List
             var selectedNode = openNodes.OrderBy(x => x.RandomValue).FirstOrDefault();
             return selectedNode;
         }
-        public int ThinkAboutTheNextMove(
+        public  int ThinkAboutTheNextMove(
             ListMap map,
             List<ListHex> path,
             ListHex currentMove,

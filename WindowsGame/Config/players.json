@@ -68,7 +68,7 @@
     "settings": [
       {
         "key": "maxLevels",
-        "value": "5"
+        "value": "4"
       },
       {
         "key": "costToClaimedNode",

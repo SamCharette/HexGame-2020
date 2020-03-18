@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +11,15 @@ namespace Players.Minimax.List
     {
         public int Row { get; set; }
         public int Column { get; set; }
-        public HashSet<ListHex> Attached { get; set; }
+        public ConcurrentDictionary<string, ListHex> Attached { get; set; }
         public int F => G + H;
         public int G { get; set; }
         public int H { get; set; }
         public Common.PlayerType Owner { get;set; }
         public Status Status { get; set; }
+        public ListHex Parent;
+        public Guid RandomValue;
+
         private string _hexName;
 
         public string HexName
@@ -35,16 +39,25 @@ namespace Players.Minimax.List
             }
         }
 
-        public ListHex Parent;
-        public Guid RandomValue;
 
+        public ListHex()
+        {
+            Parent = null;
+            RandomValue = Guid.NewGuid();
+            Status = Status.Untested;
+            Attached = new ConcurrentDictionary<string, ListHex>();
+            G = 0;
+            H = 0;
+
+            Owner = PlayerType.White;
+        }
 
         public ListHex(int size, int row, int column)
         {
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
-            Attached = new HashSet<ListHex>();
+            Attached = new ConcurrentDictionary<string, ListHex>();
             G = 0;
             H = 0;
             Row = row;
@@ -68,20 +81,13 @@ namespace Players.Minimax.List
         }
         public bool Equals(ListHex other)
         {
-            if (Row == other.Row && Column == other.Column)
+            if (ToTuple().Equals(other.ToTuple()))
             {
                 return true;
             }
             return false;
         }
-        public bool Equals(Tuple<int,int> coordinates)
-        {
-            if (Row == coordinates.Item1 && Column == coordinates.Item2)
-            {
-                return true;
-            }
-            return false;
-        }
+        
         public Tuple<int,int> AddDelta(Tuple<int,int> delta)
         {
             return new Tuple<int, int>(Row + delta.Item1, Column + delta.Item2);
@@ -91,43 +97,28 @@ namespace Players.Minimax.List
             G = 0;
             H = 0;
             Parent = null;
-            var toDetach = Attached.Where(x => x.Owner != Owner).ToList();
-            if (toDetach.Any())
-            {
-                Console.WriteLine(this.ToString() + " detaching " + toDetach.Count() + " items: " + string.Join(", ", toDetach));
-            }
-
-            foreach (var hexToDetach in toDetach)
-            {
-                DetachFrom(hexToDetach);
-                hexToDetach.DetachFrom(this);
-            }
-         
-
+            Attached = new ConcurrentDictionary<string, ListHex>();
             Status = Status.Untested;
         }
 
         public void AttachTo(ListHex node)
         {
             if (node != null
-                && !Equals(node) 
                 && node.Owner == Owner)
             {
-                Attached.Add(node);
+                Attached[node.HexName] = node;
             }
         }
 
         public void DetachFrom(ListHex node)
         {
-         
-                Attached.Remove(node);
+            Attached[node.HexName] = null;
         }
         public bool IsAttachedTo(ListHex node)
         {
-            if (node != null) 
+            if (node != null)
             {
-                var nodeToCheck = Attached
-                    .FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
+                var nodeToCheck = Attached[node.HexName];
                 if (nodeToCheck != null)
                 {
                     return true;

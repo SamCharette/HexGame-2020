@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Players.Common;
 
 namespace Players.Base
@@ -16,13 +18,18 @@ namespace Players.Base
         public int WaitTime = 50;
         public int talkative;
         public event EventHandler RelayInformation;
-        public Dictionary<string,int> Monitors = new Dictionary<string, int>();
+        public ConcurrentDictionary<string,int> Monitors = new ConcurrentDictionary<string, int>();
 
         public void RelayPerformanceInformation()
         {
             var args = new PerformanceEventArgs();
             args.PlayerNumber = PlayerNumber;
-            args.Counters = new Dictionary<string, int>(Monitors);
+            args.Counters = new ConcurrentDictionary<string, int>();
+            foreach (var item in Monitors)
+            {
+                args.Counters[item.Key] = item.Value;
+
+            }
             RelayInformation?.Invoke(this, args);
         }
             

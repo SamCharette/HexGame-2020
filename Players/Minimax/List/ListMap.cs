@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Xml;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -12,7 +15,7 @@ namespace Players.Minimax.List
     {
         public string Name { get; set; }
         public int Size { get; set; }
-        public List<ListHex> Board { get; set; }
+        public ConcurrentBag<ListHex> Board { get; set; }
         public ListHex Top { get; set; }
         public ListHex Bottom { get; set; }
         public ListHex Left { get; set; }
@@ -38,25 +41,25 @@ namespace Players.Minimax.List
                 {
                     foreach (var neighbour in hex.Attached.ToList())
                     {
-                        AttachNewNeighbours(neighbour, this, newHex);
+                        AttachNewNeighbours(neighbour.Value, this, newHex);
                     }
 
                 }
                 foreach (var hexAttachedToTop in source.Top.Attached.ToList())
                 {
-                    AttachNewNeighbours(hexAttachedToTop, this, Top);
+                    AttachNewNeighbours(hexAttachedToTop.Value, this, Top);
                 }
                 foreach (var hexAttachedToBottom in source.Bottom.Attached.ToList())
                 {
-                    AttachNewNeighbours(hexAttachedToBottom, this, Bottom);
+                    AttachNewNeighbours(hexAttachedToBottom.Value, this, Bottom);
                 }
                 foreach (var hexAttachedToLeft in source.Left.Attached.ToList())
                 {
-                    AttachNewNeighbours(hexAttachedToLeft, this, Left);
+                    AttachNewNeighbours(hexAttachedToLeft.Value, this, Left);
                 }
                 foreach (var hexAttachedToRight in source.Right.Attached.ToList())
                 {
-                    AttachNewNeighbours(hexAttachedToRight, this, Right);
+                    AttachNewNeighbours(hexAttachedToRight.Value, this, Right);
                 }
             }
             
@@ -64,34 +67,37 @@ namespace Players.Minimax.List
 
         private void AttachNewNeighbours(ListHex neighbour, ListMap newMap, ListHex newHex)
         {
-            
-            ListHex newNeighbour;
-            if (neighbour.HexName == "Top")
+            if (neighbour != null)
             {
-                newNeighbour = newMap.Top;
-            }
-            else if (neighbour.HexName == "Bottom")
-            {
-                newNeighbour = newMap.Bottom;
-            }
+                ListHex newNeighbour;
+                if (neighbour.HexName == "Top")
+                {
+                    newNeighbour = newMap.Top;
+                }
+                else if (neighbour.HexName == "Bottom")
+                {
+                    newNeighbour = newMap.Bottom;
+                }
 
-            else if (neighbour.HexName == "Left")
-            {
-                newNeighbour = newMap.Left;
-            }
+                else if (neighbour.HexName == "Left")
+                {
+                    newNeighbour = newMap.Left;
+                }
 
-            else if (neighbour.HexName == "Right")
-            {
-                newNeighbour = newMap.Right;
-            }
-            else
-            {
-                newNeighbour = newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
-            }
+                else if (neighbour.HexName == "Right")
+                {
+                    newNeighbour = newMap.Right;
+                }
+                else
+                {
+                    newNeighbour = newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
+                }
 
-            if (newNeighbour != null)
-            {
-                newHex.Attached.Add(newNeighbour);
+                if (newNeighbour != null)
+                {
+                    newHex.Attached[newNeighbour.HexName] = newNeighbour;
+                }
+
             }
         }
 
@@ -149,7 +155,7 @@ namespace Players.Minimax.List
             foreach (var neighbour in neighbours)
             {
                 AttachAllFriendlyNeighbours(hexToTake, neighbour);
-                AttachAllFriendlyNeighbours(neighbour, hexToTake);
+               // AttachAllFriendlyNeighbours(neighbour, hexToTake);
             }
 
             return true;
@@ -169,7 +175,10 @@ namespace Players.Minimax.List
             if (hexToRelease != null)
             {
                 hexToRelease.Owner = PlayerType.White;
-                Board.ForEach(x => DetachHexes(x, hexToRelease));
+                foreach (var hex in Board)
+                {
+                    DetachHexes(hexToRelease, hex);
+                }
                 DetachHexes(hexToRelease, Top);
                 DetachHexes(hexToRelease, Bottom);
                 DetachHexes(hexToRelease, Left);
@@ -183,7 +192,7 @@ namespace Players.Minimax.List
         public void Reset(int size)
         {
             Size = size;
-            Board = new List<ListHex> (Size);
+            Board = new ConcurrentBag<ListHex> ();
             for (var row = 0; row < Size; row++)
             {
                 for (var column = 0; column < Size; column++)
@@ -348,27 +357,33 @@ namespace Players.Minimax.List
 
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
+   
             AttachHexes(a, b);
-            //var friendsOfFriends = 
-            //    b.Attached.Where(x => x.Owner == a.Owner).ToList();
-            //foreach (var node in friendsOfFriends.ToList())
-            //{
-            //    AttachHexes(a, node);
-            //}
-            
+            foreach (var listHex in b.Attached.ToList())
+            {
+                AttachHexes(a, listHex.Value);
+            }
+
+
         }
 
         
         public void AttachHexes(ListHex a, ListHex b)
         {
-            a.AttachTo(b);
-            b.AttachTo(a);
+            if (a != null && b != null)
+            {
+                a.AttachTo(b);
+                b.AttachTo(a);
+            }
         }
 
         public void DetachHexes(ListHex a, ListHex b)
         {
-            a.DetachFrom(b);
-            b.DetachFrom(a);
+            if (a != null && b != null)
+            {
+                a.DetachFrom(b);
+                b.DetachFrom(a);
+            }
         }
 
     }

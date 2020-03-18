@@ -52,7 +52,7 @@
       },
       {
         "key": "movesPerBrainJump",
-        "value": "3"
+        "value": "2"
       },
 
       {
@@ -81,11 +81,11 @@
       },
       {
         "key": "maxLevels",
-        "value": "4"
+        "value": "6"
       },
       {
         "key": "movesPerBrainJump",
-        "value": "3"
+        "value": "2"
       },
       {
         "key": "costToClaimedNode",

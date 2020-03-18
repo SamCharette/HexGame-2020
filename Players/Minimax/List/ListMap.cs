@@ -359,7 +359,8 @@ namespace Players.Minimax.List
         {
    
             AttachHexes(a, b);
-            foreach (var listHex in b.Attached.ToList())
+            var toAttach = b.Attached.ToList();
+            foreach (var listHex in toAttach)
             {
                 AttachHexes(a, listHex.Value);
             }

@@ -142,8 +142,14 @@ namespace Players.Minimax.List
                 {
                     if (MoveQueue.Any() && CurrentThreadsInUse < MaximumThreads)
                     {
-                        var move = MoveQueue.Dequeue();
-                        var newMap = new ListMap(Memory);
+                        ListHex move;
+                        ListMap newMap;
+                        lock(WorkingLock)
+                        {
+
+                         move = MoveQueue.Dequeue();
+                        newMap = new ListMap(Memory);
+                        }
                         var newMapMove = newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
                         CurrentThreadsInUse++;
                         Threads.Add(Task.Factory.StartNew(() => StartSearchingForScore(newMap, newMapMove)));
@@ -181,15 +187,14 @@ namespace Players.Minimax.List
 
         public void StartSearchingForScore(ListMap searchInThisMap, ListHex move)
         {
-
+            
             RelayPerformanceInformation();
             Monitors[MovesExaminedThisTurn]++;
-
-        
-                var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, CurrentLevels, AbsoluteWorst, AbsoluteBest, false);
+            var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, CurrentLevels, AbsoluteWorst, AbsoluteBest, false);
+  
                 MoveScores.Add(new Tuple<ListHex, int>(move, score));
                 CurrentThreadsInUse--;
-        
+
         }
 
         public ListHex RandomHex()

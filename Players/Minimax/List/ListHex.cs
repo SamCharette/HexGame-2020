@@ -106,13 +106,17 @@ namespace Players.Minimax.List
             if (node != null
                 && node.Owner == Owner)
             {
-                Attached[node.HexName] = node;
+                Attached.TryAdd(node.HexName, node);
             }
         }
 
         public void DetachFrom(ListHex node)
         {
-            Attached[node.HexName] = null;
+            if (node != null)
+            {
+                ListHex outHex;
+                Attached.TryRemove(node.HexName, out outHex);
+            }
         }
         public bool IsAttachedTo(ListHex node)
         {

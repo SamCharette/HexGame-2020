@@ -113,6 +113,19 @@ namespace Players.Minimax.List
 
             var turnStartTime = DateTime.Now;
 
+
+            // TODO Add a check to see if there are any hexes that are winners
+            foreach (var hex in Memory.Board) 
+            {
+                if (Memory.CanHexReachBothEnds(hex, Me))
+                {
+                    CurrentChoice = hex.ToTuple();
+                    Quip("Found a winner! " + CurrentChoice);
+                    break;
+                }
+            }
+
+
             CurrentChoice = null;
 
             if (CurrentChoice == null)

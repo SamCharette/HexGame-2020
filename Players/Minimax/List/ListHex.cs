@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -63,6 +64,7 @@ namespace Players.Minimax.List
             set => _hexName = value;
         }
 
+       
         public Tuple<int, int> ToTuple()
         {
             return new Tuple<int, int>(Row, Column);

@@ -185,14 +185,16 @@ namespace Players.Minimax.List
         {
             RelayPerformanceInformation();
             Monitors[MovesExaminedThisTurn]++;
-            lock (searchInThisMap.LockObject)
-            {
-                var score = ThinkAboutTheNextMove(searchInThisMap, ProposedPath, move, CurrentLevels, AbsoluteWorst,
-                    AbsoluteBest, false);
+            var score = ThinkAboutTheNextMove(searchInThisMap, 
+                ProposedPath, 
+                move, 
+                CurrentLevels, 
+                AbsoluteWorst,
+                AbsoluteBest, 
+                false);
 
-                MoveScores[move] = score;
-                CurrentThreadsInUse--;
-            }
+            MoveScores[move] = score;
+            CurrentThreadsInUse--;
         }
 
         public ListHex RandomHex()
@@ -211,13 +213,16 @@ namespace Players.Minimax.List
             int beta,
             bool isMaximizing)
         {
-            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White)) return ScoreFromBoard(map);
+            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
+            {
+                return ScoreFromBoard(map);
+            }
             if (!map.TakeHex(isMaximizing ? Me : Opponent(), currentMove))
                 Quip("Problem taking hex as part of my searching." + currentMove);
 
             var myPath = GetAPathForPlayer(map, isMaximizing);
 
-            var possibleMoves = GetPossibleMovesFrom(path, myPath, isMaximizing);
+            var possibleMoves = GetPossibleMovesFrom(myPath, path, isMaximizing);
             if (!possibleMoves.Any())
             {
                 var score = ScoreFromBoard(map);
@@ -262,15 +267,22 @@ namespace Players.Minimax.List
 
         private List<ListHex> GetPossibleMovesFrom(List<ListHex> myPath, List<ListHex> theirPath, bool isMaximizing)
         {
-            var possibleMoves = new ConcurrentDictionary<string, ListHex>();
+            var possibleMoves = new ConcurrentBag<ListHex>();
             var bothLike = myPath.Where(theirPath.Contains).ToList();
 
-            foreach (var hex in myPath.Where(x => x.Owner == Common.PlayerType.White).ToList())
-                possibleMoves.TryAdd(hex.HexName, hex);
-            foreach (var hex in theirPath.Where(x => x.Owner == Common.PlayerType.White).ToList())
-                possibleMoves.TryAdd(hex.HexName, hex);
+            foreach (var hex in bothLike.Where(x => x.Owner == Common.PlayerType.White))
+            {
+                possibleMoves.Add(hex);
+            }
+            foreach (var hex in myPath.Where(x => x.Owner == Common.PlayerType.White
+                                                  && !bothLike.Any(y => y.Row == x.Row && y.Column == x.Column)).ToList())
+            {
+                possibleMoves.Add(hex);
+            }
+            //foreach (var hex in theirPath.Where(x => x.Owner == Common.PlayerType.White).ToList())
+            //    possibleMoves.TryAdd(hex.HexName, hex);
 
-            return possibleMoves.Select(x => x.Value).ToList();
+            return possibleMoves.ToList();
         }
 
         public PlayerType CurrentlySearchingAs(bool isMaximizing)

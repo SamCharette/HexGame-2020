@@ -1,141 +1,123 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Concurrent;
 using Players.Common;
 
 namespace Players.Minimax.List
 {
     public class ListHex
     {
-        public int Row { get; set; }
-        public int Column { get; set; }
-        public HashSet<ListHex> Attached { get; set; }
-        public int F => G + H;
-        public int G { get; set; }
-        public int H { get; set; }
-        public Common.PlayerType Owner { get;set; }
-        public Status Status { get; set; }
         private string _hexName;
-
-        public string HexName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_hexName))
-                {
-                    return "(" + Row + "," + Column + ")";
-                }
-
-                return _hexName;
-            }
-            set
-            {
-                _hexName = value;
-            }
-        }
-
         public ListHex Parent;
         public Guid RandomValue;
 
+
+        public ListHex()
+        {
+            Parent = null;
+            RandomValue = Guid.NewGuid();
+            Status = Status.Untested;
+            Attached = new ConcurrentDictionary<string, ListHex>();
+            G = 0;
+            H = 0;
+
+            Owner = PlayerType.White;
+        }
 
         public ListHex(int size, int row, int column)
         {
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
-            Attached = new HashSet<ListHex>();
+            Attached = new ConcurrentDictionary<string, ListHex>();
             G = 0;
             H = 0;
             Row = row;
             Column = column;
-            
+
             Owner = PlayerType.White;
+        }
+
+        public ListHex(Tuple<int, int> tupleData)
+        {
+            Row = tupleData.Item1;
+            Column = tupleData.Item2;
+        }
+
+        public int Row { get; set; }
+        public int Column { get; set; }
+        public ConcurrentDictionary<string, ListHex> Attached { get; set; }
+        public int F => G + H;
+        public int G { get; set; }
+        public int H { get; set; }
+        public PlayerType Owner { get; set; }
+        public Status Status { get; set; }
+
+        public string HexName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hexName)) return "(" + Row + "," + Column + ")";
+
+                return _hexName;
+            }
+            set => _hexName = value;
         }
 
         public Tuple<int, int> ToTuple()
         {
             return new Tuple<int, int>(Row, Column);
         }
+
         public override string ToString()
         {
             return ToTuple().ToString();
         }
-        public ListHex(Tuple<int,int> tupleData)
-        {
-            Row = tupleData.Item1;
-            Column = tupleData.Item2;
-        }
+
         public bool Equals(ListHex other)
         {
-            if (Row == other.Row && Column == other.Column)
-            {
-                return true;
-            }
+            if (ToTuple().Equals(other.ToTuple())) return true;
             return false;
         }
-        public bool Equals(Tuple<int,int> coordinates)
-        {
-            if (Row == coordinates.Item1 && Column == coordinates.Item2)
-            {
-                return true;
-            }
-            return false;
-        }
-        public Tuple<int,int> AddDelta(Tuple<int,int> delta)
+
+        public Tuple<int, int> AddDelta(Tuple<int, int> delta)
         {
             return new Tuple<int, int>(Row + delta.Item1, Column + delta.Item2);
         }
+
         public void ClearPathingVariables()
         {
             G = 0;
             H = 0;
             Parent = null;
-            var toDetach = Attached.Where(x => x.Owner != Owner).ToList();
-            if (toDetach.Any())
-            {
-                Console.WriteLine(this.ToString() + " detaching " + toDetach.Count() + " items: " + string.Join(", ", toDetach));
-            }
-
-            foreach (var hexToDetach in toDetach)
-            {
-                DetachFrom(hexToDetach);
-                hexToDetach.DetachFrom(this);
-            }
-         
-
+            Attached = new ConcurrentDictionary<string, ListHex>();
             Status = Status.Untested;
         }
 
         public void AttachTo(ListHex node)
         {
             if (node != null
-                && !Equals(node) 
                 && node.Owner == Owner)
-            {
-                Attached.Add(node);
-            }
+                Attached.TryAdd(node.HexName, node);
         }
 
         public void DetachFrom(ListHex node)
         {
-         
-                Attached.Remove(node);
+            if (node != null)
+            {
+                ListHex outHex;
+                Attached.TryRemove(node.HexName, out outHex);
+            }
         }
+
         public bool IsAttachedTo(ListHex node)
         {
-            if (node != null) 
+            if (node != null)
             {
-                var nodeToCheck = Attached
-                    .FirstOrDefault(x => x.Row == node.Row && x.Column == node.Column);
-                if (nodeToCheck != null)
-                {
-                    return true;
-                }
+                var nodeToCheck = Attached[node.HexName];
+                if (nodeToCheck != null) return true;
             }
 
             return false;
         }
     }
-
 }

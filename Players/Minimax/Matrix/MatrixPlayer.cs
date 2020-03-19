@@ -9,7 +9,7 @@ namespace Players.Minimax.Matrix
 {
     public class MatrixPlayer : MinimaxPlayer
     {
-        public MatrixNode[,] Board { get; set; }
+        public MatrixHex[,] Board { get; set; }
         public Matrix<int> MyMoves { get; set; }
         public Matrix<int> EnemyMoves { get; set; }
         public Matrix<int> EmptyMatrix { get; set; }
@@ -17,7 +17,6 @@ namespace Players.Minimax.Matrix
         private const int AbsoluteBestScore = 9999;
         private const int AbsoluteWorstScore = -9999;
         
-        public int NodesChecked { get; set; }
         public PlayerType Opponent => Me == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
         public MatrixPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
@@ -27,14 +26,20 @@ namespace Players.Minimax.Matrix
             Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
             MaxLevels = GetDefault(playerConfig, "maxLevels", 20);
             Name = playerConfig.name;
-            Board = new MatrixNode[Size,Size];
-            for (int col = 0; col < Size; col++)
+            Board = new MatrixHex[Size,Size];
+            for (int row = 0; row < Size; row++)
             {
-                for (int row = 0; row < Size; row++)
+                for (int col = 0; col < Size; col++)
                 {
-                    Board[row, col] = new MatrixNode(Size);
+                    Board[row, col] = new MatrixHex(Size);
                 } 
             }
+
+            MyMoves = Matrix<int>.Build.Dense(Size, Size);
+            MyMoves.Clear();
+            EnemyMoves = Matrix<int>.Build.Dense(Size, Size);
+            EnemyMoves.Clear();
+
             //Startup();
         }
 
@@ -167,139 +172,10 @@ namespace Players.Minimax.Matrix
             if (opponentMove != null)
             {
                 EnemyMoves[opponentMove.Item1, opponentMove.Item2] = 1;
+                EmptyMatrix[opponentMove.Item1, opponentMove.Item2] = 0;
             }
         }
 
-        //        public  Tuple<int, int> SelectHex(Tuple<int, int> opponentMove, int nothing)
-        //        {
-        //            _nodesChecked = 0;
-        //            if (opponentMove != null)
-        //            {
-        //                // First we set the opponent's hex as being owned by them.
-        //                var opponentHex = _memory.Board.FirstOrDefault(x => x.Row == opponentMove.Item1 && x.Column == opponentMove.Item2);
-        //                if (opponentHex != null)
-        //                {
-        //                    _memory.TakeHex(Opponent, opponentMove.Item1, opponentMove.Item2);
-        //                }
-        //            }
-        //            ListNode  choice = null;
-        //            int bestScore = 999;
-
-        //            var possibleMoves = _memory.Board.OrderBy(x => x.RandomValue).Where(x => x.Owner == Common.PlayerType.White);
-
-        //            foreach (var move in possibleMoves)
-        //            {
-        //                var thoughtBoard = new ListMap(_memory);
-
-        //                var scoreForThisMove = LetMeThinkAboutIt(thoughtBoard, _me, _maxLevels, 0, 0);
-        //                if (scoreForThisMove < bestScore)
-        //                {
-        //                    bestScore = scoreForThisMove;
-        //                    choice = _memory.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
-        //                }
-        //            }
-
-        //            Quip("Final moves checked out  : " + _nodesChecked);
-        //            Quip("Best score found is " + bestScore);
-
-        //            // And when in doubt, get a random one
-        //            if (choice == null)
-        //            {
-        //                Quip("Random it is...");
-        //                choice = _memory.Board.OrderBy(x => x.RandomValue)
-        //                    .FirstOrDefault(x => x.Owner == Common.PlayerType.White);
-        //            }
-
-        //            _memory.TakeHex(_me, choice.Row, choice.Column);
-        //            return new Tuple<int, int>(choice.Row, choice.Column);
-        //        }
-
-        //        private int ScoreFromBoard(PlayerType player, ListMap board)
-        //        {
-        //            // To score the board, we should find the best path for each player
-        //            // and use them to determine the score.
-        //            //
-        //            // Any path with fewer hexes needed to get to an edge, for instance, is better
-        //            if (board.Board.Count(x => x.Owner != Common.PlayerType.White) > 2)
-        //            {
-
-        //                var opponent = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
-
-        //                var playerScore = board.Board.Where(x => x.Owner == player)
-        //                    .OrderBy(y => y.RemainingDistance())
-        //                    .FirstOrDefault();
-
-        //                var opponentScore = board.Board.Where(x => x.Owner == opponent)
-        //                    .OrderBy(y => y.RemainingDistance())
-        //                    .FirstOrDefault();
-
-        //                var finalScore = playerScore.RemainingDistance() - opponentScore.RemainingDistance();
-
-        //                return finalScore;
-        //            }
-
-        //            return 0;
-
-        //        }
-
-        //        private int LetMeThinkAboutIt(ListMap thoughtBoard, PlayerType player, int depth, int alpha, int beta)
-        //        {
-        //            var currentAlpha = alpha;
-        //            var currentBeta = beta;
-
-        //            if (depth == 0 || thoughtBoard.Board.All(x => x.Owner != Common.PlayerType.White))
-        //            {
-        //                return ScoreFromBoard(player, thoughtBoard);
-        //            }
-
-        //            var possibleMoves = thoughtBoard.Board.Where(x => x.Owner == Common.PlayerType.White);
-        //            // Get possible moves for player
-        //            if (possibleMoves.Any())
-        //            {
-        //                var newThoughtBoard = new ListMap(thoughtBoard);
-
-        //                if (player == _me)
-        //                {
-        //                    var bestValue = -999999;
-        //                    foreach (var move in possibleMoves)
-        //                    {
-
-        //                        newThoughtBoard.TakeHex(player, move.Row, move.Column);
-        //                        bestValue = Math.Max(bestValue, LetMeThinkAboutIt(newThoughtBoard, Opponent, depth - 1, currentAlpha, currentBeta));
-        //                        currentAlpha = Math.Max(currentAlpha, bestValue);
-        //                        if (currentBeta <= currentAlpha)
-        //                        {
-        //                            _nodesChecked++;
-        //                            break;
-        //                        }
-        //                    }
-
-        //                    return bestValue;
-        //                } 
-        //                else
-        //                {
-        //                    var bestValue = 999999;
-        //                    foreach (var move in possibleMoves)
-        //                    {
-
-        //                        newThoughtBoard.TakeHex(player, move.Row, move.Column);
-        //                        bestValue = Math.Min(bestValue, LetMeThinkAboutIt(newThoughtBoard, _me, depth - 1, currentAlpha, currentBeta));
-        //                        currentBeta = Math.Min(currentBeta, bestValue);
-        //                        if (currentBeta <= currentAlpha)
-        //                        {
-        //                            _nodesChecked++;
-        //                            break;
-        //                        }
-        //                    }
-
-        //                    return bestValue;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                return ScoreFromBoard(player, thoughtBoard);
-        //            }
-        //        }
 
     }
 }

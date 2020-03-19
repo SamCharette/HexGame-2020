@@ -1,44 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using System.Threading;
 using System.Threading.Tasks;
 using HexLibrary;
 using Players;
 using Players.Base;
 using Players.Common;
-using Players.Minimax;
-using Players.Minimax.Matrix;
 using Players.Minimax.List;
+using Players.Minimax.Matrix;
 
 namespace Engine
 {
     public class Move
     {
+        public Tuple<int, int> hex;
         public Player player;
-        public Tuple<int,int> hex;
     }
+
     public class Referee
     {
+        private Tuple<int, int> _lastPlay;
+        private Player _lastPlayer;
+        public List<Move> AllGameMoves;
+        public Map Board;
+
+        private Tuple<int, int> hexWanted;
+
+
+        public Tuple<int, int> lastHexForPlayer1;
+
+        public Tuple<int, int> lastHexForPlayer2;
+
         // Board size must be equal in both directions
         public int Size;
-        public Map Board;
-        private Player _lastPlayer;
-        private Tuple<int, int> _lastPlay;
         public List<Hex> winningPath;
         public Player WinningPlayer;
-        public List<Move> AllGameMoves;
-        public event EventHandler PlayerMadeMove;
-        public event EventHandler GameOver;
+
+        public Referee(int size = 11)
+        {
+            NewGame(size);
+            AddPlayer(new Config(), 1);
+            AddPlayer(new Config(), 2);
+        }
 
         public Player Player1 { get; set; }
         public Player Player2 { get; set; }
-
-
-        public Tuple<int,int> lastHexForPlayer1;
-        public Tuple<int,int> lastHexForPlayer2;
-
-        private Tuple<int,int> hexWanted;
+        public event EventHandler PlayerMadeMove;
+        public event EventHandler GameOver;
 
         protected virtual void OnPlayerMadeMove(PlayerMadeMoveArgs e)
         {
@@ -47,15 +54,9 @@ namespace Engine
 
         public Player LosingPlayer()
         {
-            if (WinningPlayer != null && WinningPlayer == Player1)
-            {
-                return Player2;
-            }
+            if (WinningPlayer != null && WinningPlayer == Player1) return Player2;
 
-            if (WinningPlayer != null)
-            {
-                return Player1;
-            }
+            if (WinningPlayer != null) return Player1;
 
             return null;
         }
@@ -93,22 +94,13 @@ namespace Engine
         }
 
 
-
         public void ClickOnHexCoords(int x, int y)
         {
             if (CurrentPlayer() is HumanPlayer)
             {
-                HumanPlayer player = (HumanPlayer)CurrentPlayer();
+                var player = (HumanPlayer) CurrentPlayer();
                 player.ClickMadeOn(new Tuple<int, int>(x, y));
             }
-        }
-
-        public Referee(int size = 11)
-        {
-            NewGame(size);
-            AddPlayer(new Config(), 1);
-            AddPlayer(new Config(), 2);
-            
         }
 
         public void NewGame(int size = 11)
@@ -119,87 +111,60 @@ namespace Engine
             WinningPlayer = null;
             AllGameMoves = new List<Move>();
             _lastPlayer = Player2;
-            
         }
 
         public void AddPlayer(Config playerConfig, int playerNumber)
         {
-        
             switch (playerConfig.type)
             {
                 case "Human":
                     if (playerNumber == 1)
-                    {
                         Player1 = new HumanPlayer(playerNumber, Size, playerConfig);
-                    }
                     else
-                    {
                         Player2 = new HumanPlayer(playerNumber, Size, playerConfig);
-                    }
-                   
+
                     break;
                 case "Dozer AI":
                     if (playerNumber == 1)
-                    {
                         Player1 = new DozerPlayer(playerNumber, Size, playerConfig);
-                    }
                     else
-                    {
                         Player2 = new DozerPlayer(playerNumber, Size, playerConfig);
-                    }
 
                     break;
                 case "Minimax Matrix AI":
                     if (playerNumber == 1)
-                    {
                         Player1 = new MatrixPlayer(playerNumber, Size, playerConfig);
-                    }
                     else
-                    {
                         Player2 = new MatrixPlayer(playerNumber, Size, playerConfig);
-                    }
 
                     break;
                 case "Minimax List AI":
                     if (playerNumber == 1)
-                    {
                         Player1 = new ListPlayer(playerNumber, Size, playerConfig);
-                    }
                     else
-                    {
                         Player2 = new ListPlayer(playerNumber, Size, playerConfig);
-                    }
 
                     break;
 
                 case "Replay AI":
                     if (playerNumber == 1)
-                    {
                         Player1 = new Playback(playerNumber, Size, playerConfig);
-                    }
                     else
-                    {
                         Player2 = new Playback(playerNumber, Size, playerConfig);
-                    }
 
                     break;
 
                 default:
                     if (playerNumber == 1)
-                    {
                         Player1 = new RandomPlayer(playerNumber, Size, null);
-                    }
                     else
-                    {
                         Player2 = new RandomPlayer(playerNumber, Size, null);
-                    }
                     break;
             }
-           
         }
-        
-   
-        public async Task<Tuple<int,int>> TakeTurn(Player player)
+
+
+        public async Task<Tuple<int, int>> TakeTurn(Player player)
         {
 //            Quip(player.Name + " " + player.PlayerType() + " take your turn!");
             hexWanted = null;
@@ -212,6 +177,7 @@ namespace Engine
                 GameEndsOnFoul();
             }
 
+            if (_lastPlay == null) Quip("Last play is null.");
             hexWanted = await Task.Run(() => player.SelectHex(_lastPlay));
 
             if (hexWanted == null)
@@ -231,13 +197,9 @@ namespace Engine
                 else
                 {
                     if (CurrentPlayer().PlayerNumber == 1)
-                    {
                         lastHexForPlayer1 = hexWanted;
-                    }
                     else
-                    {
                         lastHexForPlayer2 = hexWanted;
-                    }
 
                     _lastPlay = hexWanted;
                     var playerMove = new Move
@@ -255,17 +217,15 @@ namespace Engine
 
                     LookForWinner();
                 }
-
-              
             }
-            return new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2); 
 
+            return new Tuple<int, int>(hexWanted.Item1, hexWanted.Item2);
         }
 
         private void GameEndsOnFoul()
         {
             WinningPlayer = OpponentPlayer();
-            var args = new GameOverArgs()
+            var args = new GameOverArgs
             {
                 WinningPlayerNumber = WinningPlayer.PlayerNumber,
                 WinningPath = null
@@ -288,23 +248,16 @@ namespace Engine
 
         private void PrintPath(List<Hex> path)
         {
-            foreach (var hex in path)
-            {
-                Console.Write("[" + hex.Row + "," + hex.Column + "] ");
-            }
+            foreach (var hex in path) Console.Write("[" + hex.Row + "," + hex.Column + "] ");
             Console.WriteLine("");
         }
 
         public bool LookForWinner()
         {
-
-            if (WinningPlayer != null)
-            {
-                return true;
-            }
+            if (WinningPlayer != null) return true;
 
             var isHorizontal = CurrentPlayer().PlayerNumber != 1;
-            
+
             if (CheckForWinningPath(CurrentPlayer().PlayerNumber))
             {
                 WinningPlayer = CurrentPlayer();
@@ -322,20 +275,17 @@ namespace Engine
             return false;
         }
 
-     
 
         private bool CheckForWinningPath(int playerNumber)
         {
-
             if (Board.DoesWinningPathExistFor(playerNumber))
             {
                 winningPath = Board.LastPathChecked;
-               
+
                 return true;
             }
 
             return false;
-
         }
     }
 }

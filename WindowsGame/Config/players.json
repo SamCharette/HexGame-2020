@@ -43,9 +43,18 @@
     "talkative": "1",
     "settings": [
       {
+        "key": "minLevels",
+        "value": "1"
+      },
+      {
         "key": "maxLevels",
         "value": "4"
       },
+      {
+        "key": "movesPerBrainJump",
+        "value": "2"
+      },
+
       {
         "key": "costToClaimedNode",
         "value": "0"
@@ -67,8 +76,16 @@
     "talkative": "1",
     "settings": [
       {
+        "key": "minLevels",
+        "value": "1"
+      },
+      {
         "key": "maxLevels",
-        "value": "5"
+        "value": "6"
+      },
+      {
+        "key": "movesPerBrainJump",
+        "value": "2"
       },
       {
         "key": "costToClaimedNode",

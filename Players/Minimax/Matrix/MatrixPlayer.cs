@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MathNet.Numerics.LinearAlgebra;
 using Players.Base;
 using Players.Common;
@@ -13,12 +14,15 @@ namespace Players.Minimax.Matrix
         public Matrix<int> MyMoves { get; set; }
         public Matrix<int> EnemyMoves { get; set; }
         public Matrix<int> EmptyMatrix { get; set; }
-        public int MaxLevels { get; set; }
         private const int AbsoluteBestScore = 9999;
         private const int AbsoluteWorstScore = -9999;
         
         public PlayerType Opponent => Me == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
 
+        public int OpponentNumber()
+        {
+            return Me == Common.PlayerType.Blue ? 2 : 1;
+        }
         public MatrixPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             Size = boardSize;
@@ -53,82 +57,43 @@ namespace Players.Minimax.Matrix
             UpdateEnemyMoves(opponentMove);
 
             // Now that we've updated the player information, time to look for a move.
-            var matrixToExamine = MyMoves
-                .Add(EmptyMatrix.Multiply(2))
-                .Add(EnemyMoves.Multiply(3));
+            var matrixToExamine = Matrix<int>.Build.Dense(Size, Size); 
+            MyMoves
+                .Add(EnemyMoves.Multiply(2))
+                .CopyTo(matrixToExamine);
+            var openSpots = matrixToExamine.EnumerateIndexed(Zeros.Include).Where(x => x.Item3 == 0);
 
-            var bestScore = Minimax(matrixToExamine, MaxLevels, AbsoluteWorstScore, AbsoluteBestScore, true);
+            var bestScore = AbsoluteWorstScore;
+            Tuple<int,int> moveToTake = null;
+            
+            foreach (var spot in openSpots)
+            {
+                var newMatrix = Matrix<int>.Build.Dense(Size, Size);
+                var workerBee = new SearchWorker(Size, spot,MaxLevels, AbsoluteWorstScore, AbsoluteBestScore, true, newMatrix);
+                workerBee.Start();
+                if (workerBee.MoveScore > bestScore)
+                {
+                    moveToTake = new Tuple<int, int>(workerBee.MoveToExamine.Item1, workerBee.MoveToExamine.Item2);
+                    bestScore = workerBee.MoveScore;
+                } 
+            }
 
-
-            return null;
+            TakeHex(moveToTake);
+            return moveToTake;
         }
 
-        public int Minimax(Matrix<int> board, int depth, int alpha, int beta, bool isMaximizing)
+        public void TakeHex(Tuple<int, int> move)
         {
-            if (depth == 0 || IsThereAWinner(board, isMaximizing ? Me : Opponent))
-            {
-                return ScoreTheBoard(board, isMaximizing ? Me : Opponent);
-            }
 
-            if (isMaximizing)
-            {
-                var bestScore = AbsoluteWorstScore;
-                // Get moves
-                // for each possible move
-                    // Take the hex for the player
-                    // bestScore = Math.Max(bestScore(board, depth -1, alpha, beta, false);
-                    // alpha = Math.Max(alpha, bestScore)
-                    // Release the hex again
-                    // if (beta <= alpha)
-                    // {
-                    //  break;
-                    // }
-                return bestScore;
-            }
-            else
-            {
-                var bestScore = AbsoluteBestScore;
-                // Get Moves
-                // for each possible move
-                // Take the hex for the player
-                // bestScore = Math.Min(bestScore(board, depth -1, alpha, beta, true);
-                // alpha = Math.Min(alpha, bestScore)
-                // Release the hex again
-                // if (beta <= alpha)
-                // {
-                //  break;
-                // }
-                return bestScore;
-            }
+        }
+        private int GetRow(int index)
+        {
+            return (int)index / Size;
         }
 
-        public int ScoreTheBoard(Matrix<int> board, PlayerType player)
+        private int GetColomn(int index)
         {
-            if (IsThereAWinner(board, player))
-            {
-                return player == Me ? AbsoluteBestScore : AbsoluteWorstScore;
-            }
-            // Note, the lower the score the better the score is
-            var otherPlayer = player == Common.PlayerType.Blue ? Common.PlayerType.Red : Common.PlayerType.Blue;
-            var playerScore = CostOfBestPath(board, player);
-            var enemyScore = CostOfBestPath(board, otherPlayer);
-            return playerScore - enemyScore;
-        }
-
-        public int CostOfBestPath(Matrix<int> board, PlayerType player)
-        {
-            var vertical = MyMoves.RowSums();
-            var horizontal = MyMoves.ColumnSums();
-           
-            var emptyVertical = vertical.Count(x => x.Equals(0));
-            var emptyHorizontal = horizontal.Count(x => x.Equals(0));
-
-            if (Me == Common.PlayerType.Blue)
-            {
-                return 1;
-            }
-            return (Size - emptyVertical) + (Size - emptyHorizontal);
-
+            return index % Size;
         }
 
         public bool IsWinningPick(int newRow, int newColumn)
@@ -139,32 +104,6 @@ namespace Players.Minimax.Matrix
             }
             return Board[newRow, newColumn].ReachesLeft() && Board[newRow, newColumn].ReachesRight();
 
-        }
-
-        public bool IsThereAWinner(Matrix<int> board, PlayerType player)
-        {
-            if (player == Common.PlayerType.Blue)
-            {
-                for (var i = 0; i < Size; i++)
-                {
-                    if (Board[0,i].Owner == player && Board[0, i].ReachesBottom())
-                    {
-                        return true;
-                    }
-                }
-            } 
-            else
-            {
-                for (var i = 0; i < Size; i++)
-                {
-                    if (Board[0, i].Owner == player && Board[i,0].ReachesRight())
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         private void UpdateEnemyMoves(Tuple<int, int> opponentMove)

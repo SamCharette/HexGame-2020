@@ -11,5 +11,9 @@ namespace Players.Minimax.List
      */
     public class Appraiser
     {
+        public int ScoreFromBoard(ListMap map)
+        {
+            return 1;
+        }
     }
 }

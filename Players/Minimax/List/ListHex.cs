@@ -20,6 +20,8 @@ namespace Players.Minimax.List
         public bool AttachedToBottom { get; set; }
         public bool AttachedToRight { get; set; }
 
+
+
         public int G { get; set; }
         public int H { get; set; }
         public PlayerType Owner { get; set; }
@@ -54,21 +56,32 @@ namespace Players.Minimax.List
             }
         }
 
-        public void SetEdgeAttachedStatuses()
+        public bool IsAttachedToBothEnds(PlayerType player)
+        {
+            if (player == PlayerType.Blue)
+            {
+                return AttachedToTop && AttachedToBottom;
+            }
+
+            return AttachedToLeft && AttachedToRight;
+        }
+
+        private void SetEdgeAttachedStatuses()
         {
             SetColumnAttachedStatuses();
             SetRowAttachedStatuses();
         }
 
-        public void SetColumnAttachedStatuses()
+        private void SetColumnAttachedStatuses()
         {
-            var columns = Attached.EnumerateColumnsIndexed(0, Size);
+            var columns = Attached.EnumerateColumnsIndexed(0, Size).ToList();
             AttachedToLeft = columns.FirstOrDefault(x => x.Item1 == 0).Item2.Sum() > 0;
             AttachedToRight = columns.FirstOrDefault(x => x.Item1 == Size - 1).Item2.Sum() > 0;
         }
-        public void SetRowAttachedStatuses()
+
+        private void SetRowAttachedStatuses()
         {
-            var rows = Attached.EnumerateRowsIndexed(0, Size);
+            var rows = Attached.EnumerateRowsIndexed(0, Size).ToList();
             AttachedToTop = rows.FirstOrDefault(x => x.Item1 == 0).Item2.Sum() > 0;
             AttachedToBottom = rows.FirstOrDefault(x => x.Item1 == Size - 1).Item2.Sum() > 0;
         }

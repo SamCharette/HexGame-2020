@@ -30,26 +30,6 @@ namespace Players.Minimax.List
             }
         }
 
-        public ListMap(ListMap source)
-        {
-            lock (source.LockObject)
-            {
-                Size = source.Size;
-                Reset(source.Size);
-                foreach (var hex in source.Board.ToList())
-                {
-                    var newHex = Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
-                    if (newHex != null)
-                        foreach (var neighbour in hex.GetAttachedHexes().ToList())
-                            AttachNewNeighbours(neighbour.Value, this, newHex);
-
-                    AttachEdge(Top, newHex);
-                    AttachEdge(Bottom, newHex);
-                    AttachEdge(Left, newHex);
-                    AttachEdge(Right, newHex);
-                }
-            }
-        }
 
         public bool Debug = true;
         public string Name { get; set; }
@@ -64,13 +44,6 @@ namespace Players.Minimax.List
         public const string LeftName = "Left";
         public const string RightName = "Right";
 
-        private void AttachEdge(ListHex edge, ListHex attachTo)
-        {
-            var attachedList = edge?.GetAttachedHexes().ToList();
-            if (attachedList != null && attachedList.Any())
-                foreach (var hex in attachedList)
-                    AttachNewNeighbours(attachTo, this, hex.Value);
-        }
 
         private void AttachNewNeighbours(ListHex neighbour, ListMap newMap, ListHex newHex)
         {
@@ -230,41 +203,21 @@ namespace Players.Minimax.List
 
             if (a == Right) return Board.Where(x => x.Column == Size - 1).ToList();
             var physicalNeighbours = new List<ListHex>();
-            for (var i = 0; i < 6; i++)
+            foreach (var neighbourCoordinates in a.Neighbours)
             {
-                var delta = Compass.GetDeltaFor(i);
-                var possibleNeighbour = FindHex(a.AddDelta(delta));
+                var possibleNeighbour = FindHex(neighbourCoordinates.ToTuple());
                 if (possibleNeighbour != null) physicalNeighbours.Add(possibleNeighbour);
             }
 
-            if (IsHexAtTop(a)) physicalNeighbours.Add(Top);
-            if (IsHexAtBottom(a)) physicalNeighbours.Add(Bottom);
-            if (IsHexAtLeft(a)) physicalNeighbours.Add(Left);
-            if (IsHexAtRight(a)) physicalNeighbours.Add(Right);
+            if (a.AttachedToTop) physicalNeighbours.Add(Top);
+            if (a.AttachedToBottom) physicalNeighbours.Add(Bottom);
+            if (a.AttachedToLeft) physicalNeighbours.Add(Left);
+            if (a.AttachedToRight) physicalNeighbours.Add(Right);
 
             return physicalNeighbours;
         }
 
-        public bool IsHexAtTop(ListHex a)
-        {
-            return a.Row == 0;
-        }
-
-        public bool IsHexAtBottom(ListHex a)
-        {
-            return a.Row == Size - 1;
-        }
-
-        public bool IsHexAtLeft(ListHex a)
-        {
-            return a.Column == 0;
-        }
-
-        public bool IsHexAtRight(ListHex a)
-        {
-            return a.Column == Size - 1;
-        }
-
+     
         public bool AreFriendlyNeighbours(ListHex a, ListHex b)
         {
             return a.Owner == b.Owner && ArePhysicalNeighbours(a, b);
@@ -278,16 +231,8 @@ namespace Players.Minimax.List
             if (a.Equals(Bottom) && b.Row == Size - 1 || a.Row == Size - 1 && b.Equals(Bottom)) return true;
             if (a.Equals(Right) && b.Column == Size - 1 || a.Column == Size - 1 && b.Equals(Right)) return true;
 
-            // Otherwise, check the physical neighbours via direction
-            for (var i = 0; i < 6; i++)
-            {
-                var delta = Compass.GetDeltaFor(i);
-                var newLocation = a.AddDelta(delta);
-                var hex = FindHex(newLocation);
-                if (hex != null && b.Equals(hex)) return true;
-            }
+            return a.Neighbours.Contains(new SimpleHex(b.Row, b.Column));
 
-            return false;
         }
 
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)

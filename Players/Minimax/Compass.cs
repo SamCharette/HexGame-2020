@@ -4,6 +4,12 @@ using System.Text;
 
 namespace Players.Minimax
 {
+    /*
+     * A static class that can give you a delta for a direction,
+     * or even new coordinates given coordinates and a direction.
+     *
+     * There is no need for this to be inside any other class.
+     */
     public static class Compass
     {
         private static readonly Dictionary<AxialDirections, Tuple<int, int>> Directions =

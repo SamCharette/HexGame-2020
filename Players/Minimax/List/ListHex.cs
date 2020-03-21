@@ -1,94 +1,76 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
 namespace Players.Minimax.List
 {
-    public class ListHex
+    public class ListHex : SimpleHex
     {
-        private string _hexName;
+        public List<SimpleHex> Neighbours;
+
         public ListHex Parent;
         public Guid RandomValue;
 
 
-        public ListHex()
-        {
-            Parent = null;
-            RandomValue = Guid.NewGuid();
-            Status = Status.Untested;
-            Attached = new Dictionary<string, ListHex>();
-            G = 0;
-            H = 0;
-
-            Owner = PlayerType.White;
-        }
-
-        public ListHex(int size, int row, int column)
-        {
-            Parent = null;
-            RandomValue = Guid.NewGuid();
-            Status = Status.Untested;
-            Attached = new Dictionary<string, ListHex>();
-            G = 0;
-            H = 0;
-            Row = row;
-            Column = column;
-
-            Owner = PlayerType.White;
-        }
-
-        public ListHex(Tuple<int, int> tupleData)
-        {
-            Row = tupleData.Item1;
-            Column = tupleData.Item2;
-        }
-
-        public int Row { get; set; }
-        public int Column { get; set; }
-        protected Dictionary<string, ListHex> Attached { get; set; }
-        public int F()
-        {
-            return G + H;
-        }
+        public Matrix<int> Attached { get; set; }
+        public bool AttachedToTop { get; set; }
+        public bool AttachedToLeft { get; set; }
+        public bool AttachedToBottom { get; set; }
+        public bool AttachedToRight { get; set; }
 
         public int G { get; set; }
         public int H { get; set; }
         public PlayerType Owner { get; set; }
         public Status Status { get; set; }
-
-        public Dictionary<string,ListHex> GetAttachedHexes()
+        
+        public ListHex(int size, int row, int column) : base(row, column)
         {
-            return Attached;
+            Size = size;
+            Parent = null;
+            RandomValue = Guid.NewGuid();
+            Status = Status.Untested;
+            Attached = Matrix<int>.Build.Dense(size, size, 0);
+            G = 0;
+            H = 0;
+            Row = row;
+            Column = column;
+            Attached[Row, Column] = 1;
+            Owner = PlayerType.White;
+            GetNeighbours();
+            SetEdgeAttachedStatuses();
         }
 
-        public string HexName
+        private void GetNeighbours()
         {
-            get
+            for (var i = 0; i < 6; i++)
             {
-                if (string.IsNullOrEmpty(_hexName)) return "(" + Row + "," + Column + ")";
-
-                return _hexName;
+                var newNeighbour = new SimpleHex(Compass.GetCoordinatesFor(ToTuple(), i));
+                if (newNeighbour.IsInBounds())
+                {
+                    Neighbours.Add(newNeighbour);
+                }
             }
-            set => _hexName = value;
         }
 
-       
-        public Tuple<int, int> ToTuple()
+        public void SetEdgeAttachedStatuses()
         {
-            return new Tuple<int, int>(Row, Column);
+            SetColumnAttachedStatuses();
+            SetRowAttachedStatuses();
         }
 
-        public override string ToString()
+        public void SetColumnAttachedStatuses()
         {
-            return ToTuple().ToString();
+            var columns = Attached.EnumerateColumnsIndexed(0, Size);
+            AttachedToLeft = columns.FirstOrDefault(x => x.Item1 == 0).Item2.Sum() > 0;
+            AttachedToRight = columns.FirstOrDefault(x => x.Item1 == Size - 1).Item2.Sum() > 0;
         }
-
-        public bool Equals(ListHex other)
+        public void SetRowAttachedStatuses()
         {
-            if (ToTuple().Equals(other.ToTuple())) return true;
-            return false;
+            var rows = Attached.EnumerateRowsIndexed(0, Size);
+            AttachedToTop = rows.FirstOrDefault(x => x.Item1 == 0).Item2.Sum() > 0;
+            AttachedToBottom = rows.FirstOrDefault(x => x.Item1 == Size - 1).Item2.Sum() > 0;
         }
 
         public Tuple<int, int> AddDelta(Tuple<int, int> delta)
@@ -96,36 +78,41 @@ namespace Players.Minimax.List
             return new Tuple<int, int>(Row + delta.Item1, Column + delta.Item2);
         }
 
+        public void AttachTo(ListHex node)
+        {
+            if (node != null
+                && node.Owner == Owner)
+                Attached[node.Row, node.Column] = 1;
+            SetEdgeAttachedStatuses();
+        }
+
         public void ClearPathingVariables()
         {
             G = 0;
             H = 0;
             Parent = null;
-            Attached = new Dictionary<string, ListHex>();
             Status = Status.Untested;
-        }
-
-        public void AttachTo(ListHex node)
-        {
-            if (node != null
-                && node.Owner == Owner)
-                Attached[node.HexName] =node;
         }
 
         public void DetachFrom(ListHex node)
         {
             if (node != null)
             {
-                Attached.Remove(node.HexName);
+                Attached[node.Row, node.Column] = 0;
+                SetEdgeAttachedStatuses();
             }
+        }
+
+        public int F()
+        {
+            return G + H;
         }
 
         public bool IsAttachedTo(ListHex node)
         {
             if (node != null)
             {
-                var nodeToCheck = Attached[node.HexName];
-                if (nodeToCheck != null) return true;
+                return Attached[node.Row, node.Column] == 1;
             }
 
             return false;

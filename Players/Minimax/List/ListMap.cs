@@ -9,16 +9,7 @@ namespace Players.Minimax.List
     [Serializable]
     public class ListMap
     {
-        public Dictionary<AxialDirections, Tuple<int, int>> Directions =
-            new Dictionary<AxialDirections, Tuple<int, int>>
-            {
-                {AxialDirections.TopLeft, new Tuple<int, int>(0, -1)},
-                {AxialDirections.TopRight, new Tuple<int, int>(+1, -1)},
-                {AxialDirections.Right, new Tuple<int, int>(+1, 0)},
-                {AxialDirections.BottomRight, new Tuple<int, int>(0, +1)},
-                {AxialDirections.BottomLeft, new Tuple<int, int>(-1, +1)},
-                {AxialDirections.Left, new Tuple<int, int>(-1, 0)}
-            };
+        
 
         public object LockObject = new object();
 
@@ -241,7 +232,7 @@ namespace Players.Minimax.List
             var physicalNeighbours = new List<ListHex>();
             for (var i = 0; i < 6; i++)
             {
-                var delta = Directions[(AxialDirections) i];
+                var delta = Compass.GetDeltaFor(i);
                 var possibleNeighbour = FindHex(a.AddDelta(delta));
                 if (possibleNeighbour != null) physicalNeighbours.Add(possibleNeighbour);
             }
@@ -290,7 +281,7 @@ namespace Players.Minimax.List
             // Otherwise, check the physical neighbours via direction
             for (var i = 0; i < 6; i++)
             {
-                var delta = Directions[(AxialDirections) i];
+                var delta = Compass.GetDeltaFor(i);
                 var newLocation = a.AddDelta(delta);
                 var hex = FindHex(newLocation);
                 if (hex != null && b.Equals(hex)) return true;

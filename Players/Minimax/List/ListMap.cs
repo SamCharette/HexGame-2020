@@ -49,7 +49,7 @@ namespace Players.Minimax.List
                 {
                     var newHex = Board.FirstOrDefault(x => x.Row == hex.Row && x.Column == hex.Column);
                     if (newHex != null)
-                        foreach (var neighbour in hex.Attached.ToList())
+                        foreach (var neighbour in hex.GetAttachedHexes().ToList())
                             AttachNewNeighbours(neighbour.Value, this, newHex);
 
                     AttachEdge(Top, newHex);
@@ -63,7 +63,7 @@ namespace Players.Minimax.List
         public bool Debug = true;
         public string Name { get; set; }
         public int Size { get; set; }
-        public ConcurrentBag<ListHex> Board { get; set; }
+        public List<ListHex> Board { get; set; }
         public ListHex Top { get; set; }
         public ListHex Bottom { get; set; }
         public ListHex Left { get; set; }
@@ -75,7 +75,7 @@ namespace Players.Minimax.List
 
         private void AttachEdge(ListHex edge, ListHex attachTo)
         {
-            var attachedList = edge?.Attached.ToList();
+            var attachedList = edge?.GetAttachedHexes().ToList();
             if (attachedList != null && attachedList.Any())
                 foreach (var hex in attachedList)
                     AttachNewNeighbours(attachTo, this, hex.Value);
@@ -100,7 +100,7 @@ namespace Players.Minimax.List
                     newNeighbour =
                         newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
 
-                if (newNeighbour != null) newHex.Attached[newNeighbour.HexName] = newNeighbour;
+                if (newNeighbour != null) newHex.GetAttachedHexes()[newNeighbour.HexName] = newNeighbour;
             }
         }
 
@@ -186,7 +186,7 @@ namespace Players.Minimax.List
         public void Reset(int size)
         {
             Size = size;
-            Board = new ConcurrentBag<ListHex>();
+            Board = new List<ListHex>();
             for (var row = 0; row < Size; row++)
             for (var column = 0; column < Size; column++)
             {
@@ -302,7 +302,7 @@ namespace Players.Minimax.List
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
             AttachHexes(a, b);
-            var toAttach = b.Attached.ToList();
+            var toAttach = b.GetAttachedHexes().ToList();
             foreach (var listHex in toAttach) AttachHexes(a, listHex.Value);
         }
 
@@ -331,8 +331,8 @@ namespace Players.Minimax.List
             var start = me == PlayerType.Blue ? TopName : LeftName;
             var end = me == PlayerType.Blue ? BottomName : RightName;
 
-            var touchesStart = hex.Attached.Any(x => x.Key == start);
-            var touchesEnd = hex.Attached.Any(x => x.Key == end);
+            var touchesStart = hex.GetAttachedHexes().Any(x => x.Key == start);
+            var touchesEnd = hex.GetAttachedHexes().Any(x => x.Key == end);
             if (touchesStart) DebugMessage(2,"Hex can reach out to start: " + hex.HexName);
             if (touchesEnd) DebugMessage(2, "Hex can reach out to the end: " + hex.HexName);
 
@@ -343,13 +343,13 @@ namespace Players.Minimax.List
 
             foreach (var neighbour in neighbours)
             {
-                DebugMessage(4,"Neighbour " + neighbour + " attached to " + neighbour.Attached.Count + " others.");
-                if (neighbour.Attached.Any(x => x.Key == start) || neighbour.HexName == start)
+                DebugMessage(4,"Neighbour " + neighbour + " attached to " + neighbour.GetAttachedHexes().Count + " others.");
+                if (neighbour.GetAttachedHexes().Any(x => x.Key == start) || neighbour.HexName == start)
                 {
                     DebugMessage(8,neighbour + " can reach start.");
                     touchesStart = true;
                 }
-                if (neighbour.Attached.Any(x => x.Key == end) || neighbour.HexName == end)
+                if (neighbour.GetAttachedHexes().Any(x => x.Key == end) || neighbour.HexName == end)
                 {
                     DebugMessage(8, neighbour + " can reach end.");
                     touchesEnd = true;

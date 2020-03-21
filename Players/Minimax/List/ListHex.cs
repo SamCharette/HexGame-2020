@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using Players.Common;
 
@@ -17,7 +18,7 @@ namespace Players.Minimax.List
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
-            Attached = new ConcurrentDictionary<string, ListHex>();
+            Attached = new Dictionary<string, ListHex>();
             G = 0;
             H = 0;
 
@@ -29,7 +30,7 @@ namespace Players.Minimax.List
             Parent = null;
             RandomValue = Guid.NewGuid();
             Status = Status.Untested;
-            Attached = new ConcurrentDictionary<string, ListHex>();
+            Attached = new Dictionary<string, ListHex>();
             G = 0;
             H = 0;
             Row = row;
@@ -46,12 +47,21 @@ namespace Players.Minimax.List
 
         public int Row { get; set; }
         public int Column { get; set; }
-        public ConcurrentDictionary<string, ListHex> Attached { get; set; }
-        public int F => G + H;
+        protected Dictionary<string, ListHex> Attached { get; set; }
+        public int F()
+        {
+            return G + H;
+        }
+
         public int G { get; set; }
         public int H { get; set; }
         public PlayerType Owner { get; set; }
         public Status Status { get; set; }
+
+        public Dictionary<string,ListHex> GetAttachedHexes()
+        {
+            return Attached;
+        }
 
         public string HexName
         {
@@ -91,7 +101,7 @@ namespace Players.Minimax.List
             G = 0;
             H = 0;
             Parent = null;
-            Attached = new ConcurrentDictionary<string, ListHex>();
+            Attached = new Dictionary<string, ListHex>();
             Status = Status.Untested;
         }
 
@@ -99,15 +109,14 @@ namespace Players.Minimax.List
         {
             if (node != null
                 && node.Owner == Owner)
-                Attached.TryAdd(node.HexName, node);
+                Attached[node.HexName] =node;
         }
 
         public void DetachFrom(ListHex node)
         {
             if (node != null)
             {
-                ListHex outHex;
-                Attached.TryRemove(node.HexName, out outHex);
+                Attached.Remove(node.HexName);
             }
         }
 

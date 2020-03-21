@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Omu.ValueInjecter;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -157,7 +158,7 @@ namespace Players.Minimax.List
                         lock (_workingLock)
                         {
                             var move = MoveQueue.Dequeue();
-                            var newMap = new ListMap(Memory);
+                            var newMap = new  ListMap().InjectFrom( new CloneInjection(), Memory) as ListMap;
                             var newMapMove =
                                 newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
                             Threads.Add(Task.Factory.StartNew(() => StartSearchingForScore(newMap, newMapMove)));
@@ -429,7 +430,7 @@ namespace Players.Minimax.List
         {
             // Get the best looking node
             var bestLookingHex = map.Board
-                .OrderBy(x => x.F)
+                .OrderBy(x => x.F())
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 

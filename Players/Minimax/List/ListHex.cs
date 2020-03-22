@@ -15,10 +15,10 @@ namespace Players.Minimax.List
 
 
         public Matrix<double> Attached { get; set; }
-        public bool AttachedToTop { get; set; }
-        public bool AttachedToLeft { get; set; }
-        public bool AttachedToBottom { get; set; }
-        public bool AttachedToRight { get; set; }
+        public bool IsAttachedToTop { get; set; }
+        public bool IsAttachedToLeft { get; set; }
+        public bool IsAttachedToBottom { get; set; }
+        public bool IsAttachedToRight { get; set; }
 
 
 
@@ -58,17 +58,22 @@ namespace Players.Minimax.List
             }
         }
 
-        public bool IsAttachedToBothEnds(PlayerType player)
+        public bool IsAttachedToBothEnds()
         {
-            if (player == PlayerType.Blue)
+            if (Owner == PlayerType.Blue)
             {
-                return AttachedToTop && AttachedToBottom;
+                return IsAttachedToTop && IsAttachedToBottom;
+            } 
+            else if (Owner == PlayerType.Red)
+            {
+                return IsAttachedToLeft && IsAttachedToRight;
             }
 
-            return AttachedToLeft && AttachedToRight;
+            return false;
+
         }
 
-        private void SetEdgeAttachedStatuses()
+        public void SetEdgeAttachedStatuses()
         {
             SetColumnAttachedStatuses();
             SetRowAttachedStatuses();
@@ -76,16 +81,17 @@ namespace Players.Minimax.List
 
         private void SetColumnAttachedStatuses()
         {
-            var columns = Attached.EnumerateColumnsIndexed(0, Size).ToList();
-            AttachedToLeft = Attached.Column(0).Sum()  > 0;
-            AttachedToRight = Attached.Column(Size - 1).Sum() > 0;
+            var columns = Attached.EnumerateColumnsIndexed(0, Size).OrderBy(x => x.Item1).ToList();
+            IsAttachedToLeft = columns.First().Item2.Sum() > 0;
+            IsAttachedToRight = columns.Last().Item2.Sum() > 0;
         }
 
         private void SetRowAttachedStatuses()
         {
-            var rows = Attached.EnumerateRowsIndexed(0, Size).ToList();
-            AttachedToTop = Attached.Row(0).Sum() > 0;
-            AttachedToBottom = Attached.Row(Size - 1).Sum() > 0;
+            var rows = Attached.EnumerateRowsIndexed(0, Size).OrderBy(x => x.Item1).ToList();
+            IsAttachedToTop = rows.First().Item2.Sum() > 0;
+            IsAttachedToBottom = rows.Last().Item2.Sum() > 0;
+
         }
 
         public Tuple<int, int> AddDelta(Tuple<int, int> delta)

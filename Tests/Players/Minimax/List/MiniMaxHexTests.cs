@@ -65,10 +65,10 @@ namespace Tests.Players.Minimax.List
             Assert.AreEqual(1.0, hex2.Attached.At(5, 5));
 
             var hex3 = new ListHex(11, 0, 0);
-            Assert.IsTrue(hex3.AttachedToTop);
-            Assert.IsTrue(hex3.AttachedToLeft);
-            Assert.IsFalse(hex3.AttachedToRight);
-            Assert.IsFalse(hex3.AttachedToBottom);
+            Assert.IsTrue(hex3.IsAttachedToTop);
+            Assert.IsTrue(hex3.IsAttachedToLeft);
+            Assert.IsFalse(hex3.IsAttachedToRight);
+            Assert.IsFalse(hex3.IsAttachedToBottom);
 
             hex3.AttachTo(new ListHex(11, 0, 1));
             hex3.AttachTo(new ListHex(11, 0, 2));
@@ -81,13 +81,12 @@ namespace Tests.Players.Minimax.List
             hex3.AttachTo(new ListHex(11, 0, 9));
             hex3.AttachTo(new ListHex(11, 0, 10));
 
-            Assert.IsTrue(hex3.AttachedToRight);
-            Assert.IsFalse(hex3.AttachedToBottom);
+            Assert.IsTrue(hex3.IsAttachedToRight);
+            Assert.IsFalse(hex3.IsAttachedToBottom);
             Assert.AreEqual(1.0, hex3.Attached.At(0,5));
             Assert.IsTrue(hex3.IsAttachedTo(0,5));
             Assert.IsFalse(hex3.IsAttachedTo(3,3));
-            Assert.IsTrue(hex3.IsAttachedToBothEnds(PlayerType.Red));
-            Assert.IsFalse(hex3.IsAttachedToBothEnds(PlayerType.Blue));
+
 
    
         }

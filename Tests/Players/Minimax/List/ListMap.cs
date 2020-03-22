@@ -39,7 +39,7 @@ namespace Tests.Players.Minimax.List
         {
             map = new ListMap(11);
             map.TakeHex(PlayerType.Blue, 1, 3);
-            Assert.AreEqual(PlayerType.Blue, map.At(1,3).Owner);
+            Assert.AreEqual(PlayerType.Blue, map.HexAt(1,3).Owner);
             Assert.AreEqual(120, map.Board.Count(x => x.Owner == PlayerType.White));
         }
 
@@ -50,6 +50,36 @@ namespace Tests.Players.Minimax.List
             var didItWork = map.TakeHex(PlayerType.Blue, -13, 5000);
             Assert.AreEqual(false, didItWork);
             Assert.AreEqual(121, map.Board.Count(x => x.Owner == PlayerType.White));
+        }
+
+        [Test]
+        public void TakeHex_ShouldAttachAllMatrices_WhenAttachingToMultiples()
+        {
+            map = new ListMap(11);
+            map.TakeHex(PlayerType.Red, 1, 1);
+            map.TakeHex(PlayerType.Red, 1, 2);
+            map.TakeHex(PlayerType.Red, 1, 3);
+            map.TakeHex(PlayerType.Red, 1, 4);
+            map.TakeHex(PlayerType.Red, 1, 5);
+
+            map.TakeHex(PlayerType.Red, 1, 7);
+            map.TakeHex(PlayerType.Red, 1, 8);
+            map.TakeHex(PlayerType.Red, 1, 9);
+            map.TakeHex(PlayerType.Red, 1, 10);
+
+            Assert.AreEqual(112, map.Board.Count(x => x.Owner == PlayerType.White));
+
+            Assert.AreSame(map.HexAt(1,1).Attached, map.HexAt(1,4).Attached);
+
+            map.TakeHex(PlayerType.Red, 1, 6);
+            Assert.AreSame(map.HexAt(1, 1).Attached, map.HexAt(1, 10).Attached);
+            Assert.IsTrue(map.HexAt(1, 1).IsAttachedToRight);
+            Assert.IsFalse(map.HexAt(1, 1).IsAttachedToLeft);
+            map.TakeHex(PlayerType.Red, 1, 0);
+            Assert.IsTrue(map.HexAt(1, 1).IsAttachedToLeft);
+            Assert.IsTrue(map.HexAt(1, 1).IsAttachedToBothEnds());
+
+
         }
     }
 }

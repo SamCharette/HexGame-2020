@@ -44,7 +44,7 @@ namespace Players.Minimax.List
         #endregion
 
         #region HelperFunctions
-        public ListHex At(int row, int column)
+        public ListHex HexAt(int row, int column)
         {
             if (!IsInBounds(row, column))
             {
@@ -54,14 +54,14 @@ namespace Players.Minimax.List
             return Board.FirstOrDefault(x => x.Row == row && x.Column == column);
         }
 
-        public ListHex At(Tuple<int, int> coordinates)
+        public ListHex HexAt(Tuple<int, int> coordinates)
         {
-            return At(coordinates.Item1, coordinates.Item2);
+            return HexAt(coordinates.Item1, coordinates.Item2);
         }
 
-        public ListHex At(ListHex hex)
+        public ListHex HexAt(ListHex hex)
         {
-            return At(hex.ToTuple());
+            return HexAt(hex.ToTuple());
         }
 
         private bool IsInBounds(int row, int column)
@@ -84,7 +84,7 @@ namespace Players.Minimax.List
             var neighbours = new List<ListHex>();
             foreach (var neighbour in source.Neighbours)
             {
-                var neighbourOnBoard = At(neighbour.Row, neighbour.Column);
+                var neighbourOnBoard = HexAt(neighbour.Row, neighbour.Column);
                 if (neighbourOnBoard != null)
                 {
                     neighbours.Add(neighbourOnBoard);
@@ -116,7 +116,7 @@ namespace Players.Minimax.List
             }
 
             hexToTake.Owner = player;
-            var neighbours = GetNeighboursFor(hexToTake);
+            var neighbours = GetNeighboursFor(hexToTake).Where(x => x.Owner == player).ToList();
             neighbours.Add(hexToTake);
             var newAttachedMatrix = Matrix<double>.Build.Dense(Size, Size, 0);
             foreach (var hex in neighbours)
@@ -124,12 +124,18 @@ namespace Players.Minimax.List
                 newAttachedMatrix = newAttachedMatrix + hex.Attached;
             }
 
-            newAttachedMatrix = newAttachedMatrix.PointwiseMaximum(1);
-            foreach (var hex in neighbours)
-            {
-                hex.Attached = newAttachedMatrix;
-            }
+            // This is the new attached matrix
+            newAttachedMatrix = newAttachedMatrix.PointwiseMinimum(1.0);
 
+            // Every item marked 1 in the new attached matrix must be given the new
+            // matrix, not just the neighbours
+            var hexesToUpdate = newAttachedMatrix.EnumerateIndexed(Zeros.AllowSkip);
+            foreach (var hex in hexesToUpdate)
+            {
+                var myHex = HexAt(hex.Item1, hex.Item2);
+                myHex.Attached = newAttachedMatrix;
+                myHex.SetEdgeAttachedStatuses();
+            }
 
             return true;
         }

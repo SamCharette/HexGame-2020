@@ -49,7 +49,7 @@ namespace Players.Minimax.List
                     return new List<ListHex>();
             }
 
-            if (bestLookingHex.IsAttachedToBothEnds(_playerSearchingFor.Me))
+            if (bestLookingHex.IsAttachedToBothEnds())
             {
                 var preferredPath = new List<ListHex>();
 

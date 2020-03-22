@@ -127,10 +127,15 @@ namespace Players.Minimax.List
         {
             if (node != null)
             {
-                return Attached[node.Row, node.Column] == 1;
+                return IsAttachedTo(node.Row, node.Column);
             }
 
             return false;
+        }
+
+        public bool IsAttachedTo(int row, int column)
+        {
+            return Attached.At(row, column) == 1.0;
         }
     }
 }

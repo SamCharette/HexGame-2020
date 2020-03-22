@@ -158,18 +158,18 @@ namespace Players.Minimax.List
                 Board.Add(hex);
             }
 
-            Top = new ListHex(Size, -1, -1);
-            Top.HexName = TopName;
-            Top.Owner = PlayerType.Blue;
-            Bottom = new ListHex(Size, Size * 2, Size * 2);
-            Bottom.HexName = BottomName;
-            Bottom.Owner = PlayerType.Blue;
-            Left = new ListHex(Size, -2, -2);
-            Left.HexName = LeftName;
-            Left.Owner = PlayerType.Red;
-            Right = new ListHex(Size, Size * 3, Size * 3);
-            Right.HexName = RightName;
-            Right.Owner = PlayerType.Red;
+            //Top = new ListHex(Size, -1, -1);
+            //Top.HexName = TopName;
+            //Top.Owner = PlayerType.Blue;
+            //Bottom = new ListHex(Size, Size * 2, Size * 2);
+            //Bottom.HexName = BottomName;
+            //Bottom.Owner = PlayerType.Blue;
+            //Left = new ListHex(Size, -2, -2);
+            //Left.HexName = LeftName;
+            //Left.Owner = PlayerType.Red;
+            //Right = new ListHex(Size, Size * 3, Size * 3);
+            //Right.HexName = RightName;
+            //Right.Owner = PlayerType.Red;
         }
 
         public void CleanPathingVariables()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualBasic;
@@ -91,6 +92,43 @@ namespace Tests.Players.Minimax.List
         }
 
         [Test]
+        public void IsAttachedTo_ShouldWork_WhenAttachedOrNot()
+        {
+            var hex1 = new ListHex(11, 1, 1);
+            var hex2 = new ListHex(11, 2, 2);
+            Assert.IsFalse(hex1.IsAttachedTo(hex2));
+            Assert.IsFalse(hex2.IsAttachedTo(null));
+            hex1.AttachTo(hex2);
+            Assert.IsTrue(hex1.IsAttachedTo(hex2));
+
+            // Just because hex1 is considered to be attached to hex 2
+            // that doesn't mean that hex2 is considered to be attached
+            // to hex1.  That is not something that should be done at the 
+            // hex level I Don't think
+
+            Assert.IsFalse(hex2.IsAttachedTo(hex1));
+        }
+
+        [Test]
+        public void ToString_ShouldOutput_AppropriateText()
+        {
+            var hex = new ListHex(11, 2, 10);
+            Assert.AreEqual("(2, 10)", hex.ToString());
+
+        }
+
+        [Test]
+        public void F_ShouldWork_Period()
+        {
+            var hex = new ListHex(11, 1, 1);
+            hex.G = 5;
+            hex.H = 10;
+            Assert.AreEqual(15, hex.F());
+            hex.ClearPathingVariables();
+            Assert.AreEqual(0, hex.F());
+        }
+
+        [Test]
         public void Detaching_ShouldWork_WhenDoneProperly()
         {
             Assert.AreEqual(size * size, hexes.Count);
@@ -114,6 +152,19 @@ namespace Tests.Players.Minimax.List
             OutputHex(hexes.ElementAt(1), "After attaching " + hexes.ElementAt(1).HexName + " to " + hexes.ElementAt(2).HexName);
             OutputHex(hexes.ElementAt(2), "After attaching " + hexes.ElementAt(1).HexName + " to " + hexes.ElementAt(2).HexName);
             OutputHex(hexes.ElementAt(3), "After attaching " + hexes.ElementAt(1).HexName + " to " + hexes.ElementAt(2).HexName);
+        }
+
+        [Test]
+        public void Equals_ShouldBeTrue_WhileOnlyCaringAboutTheCoordinates()
+        {
+            var hex1 = new ListHex(11, 2, 2);
+            var hex2 = new ListHex(11, 2, 2);
+            Assert.IsTrue(hex1.Equals(hex2));
+            hex1.Owner = PlayerType.Blue;
+            hex2.Owner = PlayerType.Red;
+            hex1.G = 15;
+            hex1.H = 12;
+            Assert.IsTrue(hex1.Equals(hex2));
         }
 
         private void OutputHex(ListHex hex, string message)

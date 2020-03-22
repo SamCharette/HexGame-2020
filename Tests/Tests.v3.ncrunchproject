@@ -1,13 +1,5 @@
 ﻿<ProjectConfiguration>
   <Settings>
     <HiddenComponentWarnings />
-    <IgnoredTests>
-      <NamedTestSelector>
-        <TestName>Tests.Players.Minimax.List.ListHexTests.Attaching_ShouldWork_WhenCreatingAHexNearAnother</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Tests.Players.Minimax.List.ListHexTests.Neighbours_ShouldBeCreatedAppropriately_WhenAHexIsCreated</TestName>
-      </NamedTestSelector>
-    </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

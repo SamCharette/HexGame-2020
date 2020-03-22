@@ -53,8 +53,7 @@ namespace Players.Minimax.List
 
         public bool Equals(ListHex other)
         {
-            if (ToTuple().Equals(other.ToTuple())) return true;
-            return false;
+            return ToTuple().Equals(other.ToTuple());
         }
 
     }

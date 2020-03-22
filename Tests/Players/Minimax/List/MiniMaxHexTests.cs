@@ -35,7 +35,8 @@ namespace Tests.Players.Minimax.List
         [TearDown]
         public void TearDown()
         {
-
+            size = 0;
+            hexes = null;
         }
 
 

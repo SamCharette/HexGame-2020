@@ -25,10 +25,11 @@ namespace Players.Minimax.List
 
         public List<ListHex> GetPathForPlayer()
         {
-            var start = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Top : _searchSpace.Left;
-            var end = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Bottom : _searchSpace.Right;
+            //var start = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Top : _searchSpace.Left;
+            //var end = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Bottom : _searchSpace.Right;
 
-            return PathBetween(start, end);
+            //return PathBetween(start, end);
+            return null;
         }
 
 
@@ -65,7 +66,7 @@ namespace Players.Minimax.List
             bestLookingHex.Status = Status.Closed;
 
 
-            var neighbours = _searchSpace.GetTraversablePhysicalNeighbours(bestLookingHex, _playerSearchingFor.Me);
+            var neighbours = new List<ListHex>(); // _searchSpace.GetTraversablePhysicalNeighbours(bestLookingHex, _playerSearchingFor.Me);
 
             foreach (var node in neighbours)
                 if (node.Owner != _playerSearchingFor.Opponent())

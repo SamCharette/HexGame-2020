@@ -107,15 +107,7 @@ namespace Players.Minimax.List
             return possibleMoves.ToList();
         }
 
-      
-
-        public bool IsWinningMove(PlayerType player, ListMap map)
-        {
-            var start = player == Common.PlayerType.Blue ? map.Top : map.Left;
-            var end = player == Common.PlayerType.Blue ? map.Bottom : map.Right;
-
-            return start.IsAttachedTo(end);
-        }
+        
 
         public PlayerType Opponent()
         {
@@ -247,7 +239,6 @@ namespace Players.Minimax.List
         public void Startup()
         {
             Memory = new ListMap(Size);
-            Memory.Name = "Memory";
             Monitors[MovesExamined] = 0;
             Monitors[MovesExaminedThisTurn] = 0;
             Monitors[CurrentScore] = 0;

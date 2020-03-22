@@ -95,9 +95,10 @@ namespace Players.Minimax.List
 
         public void AttachTo(ListHex node)
         {
-            if (node != null
-                && node.Owner == Owner)
-                Attached[node.Row, node.Column] = 1;
+            if (node != null && node.Owner == Owner)
+            {
+                Attached = Attached.Add(node.Attached).PointwiseMinimum(1.0);
+            }
             SetEdgeAttachedStatuses();
         }
 

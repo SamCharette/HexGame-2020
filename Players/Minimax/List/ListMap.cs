@@ -64,7 +64,7 @@ namespace Players.Minimax.List
                     newNeighbour =
                         newMap.Board.FirstOrDefault(x => x.Row == neighbour.Row && x.Column == neighbour.Column);
 
-                if (newNeighbour != null) newHex.GetAttachedHexes()[newNeighbour.HexName] = newNeighbour;
+               // if (newNeighbour != null) newHex.GetAttachedHexes()[newNeighbour.HexName] = newNeighbour;
             }
         }
 
@@ -231,15 +231,15 @@ namespace Players.Minimax.List
             if (a.Equals(Bottom) && b.Row == Size - 1 || a.Row == Size - 1 && b.Equals(Bottom)) return true;
             if (a.Equals(Right) && b.Column == Size - 1 || a.Column == Size - 1 && b.Equals(Right)) return true;
 
-            return a.Neighbours.Contains(new SimpleHex(b.Row, b.Column));
+            return a.Neighbours.Contains(new SimpleHex(b.Size, b.Row, b.Column));
 
         }
 
         public void AttachAllFriendlyNeighbours(ListHex a, ListHex b)
         {
-            AttachHexes(a, b);
-            var toAttach = b.GetAttachedHexes().ToList();
-            foreach (var listHex in toAttach) AttachHexes(a, listHex.Value);
+            //AttachHexes(a, b);
+            //var toAttach = b.GetAttachedHexes().ToList();
+            //foreach (var listHex in toAttach) AttachHexes(a, listHex.Value);
         }
 
 
@@ -261,37 +261,37 @@ namespace Players.Minimax.List
             }
         }
 
-        public bool CanHexReachBothEnds(ListHex hex, PlayerType me)
-        {
-            DebugMessage(0, "Checking " + hex + " for " + me);
-            var start = me == PlayerType.Blue ? TopName : LeftName;
-            var end = me == PlayerType.Blue ? BottomName : RightName;
+        //public bool CanHexReachBothEnds(ListHex hex, PlayerType me)
+        //{
+            //DebugMessage(0, "Checking " + hex + " for " + me);
+            //var start = me == PlayerType.Blue ? TopName : LeftName;
+            //var end = me == PlayerType.Blue ? BottomName : RightName;
 
-            var touchesStart = hex.GetAttachedHexes().Any(x => x.Key == start);
-            var touchesEnd = hex.GetAttachedHexes().Any(x => x.Key == end);
-            if (touchesStart) DebugMessage(2,"Hex can reach out to start: " + hex.HexName);
-            if (touchesEnd) DebugMessage(2, "Hex can reach out to the end: " + hex.HexName);
+            //var touchesStart = hex.GetAttachedHexes().Any(x => x.Key == start);
+            //var touchesEnd = hex.GetAttachedHexes().Any(x => x.Key == end);
+            //if (touchesStart) DebugMessage(2,"Hex can reach out to start: " + hex.HexName);
+            //if (touchesEnd) DebugMessage(2, "Hex can reach out to the end: " + hex.HexName);
 
-            var neighbours = 
-                GetPhysicalNeighbours(hex)
-                    .Where(x => x.Owner == me)
-                    .ToList();
+            //var neighbours = 
+            //    GetPhysicalNeighbours(hex)
+            //        .Where(x => x.Owner == me)
+            //        .ToList();
 
-            foreach (var neighbour in neighbours)
-            {
-                DebugMessage(4,"Neighbour " + neighbour + " attached to " + neighbour.GetAttachedHexes().Count + " others.");
-                if (neighbour.GetAttachedHexes().Any(x => x.Key == start) || neighbour.HexName == start)
-                {
-                    DebugMessage(8,neighbour + " can reach start.");
-                    touchesStart = true;
-                }
-                if (neighbour.GetAttachedHexes().Any(x => x.Key == end) || neighbour.HexName == end)
-                {
-                    DebugMessage(8, neighbour + " can reach end.");
-                    touchesEnd = true;
-                }
-            }
-            return touchesStart && touchesEnd;
-        }
+            //foreach (var neighbour in neighbours)
+            //{
+            //    DebugMessage(4,"Neighbour " + neighbour + " attached to " + neighbour.GetAttachedHexes().Count + " others.");
+            //    if (neighbour.GetAttachedHexes().Any(x => x.Key == start) || neighbour.HexName == start)
+            //    {
+            //        DebugMessage(8,neighbour + " can reach start.");
+            //        touchesStart = true;
+            //    }
+            //    if (neighbour.GetAttachedHexes().Any(x => x.Key == end) || neighbour.HexName == end)
+            //    {
+            //        DebugMessage(8, neighbour + " can reach end.");
+            //        touchesEnd = true;
+            //    }
+            //}
+            //return touchesStart && touchesEnd;
+        //}
     }
 }

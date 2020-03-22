@@ -11,21 +11,23 @@ namespace Players.Minimax.List
         public int Column { get; set; }
         public int Size { get; set; }
 
-        public SimpleHex(Tuple<int,int> coordinates)
+        public SimpleHex(int size, Tuple<int,int> coordinates)
         {
+            Size = size;
             Row = coordinates.Item1;
             Column = coordinates.Item2;
         }
 
-        public SimpleHex(int row, int column)
+        public SimpleHex(int size, int row, int column)
         {
+            Size = size;
             Row = row;
             Column = column;
         }
 
         public bool IsInBounds()
         {
-            return Row > 0 && Row < Size && Column > 0 && Column < Size;
+            return Row >= 0 && Row < Size && Column >= 0 && Column < Size;
         }
 
         public string HexName

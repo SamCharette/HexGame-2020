@@ -168,6 +168,17 @@ namespace Players.Minimax.List
             return true;
         }
 
+        public List<ListHex> GetNeighboursFrom(ListHex hex, PlayerType player)
+        {
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            var neighbourHexes = hex.Neighbours.ToList();
+            var neighbours = neighbourHexes.Select(x => HexAt(x.ToTuple())).ToList();
+            neighbours.RemoveAll(x => x.Owner == opponent);
+            return neighbours.ToList();
+
+        }
+
+      
         #endregion
 
 

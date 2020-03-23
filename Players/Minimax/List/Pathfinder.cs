@@ -27,49 +27,56 @@ namespace Players.Minimax.List
      
         public List<ListHex> GetPathForPlayer()
         {
-            var matrix = _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me);
-            List<ListHex> start = new List<ListHex>();
-            if (_playerSearchingFor.Me == PlayerType.Blue)
-            {
 
-                var list = matrix.EnumerateIndexed(Zeros.AllowSkip);
-
-                var rows =   matrix.EnumerateRowsIndexed(0, 1);
-                
-            }
-            else
-            {
-
-            }
-
-            var startHexes = _playerSearchingFor.PlayerNumber == 1
-                ? _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Row(0).AsEnumerable()
-                : _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Column(0).AsEnumerable();
-            var endHexes = _playerSearchingFor.PlayerNumber == 1
-                ? _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Row(_searchSpace.Size - 1).AsEnumerable()
-                : _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Column(_searchSpace.Size - 1).AsEnumerable();
-
+            var startHexes = GetStartingHexes(_playerSearchingFor.Me);
+            var endHexes = GetEndingHexes(_playerSearchingFor.Me);
             var path = new List<ListHex>();
 
-            var pathSize = _searchSpace.Size * _searchSpace.Size + 1;
+            var pathEase = _searchSpace.Size * _searchSpace.Size * Math.Max(_playerSearchingFor.CostPerNodeTillEnd, _playerSearchingFor.CostToMoveToUnclaimedNode);
 
             foreach (var startSpot in startHexes)
             {
                 foreach (var endSpot in endHexes)
                 {
-                    //var newPath = PathBetween(startSpot, endSpot);
-                    //if (newPath.Count < pathSize)
-                    //{
-                    //    path = newPath;
-                    //}
+                    foreach (var hex in _searchSpace.Board)
+                    {
+                        hex.ClearPathingVariables();
+                    }
+                    var newPath = PathBetween(startSpot, endSpot, pathEase);
+                    if (newPath.Any() && newPath.First().F() < pathEase)
+                    {
+                        pathEase = newPath.First().F();
+                        path = newPath;
+                    }
                 }
             }
 
             return path;
         }
 
+        private List<ListHex> GetStartingHexes(PlayerType player)
+        {
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            if (player == PlayerType.Blue)
+            {
+                return _searchSpace.Board.Where(x => x.Row == 0 && x.Owner != opponent).ToList();
+            }
+            return _searchSpace.Board.Where(x => x.Column == 0 && x.Owner != player).ToList();
 
-        public List<ListHex> PathBetween(ListHex start, ListHex end)
+        }
+
+        private List<ListHex> GetEndingHexes(PlayerType player)
+        {
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            if (player == PlayerType.Blue)
+            {
+                return _searchSpace.Board.Where(x => x.Row == _searchSpace.Size - 1 && x.Owner != opponent).ToList();
+            }
+            return _searchSpace.Board.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != player).ToList();
+
+        }
+
+        public List<ListHex> PathBetween(ListHex start, ListHex end, int currentBest)
         {
             // Get the best looking node
             var bestLookingHex = _searchSpace.Board
@@ -77,7 +84,7 @@ namespace Players.Minimax.List
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
-            if (bestLookingHex == null)
+            if (bestLookingHex == null || bestLookingHex.F() > currentBest)
             {
                 if (start.Status == Status.Untested || start.Status == Status.Open)
                     bestLookingHex = start;
@@ -102,9 +109,10 @@ namespace Players.Minimax.List
             bestLookingHex.Status = Status.Closed;
 
 
-            var neighbours = new List<ListHex>(); // _searchSpace.GetTraversablePhysicalNeighbours(bestLookingHex, _playerSearchingFor.Me);
+            var neighbours =  _searchSpace.GetNeighboursFrom(bestLookingHex, _playerSearchingFor.Me);
 
             foreach (var node in neighbours)
+            {
                 if (node.Owner != _playerSearchingFor.Opponent())
                 {
                     if (node.Status == Status.Open)
@@ -130,7 +138,9 @@ namespace Players.Minimax.List
                     }
                 }
 
-            return PathBetween(start, end);
+            }
+        
+            return PathBetween(start, end, currentBest);
         }
 
     }

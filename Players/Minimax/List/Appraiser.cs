@@ -14,9 +14,9 @@ namespace Players.Minimax.List
      * the current board state.
      *
      */
-    public class Appraiser
+    public static class Appraiser
     {
-        public int ScoreFromBoard(ListMap map, PlayerType player)
+        public static int ScoreFromBoard(ListMap map, PlayerType player)
         {
 
             var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
@@ -28,7 +28,7 @@ namespace Players.Minimax.List
             return playerScore - opponentScore;
         }
 
-        private int PlayerScore(ListMap map, PlayerType player, Matrix<double> playerMatrix)
+        private static int PlayerScore(ListMap map, PlayerType player, Matrix<double> playerMatrix)
         {
             if (player == PlayerType.Blue)
             {

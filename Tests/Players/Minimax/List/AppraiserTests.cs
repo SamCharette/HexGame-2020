@@ -38,8 +38,8 @@ namespace Tests.Players.Minimax.List
             var player2score = appraiser.ScoreFromBoard(map, PlayerType.Red);
             Assert.AreNotEqual(player1score, player2score);
 
-            Assert.AreEqual(6, player2score);
-            Assert.AreEqual(-5, player1score);
+            Assert.AreEqual(4, player2score);
+            Assert.AreEqual(-4, player1score);
         }
 
     }

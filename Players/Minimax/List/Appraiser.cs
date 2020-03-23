@@ -23,7 +23,7 @@ namespace Players.Minimax.List
             // player score
             var playerScore = PlayerScore(map, player, map.GetPlayerMatrix(player));
             // opponent score
-            var opponentScore = PlayerScore(map, player, map.GetPlayerMatrix(opponent));
+            var opponentScore = PlayerScore(map, opponent, map.GetPlayerMatrix(opponent));
 
             return playerScore - opponentScore;
         }

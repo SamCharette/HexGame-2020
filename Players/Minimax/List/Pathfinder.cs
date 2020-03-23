@@ -54,7 +54,7 @@ namespace Players.Minimax.List
             return path;
         }
 
-        private List<ListHex> GetStartingHexes(PlayerType player)
+        public List<ListHex> GetStartingHexes(PlayerType player)
         {
             var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
             if (player == PlayerType.Blue)
@@ -65,7 +65,7 @@ namespace Players.Minimax.List
 
         }
 
-        private List<ListHex> GetEndingHexes(PlayerType player)
+        public List<ListHex> GetEndingHexes(PlayerType player)
         {
             var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
             if (player == PlayerType.Blue)
@@ -92,7 +92,7 @@ namespace Players.Minimax.List
                     return new List<ListHex>();
             }
 
-            if (bestLookingHex.IsAttachedToBothEnds())
+            if (bestLookingHex.Equals(end))
             {
                 var preferredPath = new List<ListHex>();
 

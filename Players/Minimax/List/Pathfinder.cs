@@ -118,14 +118,20 @@ namespace Players.Minimax.List
                     if (node.Status == Status.Open)
                     {
                         if (node.G > bestLookingHex.G +
-                            (node.Owner == _playerSearchingFor.Me ? _playerSearchingFor.CostToMoveToClaimedNode : _playerSearchingFor.CostToMoveToUnclaimedNode))
+                            (node.Owner == _playerSearchingFor.Me 
+                                ? _playerSearchingFor.CostToMoveToClaimedNode 
+                                : _playerSearchingFor.CostToMoveToUnclaimedNode))
                         {
                             node.Parent = bestLookingHex;
                             node.G = bestLookingHex.G +
-                                     (node.Owner == _playerSearchingFor.Me ? _playerSearchingFor.CostToMoveToClaimedNode : _playerSearchingFor.CostToMoveToUnclaimedNode);
+                                     (node.Owner == _playerSearchingFor.Me 
+                                         ? _playerSearchingFor.CostToMoveToClaimedNode 
+                                         : _playerSearchingFor.CostToMoveToUnclaimedNode);
                             ;
                             node.H =
-                                (_playerSearchingFor.Me == Common.PlayerType.Red ? _searchSpace.Size - 1 - node.Column : _searchSpace.Size - 1 - node.Row) *  _playerSearchingFor.CostPerNodeTillEnd;
+                                (_playerSearchingFor.Me == Common.PlayerType.Red 
+                                    ? _searchSpace.Size - 1 - node.Row 
+                                    : _searchSpace.Size - 1 - node.Column) *  _playerSearchingFor.CostPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
@@ -133,8 +139,12 @@ namespace Players.Minimax.List
                         node.Status = Status.Open;
                         node.Parent = bestLookingHex;
                         node.G = bestLookingHex.G +
-                                 (node.Owner == _playerSearchingFor.Me ? _playerSearchingFor.CostToMoveToClaimedNode : _playerSearchingFor.CostToMoveToUnclaimedNode);
-                        node.H = (_playerSearchingFor.Me == Common.PlayerType.Red ? _searchSpace.Size - 1 - node.Column : _searchSpace.Size - 1 - node.Row) * _playerSearchingFor.CostPerNodeTillEnd;
+                                 (node.Owner == _playerSearchingFor.Me 
+                                     ? _playerSearchingFor.CostToMoveToClaimedNode 
+                                     : _playerSearchingFor.CostToMoveToUnclaimedNode);
+                        node.H = (_playerSearchingFor.Me == Common.PlayerType.Red 
+                                     ? _searchSpace.Size - 1 - node.Row 
+                                     : _searchSpace.Size - 1 - node.Column) * _playerSearchingFor.CostPerNodeTillEnd;
                     }
                 }
 

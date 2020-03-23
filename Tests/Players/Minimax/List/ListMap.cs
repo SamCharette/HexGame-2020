@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Omu.ValueInjecter;
 using Players.Common;
 using Players.Minimax.List;
 
@@ -78,8 +79,28 @@ namespace Tests.Players.Minimax.List
             map.TakeHex(PlayerType.Red, 1, 0);
             Assert.IsTrue(map.HexAt(1, 1).IsAttachedToLeft);
             Assert.IsTrue(map.HexAt(1, 1).IsAttachedToBothEnds());
+        }
 
+        [Test]
+        public void ValueInjecter_ShouldProperlyClone_AFullMap()
+        {
+            map = new ListMap(11);
+            map.TakeHex(PlayerType.Red, 1, 1);
+            map.TakeHex(PlayerType.Red, 1, 2);
+            map.TakeHex(PlayerType.Red, 1, 3);
+            map.TakeHex(PlayerType.Red, 1, 4);
+            map.TakeHex(PlayerType.Red, 1, 5);
 
+            map.TakeHex(PlayerType.Blue, 1, 7);
+            map.TakeHex(PlayerType.Blue, 1, 8);
+            map.TakeHex(PlayerType.Blue, 1, 9);
+            map.TakeHex(PlayerType.Blue, 1, 10);
+
+            var newMap = Mapper.Map<ListMap>(map);
+            Assert.AreEqual(5, newMap.Board.Count(x => x.Owner == PlayerType.Red));
+            Assert.AreEqual(4, newMap.Board.Count(x => x.Owner == PlayerType.Blue));
+            Assert.AreEqual(map.HexAt(1,1), newMap.HexAt(1,1));
+            Assert.AreEqual(map.HexAt(1,1).Attached, map.HexAt(1,1).Attached);
         }
     }
 }

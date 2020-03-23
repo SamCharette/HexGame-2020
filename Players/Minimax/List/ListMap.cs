@@ -48,13 +48,13 @@ namespace Players.Minimax.List
         public Matrix<double> GetPlayerMatrix(PlayerType player)
         {
             var matrix = Matrix<double>.Build.Dense(Size, Size, 0);
-            matrix.MapInplace(x => IsOwnedBy(x, player), Zeros.Include);
+            matrix.MapIndexedInplace((row,column,x) => IsOwnedBy(row,column, player), Zeros.Include);
             return matrix;
         }
 
-        private int IsOwnedBy(double index, PlayerType player)
+        private int IsOwnedBy(int row, int column, PlayerType player)
         {
-            var hex = HexAt((int)index);
+            var hex = HexAt(row,column);
             if (hex != null)
             {
                 if (hex.Owner == player)

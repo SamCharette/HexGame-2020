@@ -102,5 +102,31 @@ namespace Tests.Players.Minimax.List
             Assert.AreEqual(map.HexAt(1,1), newMap.HexAt(1,1));
             Assert.AreEqual(map.HexAt(1,1).Attached, map.HexAt(1,1).Attached);
         }
+
+        [Test]
+        public void GetPlayerMatrix_ShouldBeAbleToMakeAMatrix_WhenCalledUpon()
+        {
+            map = new ListMap(11);
+            map.TakeHex(PlayerType.Red, 1, 1);
+            map.TakeHex(PlayerType.Red, 1, 2);
+            map.TakeHex(PlayerType.Red, 1, 3);
+            map.TakeHex(PlayerType.Red, 1, 4);
+            map.TakeHex(PlayerType.Red, 1, 5);
+
+            map.TakeHex(PlayerType.Blue, 1, 7);
+            map.TakeHex(PlayerType.Blue, 1, 8);
+            map.TakeHex(PlayerType.Blue, 1, 9);
+            map.TakeHex(PlayerType.Blue, 1, 10);
+
+            var matrixForPlayer1 = map.GetPlayerMatrix(PlayerType.Blue);
+            TestContext.WriteLine("Player 1 matrix");
+            TestContext.WriteLine(matrixForPlayer1.ToString());
+
+            var matrixForPlayer2 = map.GetPlayerMatrix(PlayerType.Red);
+            TestContext.WriteLine("Player 2 matrix");
+            TestContext.WriteLine(matrixForPlayer2.ToString());
+
+            Assert.AreEqual(matrixForPlayer1, map.HexAt(1,7).Attached);
+        }
     }
 }

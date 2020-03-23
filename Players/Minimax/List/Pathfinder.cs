@@ -22,7 +22,7 @@ namespace Players.Minimax.List
             _playerSearchingFor = searchForThisPlayer;
         }
 
-
+     
         public List<ListHex> GetPathForPlayer()
         {
             //var start = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Top : _searchSpace.Left;

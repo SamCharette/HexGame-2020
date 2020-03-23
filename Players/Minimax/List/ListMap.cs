@@ -44,6 +44,34 @@ namespace Players.Minimax.List
         #endregion
 
         #region HelperFunctions
+
+        public Matrix<double> GetPlayerMatrix(PlayerType player)
+        {
+            var matrix = Matrix<double>.Build.Dense(Size, Size, 0);
+            matrix.MapInplace(x => IsOwnedBy(x, player), Zeros.Include);
+            return matrix;
+        }
+
+        private int IsOwnedBy(double index, PlayerType player)
+        {
+            var hex = HexAt((int)index);
+            if (hex != null)
+            {
+                if (hex.Owner == player)
+                {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        public ListHex HexAt(int index)
+        {
+            var row = (int)(index / Size);
+
+            var column = index > 0 ?  (int)(index % Size) : index;
+            return HexAt((int) row, (int) column);
+        }
         public ListHex HexAt(int row, int column)
         {
             if (!IsInBounds(row, column))

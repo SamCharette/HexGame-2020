@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
+using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -25,11 +27,45 @@ namespace Players.Minimax.List
      
         public List<ListHex> GetPathForPlayer()
         {
-            //var start = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Top : _searchSpace.Left;
-            //var end = _playerSearchingFor.PlayerNumber == 1 ? _searchSpace.Bottom : _searchSpace.Right;
+            var matrix = _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me);
+            List<ListHex> start = new List<ListHex>();
+            if (_playerSearchingFor.Me == PlayerType.Blue)
+            {
 
-            //return PathBetween(start, end);
-            return null;
+                var list = matrix.EnumerateIndexed(Zeros.AllowSkip);
+
+                var rows =   matrix.EnumerateRowsIndexed(0, 1);
+                
+            }
+            else
+            {
+
+            }
+
+            var startHexes = _playerSearchingFor.PlayerNumber == 1
+                ? _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Row(0).AsEnumerable()
+                : _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Column(0).AsEnumerable();
+            var endHexes = _playerSearchingFor.PlayerNumber == 1
+                ? _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Row(_searchSpace.Size - 1).AsEnumerable()
+                : _searchSpace.GetPlayerMatrix(_playerSearchingFor.Me).Column(_searchSpace.Size - 1).AsEnumerable();
+
+            var path = new List<ListHex>();
+
+            var pathSize = _searchSpace.Size * _searchSpace.Size + 1;
+
+            foreach (var startSpot in startHexes)
+            {
+                foreach (var endSpot in endHexes)
+                {
+                    //var newPath = PathBetween(startSpot, endSpot);
+                    //if (newPath.Count < pathSize)
+                    //{
+                    //    path = newPath;
+                    //}
+                }
+            }
+
+            return path;
         }
 
 

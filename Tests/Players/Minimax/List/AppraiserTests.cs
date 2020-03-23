@@ -33,9 +33,10 @@ namespace Tests.Players.Minimax.List
             TestContext.WriteLine("Player 2 matrix");
             TestContext.WriteLine(matrixForPlayer2.ToString());
 
+            var appraiser = new Appraiser();
             
-            var player1score = Appraiser.ScoreFromBoard(map, PlayerType.Blue);
-            var player2score = Appraiser.ScoreFromBoard(map, PlayerType.Red);
+            var player1score = appraiser.ScoreFromBoard(map, PlayerType.Blue);
+            var player2score = appraiser.ScoreFromBoard(map, PlayerType.Red);
             Assert.AreNotEqual(player1score, player2score);
 
             Assert.AreEqual(4, player2score);

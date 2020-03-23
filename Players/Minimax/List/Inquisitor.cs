@@ -44,7 +44,7 @@ namespace Players.Minimax.List
 
             if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                return judge.ScoreFromBoard(map);
+                return judge.ScoreFromBoard(map, PlayerType.Blue);
             }
 
             var myPath =  _scout.GetPathForPlayer();

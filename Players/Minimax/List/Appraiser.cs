@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Xml;
+using MathNet.Numerics.LinearAlgebra;
+using Players.Base;
+using Players.Common;
 
 namespace Players.Minimax.List
 {
@@ -11,9 +16,32 @@ namespace Players.Minimax.List
      */
     public class Appraiser
     {
-        public int ScoreFromBoard(ListMap map)
+        public int ScoreFromBoard(ListMap map, PlayerType player)
         {
-            return 1;
+
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            // player score
+            var playerScore = PlayerScore(map, player, map.GetPlayerMatrix(player));
+            // opponent score
+            var opponentScore = PlayerScore(map, player, map.GetPlayerMatrix(opponent));
+
+            return playerScore - opponentScore;
+        }
+
+        private int PlayerScore(ListMap map, PlayerType player, Matrix<double> playerMatrix)
+        {
+            if (player == PlayerType.Blue)
+            {
+                var pathVector = playerMatrix.RowSums();
+                var numberLeft = pathVector.AsEnumerable().Count(x => (int)x == 0);
+                return map.Size - numberLeft;
+            }
+            else
+            {
+                var pathVector = playerMatrix.ColumnSums();
+                var numberLeft = pathVector.AsEnumerable().Count(x => (int)x == 0);
+                return map.Size - numberLeft;
+            }
         }
     }
 }

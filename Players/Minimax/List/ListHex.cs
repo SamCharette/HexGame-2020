@@ -144,5 +144,20 @@ namespace Players.Minimax.List
         {
             return Attached.At(row, column) == 1.0;
         }
+
+        public string ToLongString()
+        {
+            var output = "";
+            output += (ToString() + " - Owned by " + Owner);
+            output += Environment.NewLine;
+            output += "F => " + F();
+            output += Environment.NewLine;
+            output += "G => " + G;
+            output += Environment.NewLine;
+            output += "H => " + H;
+            output += Environment.NewLine;
+            output += "Random Value => " + RandomValue;
+            return output;
+        }
     }
 }

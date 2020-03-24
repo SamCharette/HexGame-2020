@@ -127,7 +127,7 @@ namespace Players.Minimax.List
                                      (node.Owner == _playerSearchingFor.Me 
                                          ? _playerSearchingFor.CostToMoveToClaimedNode 
                                          : _playerSearchingFor.CostToMoveToUnclaimedNode);
-                            ;
+                            
                             node.H =
                                 (_playerSearchingFor.Me == Common.PlayerType.Red 
                                     ? _searchSpace.Size - 1 - node.Row 
@@ -142,6 +142,7 @@ namespace Players.Minimax.List
                                  (node.Owner == _playerSearchingFor.Me 
                                      ? _playerSearchingFor.CostToMoveToClaimedNode 
                                      : _playerSearchingFor.CostToMoveToUnclaimedNode);
+
                         node.H = (_playerSearchingFor.Me == Common.PlayerType.Red 
                                      ? _searchSpace.Size - 1 - node.Row 
                                      : _searchSpace.Size - 1 - node.Column) * _playerSearchingFor.CostPerNodeTillEnd;

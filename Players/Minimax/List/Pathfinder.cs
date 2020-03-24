@@ -15,42 +15,64 @@ namespace Players.Minimax.List
     {
         private ListMap _searchSpace;
         private ListPlayer _playerSearchingFor;
-
+        private bool IsLogging;
+        private string Log;
 
         public Pathfinder(ListMap searchThis, 
-            ListPlayer searchForThisPlayer)
+            ListPlayer searchForThisPlayer, 
+            bool isLogging = false)
         {
             _searchSpace = searchThis;
             _playerSearchingFor = searchForThisPlayer;
+            IsLogging = isLogging;
         }
 
      
         public List<ListHex> GetPathForPlayer()
         {
-
+            ClearLog();
+            AddLogLine(" ============ Starting new search");
             var startHexes = GetStartingHexes(_playerSearchingFor.Me);
             var endHexes = GetEndingHexes(_playerSearchingFor.Me);
             var path = new List<ListHex>();
 
             var pathEase = _searchSpace.Size * _searchSpace.Size * Math.Max(_playerSearchingFor.CostPerNodeTillEnd, _playerSearchingFor.CostToMoveToUnclaimedNode);
+            AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == _playerSearchingFor.Opponent()) + " hexes.");
+            _searchSpace.Board.Where(x => x.Owner == _playerSearchingFor.Opponent()).ToList().ForEach(x => AddLog(x + " "));
+            AddLogLine("");
 
             foreach (var startSpot in startHexes)
             {
                 foreach (var endSpot in endHexes)
                 {
+                    AddLogLine("Best score is " + pathEase);
+                    AddLogLine("---------- Searching between " + startSpot + " and " + endSpot);
                     foreach (var hex in _searchSpace.Board)
                     {
                         hex.ClearPathingVariables();
                     }
                     var newPath = PathBetween(startSpot, endSpot, pathEase);
-                    if (newPath.Any() && newPath.First().F() < pathEase)
+                    //AddLog("Path found : ");
+                    //newPath.ForEach(x => AddLog(" " + x));
+                    //AddLogLine("");
+                    if (newPath.Any() && ((newPath.First().F() < pathEase) 
+                        || (newPath.First().F() == pathEase && newPath.Count < path.Count)))
                     {
                         pathEase = newPath.First().F();
                         path = newPath;
+                        AddLogLine("");
+                        AddLogLine("(" + path.Count + ") Better path found with score : " + pathEase);
+                        AddLog("Path found : ");
+                        newPath.ForEach(x => AddLog(" " + x));
+                        AddLogLine("");
                     }
                 }
             }
-
+            AddLogLine("---------- ");
+            AddLogLine("Final score is " + pathEase);
+            AddLog("Path found : ");
+            path.ForEach(x => AddLog(" " + x));
+            AddLogLine("");
             return path;
         }
 
@@ -84,7 +106,7 @@ namespace Players.Minimax.List
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
-            if (bestLookingHex == null || bestLookingHex.F() > currentBest)
+            if (bestLookingHex == null)// || bestLookingHex.F() > currentBest)
             {
                 if (start.Status == Status.Untested || start.Status == Status.Open)
                     bestLookingHex = start;
@@ -129,7 +151,7 @@ namespace Players.Minimax.List
                                          : _playerSearchingFor.CostToMoveToUnclaimedNode);
                             
                             node.H =
-                                (_playerSearchingFor.Me == Common.PlayerType.Red 
+                                (_playerSearchingFor.Me == Common.PlayerType.Blue 
                                     ? _searchSpace.Size - 1 - node.Row 
                                     : _searchSpace.Size - 1 - node.Column) *  _playerSearchingFor.CostPerNodeTillEnd;
                         }
@@ -143,7 +165,7 @@ namespace Players.Minimax.List
                                      ? _playerSearchingFor.CostToMoveToClaimedNode 
                                      : _playerSearchingFor.CostToMoveToUnclaimedNode);
 
-                        node.H = (_playerSearchingFor.Me == Common.PlayerType.Red 
+                        node.H = (_playerSearchingFor.Me == Common.PlayerType.Blue 
                                      ? _searchSpace.Size - 1 - node.Row 
                                      : _searchSpace.Size - 1 - node.Column) * _playerSearchingFor.CostPerNodeTillEnd;
                     }
@@ -152,6 +174,35 @@ namespace Players.Minimax.List
             }
         
             return PathBetween(start, end, currentBest);
+        }
+
+        private void AddLogLine(string text)
+        {
+            if (IsLogging)
+            {
+                AddLog(text + Environment.NewLine);
+            }
+        }
+
+        private void AddLog(string text)
+        {
+            if (IsLogging)
+            {
+                Log += text;
+            }
+        }
+
+        private void ClearLog()
+        {
+            if (IsLogging)
+            {
+                Log = "";
+            }
+        }
+
+        public string GetLog()
+        {
+            return Log;
         }
 
     }

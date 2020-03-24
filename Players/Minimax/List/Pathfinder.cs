@@ -31,7 +31,7 @@ namespace Players.Minimax.List
         public List<ListHex> GetPathForPlayer()
         {
             ClearLog();
-            AddLogLine(" ============ Starting new search");
+            AddLogLine(" ============ Starting new search for " + _playerSearchingFor.Me);
             var startHexes = GetStartingHexes(_playerSearchingFor.Me);
             var endHexes = GetEndingHexes(_playerSearchingFor.Me);
             var path = new List<ListHex>();
@@ -43,6 +43,11 @@ namespace Players.Minimax.List
 
             foreach (var startSpot in startHexes)
             {
+                startSpot.G = startSpot.Owner == _playerSearchingFor.Me
+                    ? _playerSearchingFor.CostToMoveToClaimedNode
+                    : _playerSearchingFor.CostToMoveToUnclaimedNode;
+
+                
                 foreach (var endSpot in endHexes)
                 {
                     AddLogLine("Best score is " + pathEase);
@@ -52,9 +57,8 @@ namespace Players.Minimax.List
                         hex.ClearPathingVariables();
                     }
                     var newPath = PathBetween(startSpot, endSpot, pathEase);
-                    //AddLog("Path found : ");
-                    //newPath.ForEach(x => AddLog(" " + x));
-                    //AddLogLine("");
+
+
                     if (newPath.Any() && ((newPath.First().F() < pathEase) 
                         || (newPath.First().F() == pathEase && newPath.Count < path.Count)))
                     {
@@ -83,7 +87,7 @@ namespace Players.Minimax.List
             {
                 return _searchSpace.Board.Where(x => x.Row == 0 && x.Owner != opponent).ToList();
             }
-            return _searchSpace.Board.Where(x => x.Column == 0 && x.Owner != player).ToList();
+            return _searchSpace.Board.Where(x => x.Column == 0 && x.Owner != opponent).ToList();
 
         }
 
@@ -94,7 +98,7 @@ namespace Players.Minimax.List
             {
                 return _searchSpace.Board.Where(x => x.Row == _searchSpace.Size - 1 && x.Owner != opponent).ToList();
             }
-            return _searchSpace.Board.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != player).ToList();
+            return _searchSpace.Board.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != opponent).ToList();
 
         }
 

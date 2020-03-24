@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Omu.ValueInjecter;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -18,20 +19,15 @@ namespace Players.Minimax.List
         {
             var map = new ListMap(11);
             var player = new ListPlayer(1, 11, new Config());
+            var redPlayer = new ListPlayer(2, 11, new Config());
+
             var pathfinder = new Pathfinder(map, player);
-            var path = pathfinder.GetPathForPlayer();
-            TestContext.WriteLine(pathfinder.GetLog());
-            //Assert.AreEqual(6, path.Count);
-            
-            //map.TakeHex(PlayerType.Red, 5, 0);
-            pathfinder = new Pathfinder(map, player);
-            path = pathfinder.GetPathForPlayer();
-            
-            //Assert.AreEqual(11, path.Count);
+
+          
 
             //map.TakeHex(PlayerType.Red, 5, 1);
             pathfinder = new Pathfinder(map, player);
-            path = pathfinder.GetPathForPlayer();
+            var path = pathfinder.GetPathForPlayer();
 
             //Assert.AreEqual(11, path.Count);
 
@@ -43,12 +39,23 @@ namespace Players.Minimax.List
             map.TakeHex(PlayerType.Red, 2, 3);
             map.TakeHex(PlayerType.Red, 2, 4);
             map.TakeHex(PlayerType.Red, 2, 5);
-            pathfinder = new Pathfinder(map, player, true);
-            path = pathfinder.GetPathForPlayer();
-            path.ForEach(x => map.TakeHex(PlayerType.Blue, x.Row, x.Column));
-            TestContext.WriteLine(pathfinder.GetLog());
 
+            var blueMap = Mapper.Map<ListMap>(map);
+
+            
+
+            pathfinder = new Pathfinder(map, redPlayer, true);
+            path = pathfinder.GetPathForPlayer();
+            TestContext.WriteLine(pathfinder.GetLog());
+            path.ForEach(x => map.TakeHex(PlayerType.Red, x.Row, x.Column));
             TestContext.WriteLine(map.GetMapMatrix().ToString().Replace('0', '_'));
+
+            //pathfinder = new Pathfinder(blueMap, player, true);
+            //path = pathfinder.GetPathForPlayer();
+            //path.ForEach(x => blueMap.TakeHex(PlayerType.Blue, x.Row, x.Column));
+            //TestContext.WriteLine(pathfinder.GetLog());
+
+            //TestContext.WriteLine(blueMap.GetMapMatrix().ToString().Replace('0', '_'));
 
             //Assert.AreEqual(11, path.Count);
         }

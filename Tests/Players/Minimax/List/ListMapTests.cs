@@ -117,16 +117,19 @@ namespace Tests.Players.Minimax.List
             map.TakeHex(PlayerType.Blue, 1, 8);
             map.TakeHex(PlayerType.Blue, 1, 9);
             map.TakeHex(PlayerType.Blue, 1, 10);
-
-            var matrixForPlayer1 = map.GetPlayerMatrix(PlayerType.Blue);
+            
+            var blueMap = Mapper.Map<ListMap>(map);
+            
+            
+            var matrixForPlayer1 = blueMap.GetPlayerMatrix(PlayerType.Blue);
             TestContext.WriteLine("Player 1 matrix");
             TestContext.WriteLine(matrixForPlayer1.ToString());
 
-            var matrixForPlayer2 = map.GetPlayerMatrix(PlayerType.Red);
+            var matrixForPlayer2 = blueMap.GetPlayerMatrix(PlayerType.Red);
             TestContext.WriteLine("Player 2 matrix");
             TestContext.WriteLine(matrixForPlayer2.ToString());
 
-            Assert.AreEqual(matrixForPlayer1, map.HexAt(1,7).Attached);
+            Assert.AreEqual(matrixForPlayer1, blueMap.HexAt(1,7).Attached);
         }
     }
 }

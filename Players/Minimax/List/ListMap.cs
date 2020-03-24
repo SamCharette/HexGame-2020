@@ -52,6 +52,13 @@ namespace Players.Minimax.List
             return matrix;
         }
 
+        public Matrix<double> GetMapMatrix()
+        {
+            var player1Matrix = GetPlayerMatrix(PlayerType.Blue);
+            var player2Matrix = GetPlayerMatrix(PlayerType.Red);
+            return player1Matrix + 2 * player2Matrix;
+        }
+
         private int IsOwnedBy(int row, int column, PlayerType player)
         {
             var hex = HexAt(row,column);

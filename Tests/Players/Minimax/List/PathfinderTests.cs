@@ -2,6 +2,7 @@
 using Players.Minimax.List;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Players.Common;
 
@@ -15,12 +16,12 @@ namespace Players.Minimax.List
         [Test()]
         public void GetPathForPlayerTest()
         {
-            var map = new ListMap(6);
-            var player = new ListPlayer(1, 6, new Config());
+            var map = new ListMap(11);
+            var player = new ListPlayer(1, 11, new Config());
             var pathfinder = new Pathfinder(map, player);
             var path = pathfinder.GetPathForPlayer();
             TestContext.WriteLine(pathfinder.GetLog());
-            Assert.AreEqual(6, path.Count);
+            //Assert.AreEqual(6, path.Count);
             
             //map.TakeHex(PlayerType.Red, 5, 0);
             pathfinder = new Pathfinder(map, player);
@@ -35,6 +36,8 @@ namespace Players.Minimax.List
             //Assert.AreEqual(11, path.Count);
 
 
+            map.TakeHex(PlayerType.Red, 3, 2);
+            map.TakeHex(PlayerType.Red, 2, 2);
             map.TakeHex(PlayerType.Red, 2, 0);
             map.TakeHex(PlayerType.Red, 2, 1);
             map.TakeHex(PlayerType.Red, 2, 3);
@@ -42,8 +45,10 @@ namespace Players.Minimax.List
             map.TakeHex(PlayerType.Red, 2, 5);
             pathfinder = new Pathfinder(map, player, true);
             path = pathfinder.GetPathForPlayer();
+            path.ForEach(x => map.TakeHex(PlayerType.Blue, x.Row, x.Column));
             TestContext.WriteLine(pathfinder.GetLog());
 
+            TestContext.WriteLine(map.GetMapMatrix().ToString().Replace('0', '_'));
 
             //Assert.AreEqual(11, path.Count);
         }

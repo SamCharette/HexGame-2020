@@ -7,7 +7,7 @@ using System.Text;
 using Omu.ValueInjecter;
 using Players.Common;
 
-namespace Players.Minimax.List
+namespace Tests.Players.Minimax.List
 {
     [TestFixture()]
     public class PathfinderTests

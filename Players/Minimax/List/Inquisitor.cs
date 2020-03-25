@@ -17,21 +17,60 @@ namespace Players.Minimax.List
         private ListMap _map;
         private Pathfinder _scout;
         private ListPlayer _playerSearchingFor;
+        private Thread _workerThread;
+        private int _finalScore;
+        private ListHex _finalChoice;
    
 
         public Inquisitor(ListMap map, ListPlayer player)
         {
             _playerSearchingFor = player;
-            _map.InjectFrom<CloneInjection>(map);
-            _scout = new Pathfinder(map, player);
+            _map = new ListMap(map.Size);
+            _map = Mapper.Map<ListMap>(map);
+            //_scout = new Pathfinder(map, player);
+            //_workerThread = new Thread(start: new ParameterizedThreadStart(StartLooking));
+        }
+
+        public int GetScore()
+        {
+            return _finalScore;
+        }
+
+        public ListHex GetChoice()
+        {
+            return _finalChoice;
         }
 
         public void StartInquisition()
         {
-            
+            var args = new InquisitionParameters
+            {
+                map = _map,
+                path = _scout.GetPathForPlayer(),
+                currentMove = null,
+                depth = _playerSearchingFor.MaxLevels,
+                alpha = -9999,
+                beta = 9999,
+                isMaximizing = true
+            };
+            _workerThread.Start(args);
         }
 
-        public int ThinkAboutTheNextMove(
+        private void StartLooking(Object obj)
+        {
+            var args = (InquisitionParameters) obj;
+
+            _finalScore = ThinkAboutTheNextMove(
+                args.map, 
+                args.path, 
+                args.currentMove, 
+                args.depth, 
+                args.alpha, 
+                args.beta,
+                args.isMaximizing);
+        }
+
+        private int ThinkAboutTheNextMove(
           ListMap map,
           List<ListHex> path,
           ListHex currentMove,
@@ -47,6 +86,7 @@ namespace Players.Minimax.List
                 return judge.ScoreFromBoard(map, PlayerType.Blue);
             }
 
+            _scout.SetMap(map);
             var myPath =  _scout.GetPathForPlayer();
 
             var possibleMoves = myPath.Where(x => x.Owner == PlayerType.White).ToList();
@@ -54,7 +94,8 @@ namespace Players.Minimax.List
             {
                 foreach (var move in possibleMoves)
                 {
-                    alpha = Math.Max(alpha, ThinkAboutTheNextMove(map, myPath, move, depth - 1, alpha, beta, false));
+                    var newMap = Mapper.Map<ListMap>(map);
+                    alpha = Math.Max(alpha, ThinkAboutTheNextMove(newMap, myPath, move, depth - 1, alpha, beta, false));
                     if (beta <= alpha)
                     {
                         break;
@@ -67,7 +108,8 @@ namespace Players.Minimax.List
             {
                 foreach (var move in possibleMoves)
                 {
-                    beta = Math.Min(beta, ThinkAboutTheNextMove(map, myPath, move, depth - 1, alpha, beta, true));
+                    var newMap = Mapper.Map<ListMap>(map);
+                    beta = Math.Min(beta, ThinkAboutTheNextMove(newMap, myPath, move, depth - 1, alpha, beta, true));
                     
                     if (beta <= alpha)
                     {

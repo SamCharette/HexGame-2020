@@ -110,7 +110,7 @@ namespace Players.Minimax.List
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
-            if (bestLookingHex == null)// || bestLookingHex.F() > currentBest)
+            if (bestLookingHex == null)
             {
                 if (start.Status == Status.Untested || start.Status == Status.Open)
                     bestLookingHex = start;
@@ -178,6 +178,16 @@ namespace Players.Minimax.List
             }
         
             return PathBetween(start, end, currentBest);
+        }
+
+        public void SetMap(ListMap map)
+        {
+            _searchSpace = map;
+        }
+
+        public void SetPlayer(ListPlayer player)
+        {
+            _playerSearchingFor = player;
         }
 
         private void AddLogLine(string text)

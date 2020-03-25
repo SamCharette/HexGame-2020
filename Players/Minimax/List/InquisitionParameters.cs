@@ -6,6 +6,7 @@ namespace Players.Minimax.List
 {
     public class InquisitionParameters
     {
+        public ListPlayer player;
         public ListMap map;
         public List<ListHex> path;
         public ListHex currentMove;

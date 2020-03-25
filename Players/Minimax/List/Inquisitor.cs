@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Omu.ValueInjecter;
 using Players.Common;
 
@@ -52,13 +53,14 @@ namespace Players.Minimax.List
                 beta = 9999,
                 isMaximizing = true
             };
-            _workerThread.Start(args);
+            StartLooking(args);
+            //_workerThread.Start(args);
         }
 
         private void StartLooking(Object obj)
         {
             var args = (InquisitionParameters) obj;
-
+            Console.WriteLine("Starting to look");
             _finalScore = ThinkAboutTheNextMove(
                 args.player,
                 args.map, 
@@ -84,20 +86,25 @@ namespace Players.Minimax.List
 
             if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
             {
-                return judge.ScoreFromBoard(map, PlayerType.Blue);
+                return judge.ScoreFromBoard(map, player);
             }
 
             var scout = new Pathfinder(map, player);
        
             var myPath =  scout.GetPathForPlayer();
 
-            var possibleMoves = myPath.Where(x => x.Owner == PlayerType.White).ToList();
+            var possibleMoves = GetPossibleMoves(path, myPath);
             if (isMaximizing)
             {
                 foreach (var move in possibleMoves)
                 {
                     var newMap = Mapper.Map<ListMap>(map);
-                    alpha = Math.Max(alpha, ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, false));
+                    var newScore = ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, false);
+                    if (newScore > alpha)
+                    {
+                        player.CurrentChoice = move.ToTuple();
+                        alpha = newScore;
+                    }
                     if (beta <= alpha)
                     {
                         break;
@@ -121,6 +128,19 @@ namespace Players.Minimax.List
 
                 return beta;
             }
+        }
+
+        private IEnumerable<ListHex> GetPossibleMoves(List<ListHex> path, List<ListHex> myPath)
+        {
+            var possibleMoves = new List<ListHex>();
+            var combined = path.Where(myPath.Contains).OrderBy(x => x.RandomValue).ToList();
+            combined.ForEach(x => possibleMoves.Add(x));
+            var myMoves = myPath.Where(x => !combined.Contains(x)).OrderBy(x => x.RandomValue).ToList();
+            var theirMoves = path.Where(x => !combined.Contains(x)).OrderBy(x => x.RandomValue).ToList();
+            myMoves.ForEach(x => possibleMoves.Add(x));
+            theirMoves.ForEach(x => possibleMoves.Add(x));
+
+            return possibleMoves;
         }
     }
 }

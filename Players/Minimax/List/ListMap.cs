@@ -18,8 +18,8 @@ namespace Players.Minimax.List
 
         public ListMap()
         {
-            Size = 11;
-            CreateNewBoard();
+            //Size = 11;
+            //CreateNewBoard();
         }
 
         public ListMap(int size)

@@ -31,6 +31,11 @@ namespace Players.Minimax.List
         public List<ListHex> GetPathForPlayer()
         {
             ClearLog();
+            foreach (var hex in _searchSpace.Board)
+            {
+                hex.ClearPathingVariables();
+            }
+
             AddLogLine(" ============ Starting new search for " + _playerSearchingFor.Me);
             var startHexes = GetStartingHexes(_playerSearchingFor.Me);
             var endHexes = GetEndingHexes(_playerSearchingFor.Me);
@@ -125,8 +130,15 @@ namespace Players.Minimax.List
                 var parent = bestLookingHex;
                 while (parent != null)
                 {
-                    preferredPath.Add(parent);
-                    parent = parent.Parent;
+                    if (!preferredPath.Contains(parent))
+                    {
+                        preferredPath.Add(parent);
+                        parent = parent.Parent;
+                    } 
+                    else
+                    {
+                        parent = null;
+                    }
                 }
 
                 return preferredPath;

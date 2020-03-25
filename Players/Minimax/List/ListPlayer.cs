@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Threading.Tasks;
 using Omu.ValueInjecter;
@@ -16,7 +17,7 @@ namespace Players.Minimax.List
     */
     public class ListPlayer : MinimaxPlayer
     {
-        private readonly object _workingLock;
+
         public Tuple<int, int> CurrentChoice { get; set; }
 
         public int CurrentLevels
@@ -71,11 +72,25 @@ namespace Players.Minimax.List
             Monitors[NumberOfPrunesMade] = 0;
 
             MovesMade = 0;
-            _workingLock = new object();
+
 
             Startup();
         }
 
+        private void Startup()
+        {
+            Memory = new ListMap(Size);
+            Monitors[MovesExamined] = 0;
+            Monitors[MovesExaminedThisTurn] = 0;
+            Monitors[CurrentScore] = 0;
+            Monitors[AverageTimeToDecision] = 0;
+            Monitors[TotalTimeThinking] = 0;
+            Monitors[NumberOfPlannedMoves] = 0;
+            Monitors[NumberOfRandomMoves] = 0;
+            Monitors[NumberOfNodesChecked] = 0;
+            Monitors[NumberOfPrunesMade] = 0;
+            CurrentChoice = null;
+        }
 
         public override void GameOver(int winningPlayerNumber)
         {
@@ -122,134 +137,39 @@ namespace Players.Minimax.List
             return "Minimax AI";
         }
 
-        public ListHex RandomHex()
+        private ListHex RandomHex()
         {
+            Console.WriteLine("Getting a random hex.");
             var openNodes = Memory.Board.Where(x => x.Owner == Common.PlayerType.White);
             var selectedNode = openNodes.OrderBy(x => x.RandomValue).FirstOrDefault();
             return selectedNode;
         }
 
 
-
-        //public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
-        //{
-        //    if (opponentMove != null)
-        //        if (!Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2))
-        //            Quip("Problem setting opponent's move. " + opponentMove);
-
-        //    var turnStartTime = DateTime.Now;
-
-
-        //    // TODO Add a check to see if there are any hexes that are winners
-        //    foreach (var hex in Memory.Board)
-        //    {
-        //        //if (Memory.CanHexReachBothEnds(hex, Me))
-        //        //{
-        //        //    CurrentChoice = hex.ToTuple();
-        //        //    Quip("Found a winner! " + CurrentChoice);
-        //        //    break;
-        //        //}
-        //    }
-
-
-        //    CurrentChoice = null;
-
-        //    if (CurrentChoice == null)
-        //    {
-        //        MoveQueue = new Queue<ListHex>();
-        //        MoveScores = new ConcurrentDictionary<ListHex, int>();
-        //        ProposedPath = new List<ListHex>();
-        //        Threads = new List<Task>();
-        //        CurrentThreadsInUse = 0;
-        //        Monitors[MovesExaminedThisTurn] = 0;
-
-
-        //        ProposedPath = GetAPathForMe(Memory).Where(x => x.Owner == Common.PlayerType.White).ToList();
-        //        var theirPath = GetAPathForOpponent(Memory).Where(x => x.Owner == Common.PlayerType.White).ToList();
-        //        var possibleMoves = GetPossibleMovesFrom(ProposedPath, theirPath, true);
-
-        //        foreach (var move in possibleMoves)
-        //            //      Quip("Enqueueing move: " + move);
-        //            if (move.Owner == Common.PlayerType.White)
-        //                MoveQueue.Enqueue(move);
-        //            else
-        //                Quip("Egads! " + move + " is already taken!");
-
-        //        while (MoveQueue.Any() || Threads.Any(x => x.Status == TaskStatus.Running))
-        //            if (MoveQueue.Any() && CurrentThreadsInUse < MaximumThreads)
-        //            {
-        //                CurrentThreadsInUse++;
-
-        //                lock (_workingLock)
-        //                {
-        //                    var move = MoveQueue.Dequeue();
-        //                    var newMap = new ListMap().InjectFrom(new CloneInjection(), Memory) as ListMap;
-        //                    var newMapMove =
-        //                        newMap.Board.FirstOrDefault(x => x.Row == move.Row && x.Column == move.Column);
-        //                    Threads.Add(Task.Factory.StartNew(() => StartSearchingForScore(newMap, newMapMove)));
-        //                }
-        //            }
-
-        //        Task.WaitAll(Threads.ToArray());
-
-        //        CurrentChoice = MoveScores.ToList().OrderByDescending(x => x.Value).FirstOrDefault().Key.ToTuple();
-        //        Monitors[MovesExamined] += Monitors[MovesExaminedThisTurn];
-        //    }
-
-        //    RelayPerformanceInformation();
-
-        //    if (CurrentChoice == null)
-        //    {
-        //        Monitors[NumberOfRandomMoves]++;
-        //        var hex = RandomHex();
-        //        CurrentChoice = new Tuple<int, int>(hex.Row, hex.Column);
-        //    }
-        //    else
-        //    {
-        //        Monitors[NumberOfPlannedMoves]++;
-        //    }
-
-        //    Quip("Taking hex: " + CurrentChoice);
-        //    Memory.TakeHex(Me, CurrentChoice);
-        //    var timeTaken = (int) DateTime.Now.Subtract(turnStartTime).TotalMilliseconds;
-        //    MovesMade++;
-        //    Monitors[TotalTimeThinking] += timeTaken;
-        //    Monitors[AverageTimeToDecision] = Monitors[TotalTimeThinking] /
-        //                                      (Monitors[NumberOfRandomMoves] + Monitors[NumberOfPlannedMoves]);
-        //    RelayPerformanceInformation();
-        //    return CurrentChoice;
-        //}
-
-        //public void StartSearchingForScore(ListMap searchInThisMap, ListHex move)
-        //{
-        //    RelayPerformanceInformation();
-        //    Monitors[MovesExaminedThisTurn]++;
-        //    var score = ThinkAboutTheNextMove(searchInThisMap,
-        //        ProposedPath,
-        //        move,
-        //        CurrentLevels,
-        //        AbsoluteWorst,
-        //        AbsoluteBest,
-        //        false);
-
-        //    MoveScores[move] = score;
-        //    CurrentThreadsInUse--;
-        //}
-
-        public void Startup()
+        public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
-            Memory = new ListMap(Size);
-            Monitors[MovesExamined] = 0;
-            Monitors[MovesExaminedThisTurn] = 0;
-            Monitors[CurrentScore] = 0;
-            Monitors[AverageTimeToDecision] = 0;
-            Monitors[TotalTimeThinking] = 0;
-            Monitors[NumberOfPlannedMoves] = 0;
-            Monitors[NumberOfRandomMoves] = 0;
-            Monitors[NumberOfNodesChecked] = 0;
-            Monitors[NumberOfPrunesMade] = 0;
-            CurrentChoice = null;
-        }
+            if (opponentMove != null)
+            {
+                Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
+            }
 
+            var inquisitor = new Inquisitor();
+            inquisitor.StartInquisition(Memory, this);
+
+            if(Memory.HexAt(CurrentChoice).Owner != Common.PlayerType.White)
+            {
+                CurrentChoice = null;
+            } 
+
+            CurrentChoice = CurrentChoice ?? RandomHex().ToTuple();
+
+            Memory.TakeHex(Me, CurrentChoice.Item1, CurrentChoice.Item2);
+            var appraiser = new Appraiser();
+            var score = appraiser.ScoreFromBoard(Memory, this);
+            Console.WriteLine("Choosing " + CurrentChoice + " Score: " + score);
+            return CurrentChoice;
+        }
+   
+     
     }
 }

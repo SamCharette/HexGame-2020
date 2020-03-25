@@ -16,16 +16,18 @@ namespace Players.Minimax.List
      */
     public class Appraiser
     {
-        public int ScoreFromBoard(ListMap map, PlayerType player)
+        public int ScoreFromBoard(ListMap map, ListPlayer player)
         {
 
-            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            var opponent = player.Me == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
             // player score
-            var playerScore = PlayerScore(map, player, map.GetPlayerMatrix(player));
+            var playerScore = PlayerScore(map, player.Me, map.GetPlayerMatrix(player.Me));
             // opponent score
             var opponentScore = PlayerScore(map, opponent, map.GetPlayerMatrix(opponent));
 
-            return playerScore - opponentScore;
+            var bluePathfinder = new Pathfinder(map, player);
+            var path = bluePathfinder.GetPathForPlayer(); 
+            return playerScore + path.Count(x => x.Owner == PlayerType.White) - opponentScore;
         }
 
         private int PlayerScore(ListMap map, PlayerType player, Matrix<double> playerMatrix)

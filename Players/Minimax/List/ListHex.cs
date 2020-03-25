@@ -36,7 +36,7 @@ namespace Players.Minimax.List
             Attached = Matrix<double>.Build.Dense(size, size, 0);
             G = 0;
             H = 0;
-            Console.WriteLine(Attached.ToString());
+            
             Attached.At(row, column, 1.0);
             Owner = PlayerType.White;
             GetNeighbours();

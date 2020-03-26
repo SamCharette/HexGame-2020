@@ -155,8 +155,8 @@ namespace Players.Minimax.List
             combined.ForEach(x => possibleMoves.Add(x));
             var myMoves = myPath.Where(x => !combined.Contains(x)).OrderBy(x => x.RandomValue).ToList();
             var theirMoves = path.Where(x => !combined.Contains(x)).OrderBy(x => x.RandomValue).ToList();
-            myMoves.ForEach(x => possibleMoves.Add(x));
             theirMoves.ForEach(x => possibleMoves.Add(x));
+            myMoves.ForEach(x => possibleMoves.Add(x));
 
             return possibleMoves.Where(x => x.Owner == PlayerType.White).ToList();
         }

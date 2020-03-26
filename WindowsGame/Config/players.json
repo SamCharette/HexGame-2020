@@ -61,11 +61,11 @@
       },
       {
         "key": "costPerNodeTillEnd",
-        "value": "10"
+        "value": "2"
       },
       {
         "key": "costToUnclaimedNode",
-        "value": "20"
+        "value": "1"
       }
     ]
   },

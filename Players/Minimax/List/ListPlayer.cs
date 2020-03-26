@@ -153,11 +153,14 @@ namespace Players.Minimax.List
                 Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
             }
 
+            CurrentChoice = null;
+            
             var inquisitor = new Inquisitor();
             inquisitor.StartInquisition(Memory, this);
 
-            if(Memory.HexAt(CurrentChoice).Owner != Common.PlayerType.White)
+            if(CurrentChoice == null || Memory.HexAt(CurrentChoice).Owner != Common.PlayerType.White)
             {
+                Console.WriteLine("Why are you trying to take hex " + CurrentChoice + "???");
                 CurrentChoice = null;
             } 
 

@@ -12,8 +12,11 @@ namespace Tests.Players.Minimax.List
     {
         [Test]
         public void ScoreBoard_ShouldWork()
-        {
+        {            
             var map = new ListMap(11);
+
+            var bluePlayer = new ListPlayer(1, map.Size, new Config());
+            var redPlayer = new ListPlayer(2, map.Size, new Config());
             map.TakeHex(PlayerType.Red, 1, 1);
             map.TakeHex(PlayerType.Red, 1, 2);
             map.TakeHex(PlayerType.Red, 1, 3);
@@ -35,8 +38,8 @@ namespace Tests.Players.Minimax.List
 
             var appraiser = new Appraiser();
             
-            var player1score = appraiser.ScoreFromBoard(map, PlayerType.Blue);
-            var player2score = appraiser.ScoreFromBoard(map, PlayerType.Red);
+            var player1score = appraiser.ScoreFromBoard(map, bluePlayer);
+            var player2score = appraiser.ScoreFromBoard(map, redPlayer);
             Assert.AreNotEqual(player1score, player2score);
 
             Assert.AreEqual(4, player2score);

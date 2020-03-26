@@ -13,9 +13,21 @@
       <FixtureTestSelector>
         <FixtureName>Tests.Players.Minimax.List.PathfinderTests</FixtureName>
       </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Tests.Players.Minimax.List.ListMapTests</FixtureName>
-      </FixtureTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.ListMapTests.GetPlayerMatrix_ShouldBeAbleToMakeAMatrix_WhenCalledUpon</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.ListMapTests.TakeHex_ShouldAttachAllMatrices_WhenAttachingToMultiples</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.ListMapTests.TakeHex_ShouldFail_IfHexAskedForIsOutOfBounds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.ListMapTests.TakeHex_ShouldChangeTheOwnerProperty_WhenHexIsUnowned</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.ListMapTests.Constructor_ShouldMakeAMap_Period</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

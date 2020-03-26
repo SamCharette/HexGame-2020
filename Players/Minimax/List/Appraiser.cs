@@ -27,7 +27,7 @@ namespace Players.Minimax.List
 
             var bluePathfinder = new Pathfinder(map, player);
             var path = bluePathfinder.GetPathForPlayer(); 
-            return playerScore + path.Count(x => x.Owner == PlayerType.White) - opponentScore;
+            return playerScore + path.Count(x => x.Owner == player.Me) - opponentScore;
         }
 
         private int PlayerScore(ListMap map, PlayerType player, Matrix<double> playerMatrix)

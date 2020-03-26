@@ -23,8 +23,8 @@ namespace Players.Minimax.List
 
         public Inquisitor()
         {
-           
-            _workerThread = new Thread(StartLooking);
+
+            _finalScore = -9999;
         }
 
         public int GetScore()
@@ -42,35 +42,20 @@ namespace Players.Minimax.List
             var mapToSearch = new ListMap(searchMap.Size);
             mapToSearch.InjectFrom(searchMap);
             var searchScout = new Pathfinder(mapToSearch, searchPlayer, true);
-            var args = new InquisitionParameters
-            {
-                player = searchPlayer,
-                map = mapToSearch,
-                path = searchScout.GetPathForPlayer(),
-                currentMove = null,
-                depth = searchPlayer.MaxLevels,
-                alpha = -9999,
-                beta = 9999,
-                isMaximizing = true
-            };
-            StartLooking(args);
-            //_workerThread.Start(args);
+
+            ThinkAboutTheNextMove(
+                searchPlayer,
+                mapToSearch,
+                searchScout.GetPathForPlayer(),
+                null,
+                searchPlayer.MaxLevels,
+                -9999,
+                9999,
+                true);
+
         }
 
-        private void StartLooking(Object obj)
-        {
-            var args = (InquisitionParameters) obj;
-            Console.WriteLine("Starting to look");
-            _finalScore = ThinkAboutTheNextMove(
-                args.player,
-                args.map, 
-                args.path, 
-                args.currentMove, 
-                args.depth, 
-                args.alpha, 
-                args.beta,
-                args.isMaximizing);
-        }
+
 
         private int ThinkAboutTheNextMove(
             ListPlayer player,
@@ -84,6 +69,11 @@ namespace Players.Minimax.List
         {
             var judge = new Appraiser();
 
+            if (currentMove != null)
+            {
+                map.TakeHex(isMaximizing ? player.Me : player.Opponent(), currentMove.Row, currentMove.Column);
+            }
+
             if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
             {
                 return judge.ScoreFromBoard(map, player);
@@ -96,14 +86,25 @@ namespace Players.Minimax.List
             var possibleMoves = GetPossibleMoves(path, myPath);
             if (isMaximizing)
             {
+                var bestScore = -9999;
                 foreach (var move in possibleMoves)
                 {
                     var newMap = Mapper.Map<ListMap>(map);
-                    var newScore = ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, false);
-                    if (newScore > alpha)
+                    bestScore = Math.Max(bestScore, 
+                    ThinkAboutTheNextMove(
+                        player, 
+                        newMap, 
+                        myPath, 
+                        move, 
+                        depth - 1, 
+                        alpha, 
+                        beta, 
+                        false));
+
+                    if (bestScore > alpha)
                     {
                         player.CurrentChoice = move.ToTuple();
-                        alpha = newScore;
+                        alpha = bestScore;
                     }
                     if (beta <= alpha)
                     {
@@ -113,13 +114,14 @@ namespace Players.Minimax.List
 
                 return alpha;
             }
-            else 
+            else
             {
+                var worstScore = 9999;
                 foreach (var move in possibleMoves)
                 {
                     var newMap = Mapper.Map<ListMap>(map);
-                    beta = Math.Min(beta, ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, true));
-                    
+                    worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, true));
+                    beta = Math.Min(worstScore, beta);
                     if (beta <= alpha)
                     {
                         break;

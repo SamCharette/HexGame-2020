@@ -18,7 +18,7 @@ namespace Players.Minimax.List
         private ListMap _map;
         private Thread _workerThread;
         private int _finalScore;
-        private ListHex _finalChoice;
+        private Tuple<int,int> _finalChoice;
    
 
         public Inquisitor()
@@ -32,7 +32,7 @@ namespace Players.Minimax.List
             return _finalScore;
         }
 
-        public ListHex GetChoice()
+        public Tuple<int,int> GetChoice()
         {
             return _finalChoice;
         }
@@ -41,6 +41,8 @@ namespace Players.Minimax.List
         {
             var mapToSearch = searchMap.GetCopyOf();
             var searchScout = new Pathfinder(mapToSearch, searchPlayer.Me);
+            _finalChoice = null;
+            _finalScore = -9999;
 
             ThinkAboutTheNextMove(
                 searchPlayer,
@@ -87,9 +89,9 @@ namespace Players.Minimax.List
             var possibleMoves = GetPossibleMoves(path, myPath);
             if (isMaximizing)
             {
-                var bestScore = -9999;
                 foreach (var move in possibleMoves)
                 {
+                    var bestScore = -9999;
                     var newMap = map.GetCopyOf();
                     bestScore = Math.Max(bestScore, 
                     ThinkAboutTheNextMove(
@@ -104,7 +106,7 @@ namespace Players.Minimax.List
 
                     if (bestScore > alpha)
                     {
-                        player.CurrentChoice = move.ToTuple();
+                        _finalChoice = move.ToTuple();
                         alpha = bestScore;
                     }
                     if (beta <= alpha)
@@ -117,9 +119,9 @@ namespace Players.Minimax.List
             }
             else
             {
-                var worstScore = 9999;
                 foreach (var move in possibleMoves)
                 {
+                    var worstScore = 9999;
                     var newMap = map.GetCopyOf();
                     worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(
                         player, 
@@ -151,7 +153,7 @@ namespace Players.Minimax.List
             myMoves.ForEach(x => possibleMoves.Add(x));
             theirMoves.ForEach(x => possibleMoves.Add(x));
 
-            return possibleMoves;
+            return possibleMoves.Where(x => x.Owner == PlayerType.White).ToList();
         }
     }
 }

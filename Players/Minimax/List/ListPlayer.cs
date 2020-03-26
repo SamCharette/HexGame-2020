@@ -150,6 +150,7 @@ namespace Players.Minimax.List
         {
             if (opponentMove != null)
             {
+                Console.WriteLine("Opponent chose " + opponentMove);
                 Memory.TakeHex(Opponent(), opponentMove.Item1, opponentMove.Item2);
             }
 
@@ -157,6 +158,7 @@ namespace Players.Minimax.List
             
             var inquisitor = new Inquisitor();
             inquisitor.StartInquisition(Memory, this);
+            CurrentChoice = inquisitor.GetChoice();
 
             if(CurrentChoice == null || Memory.HexAt(CurrentChoice).Owner != Common.PlayerType.White)
             {

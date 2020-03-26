@@ -11,6 +11,10 @@ namespace Players.Minimax.List
         public int Column { get; set; }
         public int Size { get; set; }
 
+        public SimpleHex()
+        {
+
+        }
         public SimpleHex(int size, Tuple<int,int> coordinates)
         {
             Size = size;

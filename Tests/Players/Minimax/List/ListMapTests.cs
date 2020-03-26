@@ -6,6 +6,7 @@ using System.Text;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using Players.Common;
+using Players.Minimax;
 using Players.Minimax.List;
 
 namespace Tests.Players.Minimax.List
@@ -96,10 +97,11 @@ namespace Tests.Players.Minimax.List
             map.TakeHex(PlayerType.Blue, 1, 9);
             map.TakeHex(PlayerType.Blue, 1, 10);
 
-            var newMap = Mapper.Map<ListMap>(map);
+            var newMap = new ListMap(map.Size);
+            newMap.InjectFrom<CloneInjection>(map);
             Assert.AreEqual(5, newMap.Board.Count(x => x.Owner == PlayerType.Red));
             Assert.AreEqual(4, newMap.Board.Count(x => x.Owner == PlayerType.Blue));
-            Assert.AreEqual(map.HexAt(1,1), newMap.HexAt(1,1));
+            Assert.AreEqual(map.HexAt(1,1).ToTuple(), newMap.HexAt(1,1).ToTuple());
             Assert.AreEqual(map.HexAt(1,1).Attached, map.HexAt(1,1).Attached);
             newMap.TakeHex(PlayerType.Blue, 1, 6);
             Assert.AreNotEqual(map.Board.Count(x => x.Owner == PlayerType.Blue), newMap.Board.Count(x => x.Owner == PlayerType.Blue));

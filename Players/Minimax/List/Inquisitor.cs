@@ -40,7 +40,7 @@ namespace Players.Minimax.List
         public void StartInquisition(ListMap searchMap, ListPlayer searchPlayer)
         {
             var mapToSearch = new ListMap(searchMap.Size);
-            mapToSearch.InjectFrom(searchMap);
+            mapToSearch.InjectFrom<CloneInjection>(searchMap);
             var searchScout = new Pathfinder(mapToSearch, searchPlayer, true);
 
             ThinkAboutTheNextMove(
@@ -89,7 +89,8 @@ namespace Players.Minimax.List
                 var bestScore = -9999;
                 foreach (var move in possibleMoves)
                 {
-                    var newMap = Mapper.Map<ListMap>(map);
+                    var newMap = new ListMap(map.Size);
+                    newMap.InjectFrom<CloneInjection>(map);
                     bestScore = Math.Max(bestScore, 
                     ThinkAboutTheNextMove(
                         player, 
@@ -119,7 +120,8 @@ namespace Players.Minimax.List
                 var worstScore = 9999;
                 foreach (var move in possibleMoves)
                 {
-                    var newMap = Mapper.Map<ListMap>(map);
+                    var newMap = new ListMap(map.Size);
+                    newMap.InjectFrom<CloneInjection>(map);
                     worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, true));
                     beta = Math.Min(worstScore, beta);
                     if (beta <= alpha)

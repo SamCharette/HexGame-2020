@@ -10,7 +10,7 @@ namespace Players.Minimax.List
     {
         public List<SimpleHex> Neighbours = new List<SimpleHex>();
 
-        public ListHex Parent;
+        public ListHex Parent = null;
         public Guid RandomValue;
 
 
@@ -26,8 +26,12 @@ namespace Players.Minimax.List
         public int H { get; set; }
         public PlayerType Owner { get; set; }
         public Status Status { get; set; }
-        
-    
+
+
+        public ListHex()
+        {
+
+        }
         public ListHex(int size, int row, int column) : base(size, row, column)
         {
             Parent = null;

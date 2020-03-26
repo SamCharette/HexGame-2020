@@ -39,9 +39,8 @@ namespace Players.Minimax.List
 
         public void StartInquisition(ListMap searchMap, ListPlayer searchPlayer)
         {
-            var mapToSearch = new ListMap(searchMap.Size);
-            mapToSearch.InjectFrom<CloneInjection>(searchMap);
-            var searchScout = new Pathfinder(mapToSearch, searchPlayer, true);
+            var mapToSearch = searchMap.GetCopyOf();
+            var searchScout = new Pathfinder(mapToSearch, searchPlayer);
 
             ThinkAboutTheNextMove(
                 searchPlayer,
@@ -68,18 +67,20 @@ namespace Players.Minimax.List
           bool isMaximizing)
         {
             var judge = new Appraiser();
-
+            
+            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
+            {
+                return judge.ScoreFromBoard(map, player);
+            }
+            
             if (currentMove != null)
             {
                 map.TakeHex(isMaximizing ? player.Me : player.Opponent(), currentMove.Row, currentMove.Column);
             }
 
-            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
-            {
-                return judge.ScoreFromBoard(map, player);
-            }
+       
 
-            var scout = new Pathfinder(map, player);
+            var scout = new Pathfinder(map, player, true);
        
             var myPath =  scout.GetPathForPlayer();
 
@@ -89,8 +90,7 @@ namespace Players.Minimax.List
                 var bestScore = -9999;
                 foreach (var move in possibleMoves)
                 {
-                    var newMap = new ListMap(map.Size);
-                    newMap.InjectFrom<CloneInjection>(map);
+                    var newMap = map.GetCopyOf();
                     bestScore = Math.Max(bestScore, 
                     ThinkAboutTheNextMove(
                         player, 
@@ -120,9 +120,16 @@ namespace Players.Minimax.List
                 var worstScore = 9999;
                 foreach (var move in possibleMoves)
                 {
-                    var newMap = new ListMap(map.Size);
-                    newMap.InjectFrom<CloneInjection>(map);
-                    worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(player, newMap, myPath, move, depth - 1, alpha, beta, true));
+                    var newMap = map.GetCopyOf();
+                    worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(
+                        player, 
+                        newMap, 
+                        myPath, 
+                        move, 
+                        depth - 1, 
+                        alpha, 
+                        beta, 
+                        true));
                     beta = Math.Min(worstScore, beta);
                     if (beta <= alpha)
                     {

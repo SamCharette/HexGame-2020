@@ -82,6 +82,7 @@ namespace Players.Minimax.List
             AddLog("Path found : ");
             path.ForEach(x => AddLog(" " + x));
             AddLogLine("");
+            OutputLogToConsole();
             return path;
         }
 
@@ -125,6 +126,7 @@ namespace Players.Minimax.List
 
             if (bestLookingHex.Equals(end))
             {
+                AddLogLine(bestLookingHex + " is at end.");
                 var preferredPath = new List<ListHex>();
 
                 var parent = bestLookingHex;
@@ -148,7 +150,7 @@ namespace Players.Minimax.List
 
 
             var neighbours =  _searchSpace.GetNeighboursFrom(bestLookingHex, _playerSearchingFor.Me);
-
+            AddLog(neighbours.Count + " neighbours to examine.");
             foreach (var node in neighbours)
             {
                 if (node.Owner != _playerSearchingFor.Opponent())
@@ -226,6 +228,13 @@ namespace Players.Minimax.List
             }
         }
 
+        public void OutputLogToConsole()
+        {
+            if (IsLogging)
+            {
+                Console.WriteLine(Log);
+            }
+        }
         public string GetLog()
         {
             return Log;

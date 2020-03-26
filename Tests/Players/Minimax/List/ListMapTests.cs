@@ -121,10 +121,10 @@ namespace Tests.Players.Minimax.List
             map.TakeHex(PlayerType.Blue, 1, 8);
             map.TakeHex(PlayerType.Blue, 1, 9);
             map.TakeHex(PlayerType.Blue, 1, 10);
-            
-            var blueMap = Mapper.Map<ListMap>(map);
-            
-            
+
+            var blueMap = new ListMap(map.Size);
+            blueMap.InjectFrom<CloneInjection>(map);
+
             var matrixForPlayer1 = blueMap.GetPlayerMatrix(PlayerType.Blue);
             TestContext.WriteLine("Player 1 matrix");
             TestContext.WriteLine(matrixForPlayer1.ToString());

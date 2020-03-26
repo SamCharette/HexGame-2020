@@ -30,6 +30,7 @@ namespace Players.Minimax.List
 
         public ListHex()
         {
+   
 
         }
         public ListHex(int size, int row, int column) : base(size, row, column)
@@ -43,6 +44,12 @@ namespace Players.Minimax.List
             
             Attached.At(row, column, 1.0);
             Owner = PlayerType.White;
+            GetNeighbours();
+            SetEdgeAttachedStatuses();
+        }
+
+        public void PostCloneWork()
+        {
             GetNeighbours();
             SetEdgeAttachedStatuses();
         }

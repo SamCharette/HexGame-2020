@@ -28,6 +28,9 @@
       <NamedTestSelector>
         <TestName>Tests.Players.Minimax.List.ListMapTests.Constructor_ShouldMakeAMap_Period</TestName>
       </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.InquisitorTests.Inquisitor_ShouldWork</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

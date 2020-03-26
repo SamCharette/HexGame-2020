@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Omu.ValueInjecter;
 using Players.Common;
+using Players.Minimax;
 
 namespace Tests.Players.Minimax.List
 {
@@ -40,10 +41,9 @@ namespace Tests.Players.Minimax.List
             map.TakeHex(PlayerType.Red, 2, 4);
             map.TakeHex(PlayerType.Red, 2, 5);
 
-            var blueMap = Mapper.Map<ListMap>(map);
-
+            var blueMap = new ListMap(map.Size);
+            blueMap.InjectFrom<CloneInjection>(map);
             
-
             pathfinder = new Pathfinder(map, redPlayer, true);
             path = pathfinder.GetPathForPlayer();
             TestContext.WriteLine(pathfinder.GetLog());

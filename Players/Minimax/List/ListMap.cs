@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
+using Omu.ValueInjecter;
 using Players.Common;
 
 namespace Players.Minimax.List
@@ -188,6 +189,13 @@ namespace Players.Minimax.List
       
         #endregion
 
+        public ListMap GetCopyOf()
+        {
+            var newMap = new ListMap(Size);
+            newMap.InjectFrom<CloneInjection>(this);
+            newMap.Board.ForEach(x => x.PostCloneWork());
+            return newMap;
+        }
 
     }
 }

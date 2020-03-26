@@ -82,7 +82,7 @@ namespace Players.Minimax.List
 
        
 
-            var scout = new Pathfinder(map, player.Me);
+            var scout = new Pathfinder(map, isMaximizing ? player.Me : player.Opponent());
        
             var myPath =  scout.GetPathForPlayer();
 

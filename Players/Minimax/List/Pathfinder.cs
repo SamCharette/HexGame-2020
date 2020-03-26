@@ -25,8 +25,8 @@ namespace Players.Minimax.List
         public Pathfinder(ListMap searchThis, 
             PlayerType searchForThisPlayer, 
             int friendlyCost = 0,
-            int openCost = 10,
-            int costPerNodeTillEnd = 20,
+            int openCost = 20,
+            int costPerNodeTillEnd = 10,
             bool isLogging = false)
         {
             _searchSpace = searchThis;
@@ -41,56 +41,58 @@ namespace Players.Minimax.List
      
         public List<ListHex> GetPathForPlayer()
         {
-            ClearLog();
+            //ClearLog();
             foreach (var hex in _searchSpace.Board)
             {
                 hex.ClearPathingVariables();
             }
 
             opponent = _playerSearchingFor == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
-            AddLogLine(" ============ Starting new search for " + _playerSearchingFor);
+            //AddLogLine(" ============ Starting new search for " + _playerSearchingFor);
             var startHexes = GetStartingHexes(_playerSearchingFor);
             var endHexes = GetEndingHexes(_playerSearchingFor);
             var path = new List<ListHex>();
 
-            var pathEase = _searchSpace.Size * _searchSpace.Size;
-            AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == opponent) + " hexes.");
-            _searchSpace.Board.Where(x => x.Owner == opponent).ToList().ForEach(x => AddLog(x + " "));
-            AddLogLine("");
+            var pathEase = _searchSpace.Size * _searchSpace.Size * costPerOpenNode;
+            //AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == opponent) + " hexes.");
+            //_searchSpace.Board.Where(x => x.Owner == opponent).ToList().ForEach(x => AddLog(x + " "));
+            //AddLogLine("");
 
             foreach (var startSpot in startHexes)
             {
-
+           
                 foreach (var endSpot in endHexes)
                 {
-                    AddLogLine("Best score is " + pathEase);
-                    AddLogLine("---------- Searching between " + startSpot + " and " + endSpot);
+                    //AddLogLine("Best score is " + pathEase);
+                    //AddLogLine("---------- Searching between " + startSpot + " and " + endSpot);
                     foreach (var hex in _searchSpace.Board)
                     {
                         hex.ClearPathingVariables();
                     }
+
+                    startSpot.G = startSpot.Owner == PlayerType.White ? costPerOpenNode : costPerFriendlyNode;
                     var newPath = PathBetween(startSpot, endSpot, pathEase);
 
-
+                    newPath = newPath.OrderByDescending(x => x.F()).ToList();
                     if (newPath.Any() && ((newPath.First().F() < pathEase) 
                         || (newPath.First().F() == pathEase && newPath.Count < path.Count)))
                     {
                         pathEase = newPath.First().F();
                         path = newPath;
-                        AddLogLine("");
-                        AddLogLine("(" + path.Count + ") Better path found with score : " + pathEase);
-                        AddLog("Path found : ");
-                        newPath.ForEach(x => AddLog(" " + x));
-                        AddLogLine("");
+                        //AddLogLine("");
+                        //AddLogLine("(" + path.Count + ") Better path found with score : " + pathEase);
+                        //AddLog("Path found : ");
+                        //newPath.ForEach(x => AddLog(" " + x));
+                        //AddLogLine("");
                     }
                 }
             }
-            AddLogLine("---------- ");
-            AddLogLine("Final score is " + pathEase);
-            AddLog("Path found : ");
-            path.ForEach(x => AddLog(" " + x));
-            AddLogLine("");
-            OutputLogToConsole();
+            //AddLogLine("---------- ");
+            //AddLogLine("Final score is " + pathEase);
+            //AddLog("Path found : ");
+            //path.ForEach(x => AddLog(" " + x));
+            //AddLogLine("");
+            //OutputLogToConsole();
             return path;
         }
 

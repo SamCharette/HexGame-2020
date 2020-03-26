@@ -40,7 +40,7 @@ namespace Players.Minimax.List
         public void StartInquisition(ListMap searchMap, ListPlayer searchPlayer)
         {
             var mapToSearch = searchMap.GetCopyOf();
-            var searchScout = new Pathfinder(mapToSearch, searchPlayer);
+            var searchScout = new Pathfinder(mapToSearch, searchPlayer.Me);
 
             ThinkAboutTheNextMove(
                 searchPlayer,
@@ -80,7 +80,7 @@ namespace Players.Minimax.List
 
        
 
-            var scout = new Pathfinder(map, player, true);
+            var scout = new Pathfinder(map, player.Me);
        
             var myPath =  scout.GetPathForPlayer();
 

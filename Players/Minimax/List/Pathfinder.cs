@@ -14,17 +14,28 @@ namespace Players.Minimax.List
     public class Pathfinder
     {
         private ListMap _searchSpace;
-        private ListPlayer _playerSearchingFor;
+        private PlayerType _playerSearchingFor;
         private bool IsLogging;
+        private PlayerType opponent;
+        private int costPerFriendlyNode;
+        private int costPerOpenNode;
+        private int costPerNodeLeft;
         private string Log;
 
         public Pathfinder(ListMap searchThis, 
-            ListPlayer searchForThisPlayer, 
+            PlayerType searchForThisPlayer, 
+            int friendlyCost = 0,
+            int openCost = 10,
+            int costPerNodeTillEnd = 20,
             bool isLogging = false)
         {
             _searchSpace = searchThis;
             _playerSearchingFor = searchForThisPlayer;
             IsLogging = isLogging;
+            costPerFriendlyNode = friendlyCost;
+            costPerNodeLeft = costPerNodeTillEnd;
+            costPerOpenNode = openCost;
+
         }
 
      
@@ -36,23 +47,20 @@ namespace Players.Minimax.List
                 hex.ClearPathingVariables();
             }
 
-            AddLogLine(" ============ Starting new search for " + _playerSearchingFor.Me);
-            var startHexes = GetStartingHexes(_playerSearchingFor.Me);
-            var endHexes = GetEndingHexes(_playerSearchingFor.Me);
+            opponent = _playerSearchingFor == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            AddLogLine(" ============ Starting new search for " + _playerSearchingFor);
+            var startHexes = GetStartingHexes(_playerSearchingFor);
+            var endHexes = GetEndingHexes(_playerSearchingFor);
             var path = new List<ListHex>();
 
-            var pathEase = _searchSpace.Size * _searchSpace.Size * Math.Max(_playerSearchingFor.CostPerNodeTillEnd, _playerSearchingFor.CostToMoveToUnclaimedNode);
-            AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == _playerSearchingFor.Opponent()) + " hexes.");
-            _searchSpace.Board.Where(x => x.Owner == _playerSearchingFor.Opponent()).ToList().ForEach(x => AddLog(x + " "));
+            var pathEase = _searchSpace.Size * _searchSpace.Size;
+            AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == opponent) + " hexes.");
+            _searchSpace.Board.Where(x => x.Owner == opponent).ToList().ForEach(x => AddLog(x + " "));
             AddLogLine("");
 
             foreach (var startSpot in startHexes)
             {
-                startSpot.G = startSpot.Owner == _playerSearchingFor.Me
-                    ? _playerSearchingFor.CostToMoveToClaimedNode
-                    : _playerSearchingFor.CostToMoveToUnclaimedNode;
 
-                
                 foreach (var endSpot in endHexes)
                 {
                     AddLogLine("Best score is " + pathEase);
@@ -149,29 +157,29 @@ namespace Players.Minimax.List
             bestLookingHex.Status = Status.Closed;
 
 
-            var neighbours =  _searchSpace.GetNeighboursFrom(bestLookingHex, _playerSearchingFor.Me);
+            var neighbours =  _searchSpace.GetNeighboursFrom(bestLookingHex, _playerSearchingFor);
             AddLog(neighbours.Count + " neighbours to examine.");
             foreach (var node in neighbours)
             {
-                if (node.Owner != _playerSearchingFor.Opponent())
+                if (node.Owner != opponent)
                 {
                     if (node.Status == Status.Open)
                     {
                         if (node.G > bestLookingHex.G +
-                            (node.Owner == _playerSearchingFor.Me 
-                                ? _playerSearchingFor.CostToMoveToClaimedNode 
-                                : _playerSearchingFor.CostToMoveToUnclaimedNode))
+                            (node.Owner == _playerSearchingFor 
+                                ? costPerFriendlyNode 
+                                : costPerOpenNode))
                         {
                             node.Parent = bestLookingHex;
                             node.G = bestLookingHex.G +
-                                     (node.Owner == _playerSearchingFor.Me 
-                                         ? _playerSearchingFor.CostToMoveToClaimedNode 
-                                         : _playerSearchingFor.CostToMoveToUnclaimedNode);
+                                     (node.Owner == _playerSearchingFor 
+                                         ? costPerFriendlyNode 
+                                         : costPerOpenNode);
                             
                             node.H =
-                                (_playerSearchingFor.Me == Common.PlayerType.Blue 
+                                (_playerSearchingFor == Common.PlayerType.Blue 
                                     ? _searchSpace.Size - 1 - node.Row 
-                                    : _searchSpace.Size - 1 - node.Column) *  _playerSearchingFor.CostPerNodeTillEnd;
+                                    : _searchSpace.Size - 1 - node.Column) *  costPerNodeLeft;
                         }
                     }
                     else if (node.Status == Status.Untested)
@@ -179,13 +187,13 @@ namespace Players.Minimax.List
                         node.Status = Status.Open;
                         node.Parent = bestLookingHex;
                         node.G = bestLookingHex.G +
-                                 (node.Owner == _playerSearchingFor.Me 
-                                     ? _playerSearchingFor.CostToMoveToClaimedNode 
-                                     : _playerSearchingFor.CostToMoveToUnclaimedNode);
+                                 (node.Owner == _playerSearchingFor 
+                                     ? costPerFriendlyNode 
+                                     : costPerOpenNode);
 
-                        node.H = (_playerSearchingFor.Me == Common.PlayerType.Blue 
+                        node.H = (_playerSearchingFor == Common.PlayerType.Blue 
                                      ? _searchSpace.Size - 1 - node.Row 
-                                     : _searchSpace.Size - 1 - node.Column) * _playerSearchingFor.CostPerNodeTillEnd;
+                                     : _searchSpace.Size - 1 - node.Column) * costPerNodeLeft;
                     }
                 }
 
@@ -199,7 +207,7 @@ namespace Players.Minimax.List
             _searchSpace = map;
         }
 
-        public void SetPlayer(ListPlayer player)
+        public void SetPlayer(PlayerType player)
         {
             _playerSearchingFor = player;
         }

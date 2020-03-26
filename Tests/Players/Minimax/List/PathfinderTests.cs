@@ -22,12 +22,12 @@ namespace Tests.Players.Minimax.List
             var player = new ListPlayer(1, 11, new Config());
             var redPlayer = new ListPlayer(2, 11, new Config());
 
-            var pathfinder = new Pathfinder(map, player);
+            var pathfinder = new Pathfinder(map, player.Me);
 
           
 
             //map.TakeHex(PlayerType.Red, 5, 1);
-            pathfinder = new Pathfinder(map, player);
+            pathfinder = new Pathfinder(map, player.Me);
             var path = pathfinder.GetPathForPlayer();
 
             //Assert.AreEqual(11, path.Count);
@@ -44,7 +44,7 @@ namespace Tests.Players.Minimax.List
             var blueMap = new ListMap(map.Size);
             blueMap.InjectFrom<CloneInjection>(map);
             
-            pathfinder = new Pathfinder(map, redPlayer, true);
+            pathfinder = new Pathfinder(map, redPlayer.Me);
             path = pathfinder.GetPathForPlayer();
             TestContext.WriteLine(pathfinder.GetLog());
             path.ForEach(x => map.TakeHex(PlayerType.Red, x.Row, x.Column));

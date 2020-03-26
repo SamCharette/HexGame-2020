@@ -25,7 +25,7 @@ namespace Players.Minimax.List
             // opponent score
             var opponentScore = PlayerScore(map, opponent, map.GetPlayerMatrix(opponent));
 
-            var bluePathfinder = new Pathfinder(map, player);
+            var bluePathfinder = new Pathfinder(map, player.Me);
             var path = bluePathfinder.GetPathForPlayer(); 
             return playerScore + path.Count(x => x.Owner == player.Me) - opponentScore;
         }

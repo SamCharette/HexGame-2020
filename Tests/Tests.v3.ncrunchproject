@@ -31,6 +31,9 @@
       <NamedTestSelector>
         <TestName>Tests.Players.Minimax.List.InquisitorTests.Inquisitor_ShouldWork</TestName>
       </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Tests.Players.Minimax.List.ListMapTests.ValueInjecter_ShouldProperlyClone_AFullMap</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

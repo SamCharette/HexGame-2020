@@ -25,7 +25,7 @@
     "type": "Human"
   },
   {
-    "playerNumber": "0",
+    "playerNumber": "2",
     "name": "Random",
     "type": "Random AI",
     "talkative": "0",
@@ -48,7 +48,7 @@
       },
       {
         "key": "maxLevels",
-        "value": "7"
+        "value": "4"
       },
       {
         "key": "movesPerBrainJump",
@@ -72,7 +72,7 @@
   {
     "name": "Maxine",
     "type": "Minimax List AI",
-    "playerNumber": "2",
+    "playerNumber": "0",
     "talkative": "1",
     "settings": [
       {

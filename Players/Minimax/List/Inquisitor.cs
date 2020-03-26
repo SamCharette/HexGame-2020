@@ -40,7 +40,12 @@ namespace Players.Minimax.List
         public void StartInquisition(ListMap searchMap, ListPlayer searchPlayer)
         {
             var mapToSearch = searchMap.GetCopyOf();
-            var searchScout = new Pathfinder(mapToSearch, searchPlayer.Me);
+            var searchScout = new Pathfinder(mapToSearch, 
+                searchPlayer.Me,
+                searchPlayer.CostToMoveToClaimedNode,
+                searchPlayer.CostToMoveToUnclaimedNode,
+                searchPlayer.CostPerNodeTillEnd);
+
             _finalChoice = null;
             _finalScore = -9999;
 
@@ -49,7 +54,7 @@ namespace Players.Minimax.List
                 mapToSearch,
                 searchScout.GetPathForPlayer(),
                 null,
-                searchPlayer.MaxLevels,
+                searchPlayer.CurrentLevels,
                 -9999,
                 9999,
                 true);

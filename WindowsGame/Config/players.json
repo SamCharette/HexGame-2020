@@ -52,7 +52,7 @@
       },
       {
         "key": "movesPerBrainJump",
-        "value": "2"
+        "value": "1"
       },
 
       {
@@ -61,11 +61,11 @@
       },
       {
         "key": "costPerNodeTillEnd",
-        "value": "100"
+        "value": "10"
       },
       {
         "key": "costToUnclaimedNode",
-        "value": "10"
+        "value": "20"
       }
     ]
   },

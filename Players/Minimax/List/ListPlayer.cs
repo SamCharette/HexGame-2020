@@ -61,18 +61,7 @@ namespace Players.Minimax.List
 
 
             Name = playerConfig.name;
-            Monitors[MovesExamined] = 0;
-            Monitors[MovesExaminedThisTurn] = 0;
-            Monitors[CurrentScore] = 0;
-            Monitors[AverageTimeToDecision] = 0;
-            Monitors[TotalTimeThinking] = 0;
-            Monitors[NumberOfPlannedMoves] = 0;
-            Monitors[NumberOfRandomMoves] = 0;
-            Monitors[NumberOfNodesChecked] = 0;
-            Monitors[NumberOfPrunesMade] = 0;
-
             MovesMade = 0;
-
 
             Startup();
         }
@@ -80,15 +69,7 @@ namespace Players.Minimax.List
         private void Startup()
         {
             Memory = new ListMap(Size);
-            Monitors[MovesExamined] = 0;
-            Monitors[MovesExaminedThisTurn] = 0;
-            Monitors[CurrentScore] = 0;
-            Monitors[AverageTimeToDecision] = 0;
-            Monitors[TotalTimeThinking] = 0;
-            Monitors[NumberOfPlannedMoves] = 0;
-            Monitors[NumberOfRandomMoves] = 0;
-            Monitors[NumberOfNodesChecked] = 0;
-            Monitors[NumberOfPrunesMade] = 0;
+           
             CurrentChoice = null;
         }
 
@@ -98,31 +79,6 @@ namespace Players.Minimax.List
             Memory = null;
         }
 
-
-
-        private List<ListHex> GetPossibleMovesFrom(List<ListHex> myPath, List<ListHex> theirPath, bool isMaximizing)
-        {
-            var possibleMoves = new ConcurrentBag<ListHex>();
-            var bothLike = myPath.Where(theirPath.Contains).ToList();
-
-            foreach (var hex in bothLike.Where(x => x.Owner == Common.PlayerType.White))
-            {
-                possibleMoves.Add(hex);
-            }
-
-            foreach (var hex in myPath.Where(x => x.Owner == Common.PlayerType.White
-                                                  && !bothLike.Any(y => y.Row == x.Row && y.Column == x.Column))
-                .ToList())
-            {
-                possibleMoves.Add(hex);
-            }
-            //foreach (var hex in theirPath.Where(x => x.Owner == Common.PlayerType.White).ToList())
-            //    possibleMoves.TryAdd(hex.HexName, hex);
-
-            return possibleMoves.ToList();
-        }
-
-        
 
         public PlayerType Opponent()
         {
@@ -172,6 +128,7 @@ namespace Players.Minimax.List
             var appraiser = new Appraiser();
             var score = appraiser.ScoreFromBoard(Memory, this);
             Console.WriteLine("Choosing " + CurrentChoice + " Score: " + score);
+            MovesMade++;
             return CurrentChoice;
         }
    

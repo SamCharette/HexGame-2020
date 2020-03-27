@@ -49,8 +49,8 @@ namespace Players.Minimax.List
 
             opponent = _playerSearchingFor == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
             //AddLogLine(" ============ Starting new search for " + _playerSearchingFor);
-            var startHexes = GetStartingHexes(_playerSearchingFor);
-            var endHexes = GetEndingHexes(_playerSearchingFor);
+            var startHexes = GetStartingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
+            var endHexes = GetEndingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
             var path = new List<ListHex>();
 
             var pathEase = _searchSpace.Size * _searchSpace.Size * costPerOpenNode;

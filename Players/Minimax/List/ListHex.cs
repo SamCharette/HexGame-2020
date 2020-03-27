@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
@@ -12,7 +13,7 @@ namespace Players.Minimax.List
 
         public ListHex Parent = null;
         public Guid RandomValue;
-
+        public int Priority = 0;
 
         public Matrix<double> Attached { get; set; }
         public bool IsAttachedToTop { get; set; }
@@ -50,6 +51,7 @@ namespace Players.Minimax.List
 
         public void PostCloneWork()
         {
+            RandomValue = Guid.NewGuid();
             GetNeighbours();
             SetEdgeAttachedStatuses();
         }
@@ -125,6 +127,7 @@ namespace Players.Minimax.List
             H = 0;
             Parent = null;
             Status = Status.Untested;
+            Priority = 0;
         }
 
         public void DetachFrom(ListHex node)

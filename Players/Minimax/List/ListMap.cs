@@ -15,10 +15,15 @@ namespace Players.Minimax.List
         public int Size { get; set; }
         public List<ListHex> Board { get; set; }
 
+        public ListHex LastBlueMove { get; set; }
+        public ListHex LastRedMove { get; set; }
+
         #region Constructors
 
         public ListMap()
         {
+            LastBlueMove = null;
+            LastRedMove = null;
             //Size = 11;
             //CreateNewBoard();
         }
@@ -27,6 +32,8 @@ namespace Players.Minimax.List
         {
             Size = size;
             CreateNewBoard();
+            LastBlueMove = null;
+            LastRedMove = null;
         }
 
         private void CreateNewBoard()
@@ -172,7 +179,14 @@ namespace Players.Minimax.List
                 myHex.Attached = newAttachedMatrix;
                 myHex.SetEdgeAttachedStatuses();
             }
-
+            if (player == PlayerType.Blue)
+            {
+                LastBlueMove = hexToTake;
+            }
+            else
+            {
+                LastRedMove = hexToTake;
+            }
             return true;
         }
 

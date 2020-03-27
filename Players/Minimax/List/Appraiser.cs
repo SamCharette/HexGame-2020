@@ -21,16 +21,31 @@ namespace Players.Minimax.List
 
             var opponent = player.Me == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
             // player score
-            var playerScore = PlayerScore(map, player.Me, map.GetPlayerMatrix(player.Me));
+            var playerScore = PlayerScore(map, player.Me);
             // opponent score
-            var opponentScore = PlayerScore(map, opponent, map.GetPlayerMatrix(opponent));
+            var opponentScore = PlayerScore(map, opponent);
 
-            var bluePathfinder = new Pathfinder(map, player.Me);
-            var path = bluePathfinder.GetPathForPlayer(); 
-            return playerScore + path.Count(x => x.Owner == player.Me) - opponentScore;
+            var scout = new Pathfinder(map, player.Me);
+            var path = scout.GetPathForPlayer(); 
+            return playerScore  - opponentScore;
         }
 
-        private int PlayerScore(ListMap map, PlayerType player, Matrix<double> playerMatrix)
+        private int PlayerScore(ListMap map, PlayerType player)
+        {
+            var scout = new Pathfinder(map, player);
+            var path = scout.GetPathForPlayer();
+            var isFullyAttached = path.Where(x => x.Owner == player).Any(x => x.IsAttachedToBothEnds());
+            
+            if (isFullyAttached)
+            {
+                return player == PlayerType.Blue ? 9999 : -9999;
+            }
+
+            var score = path.Count() - path.Count(x => x.Owner == PlayerType.White);
+            return score;
+        }
+
+        private int PlayerScore_Bad(ListMap map, PlayerType player, Matrix<double> playerMatrix)
         {
             if (player == PlayerType.Blue)
             {

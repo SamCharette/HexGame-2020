@@ -2,7 +2,7 @@
   {
     "name": "Dozer",
     "type": "Dozer AI",
-    "playerNumber": "0",
+    "playerNumber": "2",
     "talkative" :  "0", 
     "settings": [
       {
@@ -25,7 +25,7 @@
     "type": "Human"
   },
   {
-    "playerNumber": "2",
+    "playerNumber": "0",
     "name": "Random",
     "type": "Random AI",
     "talkative": "0",
@@ -44,11 +44,11 @@
     "settings": [
       {
         "key": "minLevels",
-        "value": "1"
+        "value": "2"
       },
       {
         "key": "maxLevels",
-        "value": "4"
+        "value": "6"
       },
       {
         "key": "movesPerBrainJump",

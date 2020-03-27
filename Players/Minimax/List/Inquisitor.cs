@@ -84,14 +84,12 @@ namespace Players.Minimax.List
             {
                 map.TakeHex(isMaximizing ? player.Me : player.Opponent(), currentMove.Row, currentMove.Column);
             }
-
-       
-
+            
             var scout = new Pathfinder(map, isMaximizing ? player.Me : player.Opponent());
        
             var myPath =  scout.GetPathForPlayer();
 
-            var possibleMoves = GetPossibleMoves(path, myPath);
+            var possibleMoves = GetPossibleMoves(path, myPath, isMaximizing ? player.Me : player.Opponent(), map);
             if (isMaximizing)
             {
                 foreach (var move in possibleMoves)
@@ -148,17 +146,54 @@ namespace Players.Minimax.List
             }
         }
 
-        private IEnumerable<ListHex> GetPossibleMoves(List<ListHex> path, List<ListHex> myPath)
+        public IEnumerable<ListHex> GetPossibleMoves(List<ListHex> path, List<ListHex> myPath, PlayerType player, ListMap map)
         {
-            var possibleMoves = new List<ListHex>();
-            var combined = path.Where(myPath.Contains).OrderBy(x => x.RandomValue).ToList();
-            combined.ForEach(x => possibleMoves.Add(x));
-            var myMoves = myPath.Where(x => !combined.Contains(x)).OrderBy(x => x.RandomValue).ToList();
-            var theirMoves = path.Where(x => !combined.Contains(x)).OrderBy(x => x.RandomValue).ToList();
-            theirMoves.ForEach(x => possibleMoves.Add(x));
-            myMoves.ForEach(x => possibleMoves.Add(x));
+            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            var lastOpponentMove = opponent == PlayerType.Blue ? map.LastBlueMove : map.LastRedMove;
+            
+            var possibleMoves = new HashSet<ListHex>();
 
-            return possibleMoves.Where(x => x.Owner == PlayerType.White).ToList();
+            if (lastOpponentMove != null)
+            {
+                foreach (var move in lastOpponentMove.Neighbours)
+                {
+                    var hex = map.HexAt(move.ToTuple());
+                    if (hex != null && hex.Owner == PlayerType.White)
+                    {
+                        hex.Priority++;
+                        possibleMoves.Add(hex);
+                    }
+                }
+            }
+
+            foreach (var move in path)
+            {
+                var hex = map.HexAt(move.ToTuple());
+                if (hex !=null && hex.Owner == PlayerType.White)
+                {
+                    hex.Priority++;
+                    possibleMoves.Add(hex);
+                }
+
+            }
+
+            foreach (var move in myPath)
+            {
+                var hex = map.HexAt(move.ToTuple());
+                if (hex != null && hex.Owner == PlayerType.White)
+                {
+                    hex.Priority++;
+                    possibleMoves.Add(hex);
+                }
+            }
+            var possibleMovesList = possibleMoves.OrderByDescending(x => x.Priority).ThenBy(x => x.RandomValue).Where(x => x.Owner == PlayerType.White).ToList();
+
+
+            //Console.Write("Possible moves: ");
+            //possibleMovesList.ForEach(x => Console.Write(x + " "));
+            //Console.WriteLine("");
+
+            return possibleMovesList;
         }
     }
 }

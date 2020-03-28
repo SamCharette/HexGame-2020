@@ -38,7 +38,8 @@ namespace Players.Minimax.List
             
             if (isFullyAttached)
             {
-                return player == PlayerType.Blue ? 9999 : -9999;
+                Console.WriteLine("Winning move found! " + player);
+                return player == PlayerType.Blue ? 5000 : -5000;
             }
 
             var score = path.Count() - path.Count(x => x.Owner == PlayerType.White);

@@ -79,12 +79,7 @@ namespace Players.Minimax.List
             {
                 return judge.ScoreFromBoard(map, player);
             }
-            
-            if (currentMove != null)
-            {
-                map.TakeHex(isMaximizing ? player.Me : player.Opponent(), currentMove.Row, currentMove.Column);
-            }
-            
+
             var scout = new Pathfinder(map, isMaximizing ? player.Me : player.Opponent());
        
             var myPath =  scout.GetPathForPlayer();
@@ -96,17 +91,19 @@ namespace Players.Minimax.List
                 {
                     var bestScore = -9999;
                     var newMap = map.GetCopyOf();
-                    bestScore = Math.Max(bestScore, 
-                    ThinkAboutTheNextMove(
-                        player, 
-                        newMap, 
-                        myPath, 
-                        move, 
-                        depth - 1, 
-                        alpha, 
-                        beta, 
-                        false));
+                    newMap.TakeHex(player.Me, move.Row, move.Column);
 
+                    bestScore = Math.Max(bestScore, 
+                        ThinkAboutTheNextMove(
+                            player, 
+                            newMap, 
+                            myPath, 
+                            move, 
+                            depth - 1, 
+                            alpha, 
+                            beta, 
+                            false));
+                    
                     if (bestScore > alpha)
                     {
                         _finalChoice = move.ToTuple();
@@ -116,6 +113,8 @@ namespace Players.Minimax.List
                     {
                         break;
                     }
+
+
                 }
 
                 return alpha;
@@ -126,6 +125,7 @@ namespace Players.Minimax.List
                 {
                     var worstScore = 9999;
                     var newMap = map.GetCopyOf();
+                    newMap.TakeHex(player.Opponent(), move.Row, move.Column);
                     worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(
                         player, 
                         newMap, 
@@ -160,7 +160,7 @@ namespace Players.Minimax.List
                     var hex = map.HexAt(move.ToTuple());
                     if (hex != null && hex.Owner == PlayerType.White)
                     {
-                        hex.Priority++;
+                        hex.Priority+=3;
                         possibleMoves.Add(hex);
                     }
                 }
@@ -171,7 +171,7 @@ namespace Players.Minimax.List
                 var hex = map.HexAt(move.ToTuple());
                 if (hex !=null && hex.Owner == PlayerType.White)
                 {
-                    hex.Priority++;
+                    hex.Priority+=2;
                     possibleMoves.Add(hex);
                 }
 
@@ -186,7 +186,19 @@ namespace Players.Minimax.List
                     possibleMoves.Add(hex);
                 }
             }
-            var possibleMovesList = possibleMoves.OrderByDescending(x => x.Priority).ThenBy(x => x.RandomValue).Where(x => x.Owner == PlayerType.White).ToList();
+
+            //foreach (var move in map.Board)
+            //{
+            //    if (move.Owner == PlayerType.White)
+            //    {
+            //        possibleMoves.Add(move);
+            //    }
+            //}
+
+            var possibleMovesList = possibleMoves
+                .OrderByDescending(x => x.Priority)
+                .ThenBy(x => x.DistanceTo(lastOpponentMove))
+                .ThenBy(x => x.RandomValue).Where(x => x.Owner == PlayerType.White).ToList();
 
 
             //Console.Write("Possible moves: ");

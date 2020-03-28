@@ -48,7 +48,7 @@
       },
       {
         "key": "maxLevels",
-        "value": "6"
+        "value": "4"
       },
       {
         "key": "movesPerBrainJump",
@@ -61,11 +61,11 @@
       },
       {
         "key": "costPerNodeTillEnd",
-        "value": "2"
+        "value": "100"
       },
       {
         "key": "costToUnclaimedNode",
-        "value": "1"
+        "value": "10"
       }
     ]
   },
@@ -81,7 +81,7 @@
       },
       {
         "key": "maxLevels",
-        "value": "6"
+        "value": "4"
       },
       {
         "key": "movesPerBrainJump",

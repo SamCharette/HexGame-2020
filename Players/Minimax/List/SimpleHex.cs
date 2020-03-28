@@ -34,6 +34,34 @@ namespace Players.Minimax.List
             return Row >= 0 && Row < Size && Column >= 0 && Column < Size;
         }
 
+        public int DistanceTo(SimpleHex dest)
+        {
+            if (dest == null)
+            {
+                return 0;
+            }
+            if (Row == dest.Row)
+            {
+                return Math.Abs(dest.Column - Column);
+            }
+            else if (Column == dest.Column)
+            {
+                return Math.Abs(dest.Row - Row);
+            }
+            else
+            {
+                var dx = Math.Abs(dest.Row - Row);
+                var dy = Math.Abs(dest.Column - Column);
+                if (Column < dest.Column)
+                {
+                    return dx + dy - (int)(Math.Ceiling(dx / 2.0));
+                }
+                else
+                {
+                    return dx + dy - (int)(Math.Floor(dx / 2.0));
+                }
+            }
+        }
         public string HexName
         {
             get

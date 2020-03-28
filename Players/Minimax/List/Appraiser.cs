@@ -25,9 +25,18 @@ namespace Players.Minimax.List
             // opponent score
             var opponentScore = PlayerScore(map, opponent);
 
-            var scout = new Pathfinder(map, player.Me);
-            var path = scout.GetPathForPlayer(); 
             return playerScore  - opponentScore;
+        }
+
+        public int ScoreFromBoard(ListPlayer player, List<ListHex> playerPath, List<ListHex> opponentPath)
+        {
+            var opponent = player.Me == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
+            // player score
+            var playerScore = PlayerScore(playerPath);
+            // opponent score
+            var opponentScore = PlayerScore(opponentPath);
+
+            return playerScore - opponentScore;
         }
 
         private int PlayerScore(ListMap map, PlayerType player)
@@ -42,6 +51,12 @@ namespace Players.Minimax.List
                 return player == PlayerType.Blue ? 5000 : -5000;
             }
 
+            return PlayerScore(path);
+            
+        }
+
+        private int PlayerScore(List<ListHex> path)
+        {
             var score = path.Count() - path.Count(x => x.Owner == PlayerType.White);
             return score;
         }

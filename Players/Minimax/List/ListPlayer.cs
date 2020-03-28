@@ -125,9 +125,9 @@ namespace Players.Minimax.List
             CurrentChoice = CurrentChoice ?? RandomHex().ToTuple();
 
             Memory.TakeHex(Me, CurrentChoice.Item1, CurrentChoice.Item2);
-            var appraiser = new Appraiser();
-            var score = appraiser.ScoreFromBoard(Memory, this);
-            Console.WriteLine("Choosing " + CurrentChoice + " Score: " + score);
+            //var appraiser = new Appraiser();
+            //var score = appraiser.ScoreFromBoard(Memory, this);
+            //Console.WriteLine("Choosing " + CurrentChoice + " Score: " + score);
             MovesMade++;
             return CurrentChoice;
         }

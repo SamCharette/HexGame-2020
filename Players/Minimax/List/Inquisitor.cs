@@ -74,15 +74,16 @@ namespace Players.Minimax.List
           bool isMaximizing)
         {
             var judge = new Appraiser();
-            
-            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
-            {
-                return judge.ScoreFromBoard(map, player);
-            }
 
             var scout = new Pathfinder(map, isMaximizing ? player.Me : player.Opponent());
-       
-            var myPath =  scout.GetPathForPlayer();
+
+            var myPath = scout.GetPathForPlayer();
+
+            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
+            {
+                return judge.ScoreFromBoard(player, myPath, path);
+            }
+
 
             var possibleMoves = GetPossibleMoves(path, myPath, isMaximizing ? player.Me : player.Opponent(), map);
             if (isMaximizing)
@@ -92,7 +93,7 @@ namespace Players.Minimax.List
                     var bestScore = -9999;
                     var newMap = map.GetCopyOf();
                     newMap.TakeHex(player.Me, move.Row, move.Column);
-
+       
                     bestScore = Math.Max(bestScore, 
                         ThinkAboutTheNextMove(
                             player, 
@@ -126,6 +127,8 @@ namespace Players.Minimax.List
                     var worstScore = 9999;
                     var newMap = map.GetCopyOf();
                     newMap.TakeHex(player.Opponent(), move.Row, move.Column);
+       
+
                     worstScore = Math.Min(worstScore, ThinkAboutTheNextMove(
                         player, 
                         newMap, 

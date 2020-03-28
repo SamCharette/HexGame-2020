@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Players\Players.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Minimax\List\" />
+  </ItemGroup>
+
 </Project>

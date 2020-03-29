@@ -73,12 +73,7 @@ namespace MinimaxPlayer.List
                     possibleMoves,
                     searchPlayer,
                     mapToSearch,
-                    path,
-                    null,
-                    searchPlayer.CurrentLevels,
-                    negativeUnreachableScore,
-                    positiveUnreachableScore,
-                    false);
+                    path);
             }
             else
             {
@@ -86,11 +81,9 @@ namespace MinimaxPlayer.List
                     searchPlayer,
                     mapToSearch,
                     path,
-                    null,
                     searchPlayer.CurrentLevels,
                     negativeUnreachableScore,
-                    positiveUnreachableScore,
-                    false);
+                    positiveUnreachableScore);
             }
         }
 
@@ -98,53 +91,39 @@ namespace MinimaxPlayer.List
             ListPlayer player,
             ListMap map,
             List<ListHex> path,
-            ListHex currentMove,
             int depth,
             int alpha,
-            int beta,
-            bool isMaximizing)
+            int beta)
         {
             foreach (var move in possibleMoves)
             {
       
-                var moveScore = ThinkAboutTheNextMove(player,
+                ThinkAboutTheNextMove(player,
                     map, 
                     path, 
                     move, 
                     depth, 
                     alpha, 
                     beta, 
-                    false);
-                if (moveScore > _finalScore)
-                {
-                    _finalScore = moveScore;
-                    _finalChoice = move.ToTuple();
-                }
+                    true);
+   
             }
         }
 
         private void ThreadedStart(List<ListHex> possibleMoves,
             ListPlayer player,
             ListMap map,
-            List<ListHex> path,
-            ListHex currentMove,
-            int depth,
-            int alpha,
-            int beta,
-            bool isMaximizing)
+            List<ListHex> path)
         {
             foreach (var move in possibleMoves)
             {
+                var newMap = map.GetCopyOf();
                 workerThreads.Add(
                     Task.Factory.StartNew(() =>
                         WhatAboutThisMove(player,
-                            map,
+                            newMap,
                             path,
-                            move,
-                            depth,
-                            negativeUnreachableScore,
-                            positiveUnreachableScore,
-                            false)));
+                            move)));
             }
 
             Task.WaitAll(workerThreads.ToArray());
@@ -173,11 +152,7 @@ namespace MinimaxPlayer.List
         private void WhatAboutThisMove(ListPlayer player,
             ListMap map,
             List<ListHex> path,
-            ListHex currentMove,
-            int depth,
-            int alpha,
-            int beta,
-            bool isMaximizing)
+            ListHex currentMove)
         {
             threadsInUse++;
             Console.WriteLine("Starting thread " + threadsInUse + " for move " + currentMove);
@@ -240,7 +215,7 @@ namespace MinimaxPlayer.List
                     
                     if (bestScore > alpha)
                     {
-              
+                        _finalChoice = move.ToTuple();
                         alpha = bestScore;
                     }
                     if (beta <= alpha)
@@ -296,7 +271,7 @@ namespace MinimaxPlayer.List
                     var hex = map.HexAt(move.ToTuple());
                     if (hex != null && hex.Owner == PlayerType.White)
                     {
-                        hex.Priority+=3;
+                        hex.Priority++;
                         possibleMoves.Add(hex);
                     }
                 }
@@ -307,7 +282,7 @@ namespace MinimaxPlayer.List
                 var hex = map.HexAt(move.ToTuple());
                 if (hex !=null && hex.Owner == PlayerType.White)
                 {
-                    hex.Priority+=2;
+                    hex.Priority++;
                     possibleMoves.Add(hex);
                 }
 

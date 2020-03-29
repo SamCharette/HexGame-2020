@@ -78,7 +78,7 @@ namespace MinimaxPlayer.List
                     searchPlayer.CurrentLevels,
                     negativeUnreachableScore,
                     positiveUnreachableScore,
-                    true);
+                    false);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace MinimaxPlayer.List
                     searchPlayer.CurrentLevels,
                     negativeUnreachableScore,
                     positiveUnreachableScore,
-                    true);
+                    false);
             }
         }
 
@@ -144,7 +144,7 @@ namespace MinimaxPlayer.List
                             depth,
                             negativeUnreachableScore,
                             positiveUnreachableScore,
-                            true)));
+                            false)));
             }
 
             Task.WaitAll(workerThreads.ToArray());

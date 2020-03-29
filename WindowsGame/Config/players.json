@@ -44,7 +44,7 @@
     "settings": [
       {
         "key": "minLevels",
-        "value": "3"
+        "value": "1"
       },
       {
         "key": "maxLevels",
@@ -81,7 +81,7 @@
     "settings": [
       {
         "key": "minLevels",
-        "value": "3"
+        "value": "1"
       },
       {
         "key": "maxLevels",

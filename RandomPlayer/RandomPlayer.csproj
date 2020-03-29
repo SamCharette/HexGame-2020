@@ -14,5 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Players\Players.csproj" />
   </ItemGroup>
-
+<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release xcopy /y $(ProjectDir)$(OutDir)$(TargetFileName) \\Sams-Pc\HexGame\" />
+  </Target>
 </Project>

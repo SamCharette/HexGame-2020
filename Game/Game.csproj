@@ -5,5 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
-
+<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release xcopy /y $(ProjectDir)$(OutDir)$(TargetFileName) \\Sams-Pc\HexGame\" />
+  </Target>
 </Project>

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using HexLibrary;
+﻿using HexLibrary;
+using MinimaxPlayer.List;
+using MinimaxPlayer.Matrix;
+using PlaybackPlayer;
 using Players;
 using Players.Base;
 using Players.Common;
-using Players.Minimax.List;
-using Players.Minimax.Matrix;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Engine
 {
@@ -96,9 +97,9 @@ namespace Engine
 
         public void ClickOnHexCoords(int x, int y)
         {
-            if (CurrentPlayer() is HumanPlayer)
+            if (CurrentPlayer() is HumanPlayer.HumanPlayer)
             {
-                var player = (HumanPlayer) CurrentPlayer();
+                var player = (HumanPlayer.HumanPlayer) CurrentPlayer();
                 player.ClickMadeOn(new Tuple<int, int>(x, y));
             }
         }
@@ -119,16 +120,16 @@ namespace Engine
             {
                 case "Human":
                     if (playerNumber == 1)
-                        Player1 = new HumanPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new HumanPlayer.HumanPlayer(playerNumber, Size, playerConfig);
                     else
-                        Player2 = new HumanPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new HumanPlayer.HumanPlayer(playerNumber, Size, playerConfig);
 
                     break;
                 case "Dozer AI":
                     if (playerNumber == 1)
-                        Player1 = new DozerPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new Dozer.Dozer(playerNumber, Size, playerConfig);
                     else
-                        Player2 = new DozerPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new Dozer.Dozer(playerNumber, Size, playerConfig);
 
                     break;
                 case "Minimax Matrix AI":
@@ -156,9 +157,9 @@ namespace Engine
 
                 default:
                     if (playerNumber == 1)
-                        Player1 = new RandomPlayer(playerNumber, Size, null);
+                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
                     else
-                        Player2 = new RandomPlayer(playerNumber, Size, null);
+                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
                     break;
             }
         }

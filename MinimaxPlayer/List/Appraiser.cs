@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Players.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Xml;
 using MathNet.Numerics.LinearAlgebra;
-using Players.Base;
-using Players.Common;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.List
 {
     /*
      * The sole duty of this class is to determine a score for
@@ -47,7 +44,7 @@ namespace Players.Minimax.List
             
             if (isFullyAttached)
             {
-                Console.WriteLine("Winning move found! " + player);
+                Console.WriteLine((string) ("Winning move found! " + player));
                 return player == PlayerType.Blue ? 5000 : -5000;
             }
 
@@ -66,13 +63,13 @@ namespace Players.Minimax.List
             if (player == PlayerType.Blue)
             {
                 var pathVector = playerMatrix.RowSums();
-                var numberLeft = pathVector.AsEnumerable().Count(x => (int)x == 0);
+                var numberLeft = Enumerable.AsEnumerable<double>(pathVector).Count(x => (int)x == 0);
                 return map.Size - numberLeft;
             }
             else
             {
                 var pathVector = playerMatrix.ColumnSums();
-                var numberLeft = pathVector.AsEnumerable().Count(x => (int)x == 0);
+                var numberLeft = Enumerable.AsEnumerable<double>(pathVector).Count(x => (int)x == 0);
                 return map.Size - numberLeft;
             }
         }

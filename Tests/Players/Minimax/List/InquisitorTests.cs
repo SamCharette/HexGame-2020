@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
+﻿using System.Linq;
+using Players.Common;
+using MinimaxPlayer.List;
 using NUnit.Framework;
 using Omu.ValueInjecter;
-using Players.Common;
-using Players.Minimax.List;
 
 namespace Tests.Players.Minimax.List
 {

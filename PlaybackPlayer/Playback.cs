@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Players.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Players.Base;
 using Players.Common;
 
-namespace Players
+namespace PlaybackPlayer
 {
     public class Playback : Player
     {

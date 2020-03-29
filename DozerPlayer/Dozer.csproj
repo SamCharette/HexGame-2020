@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Sam Charette</Authors>
+    <Company>Sam Charette</Company>
+    <Description>A player for the hex game that simply looks for the best path using A* and plods along it as best iti can.  If it gets interrupted, it calculates a new path and plods along.  It does not do anything more intelligent than try to bulldoze its way across the board.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Players\Players.csproj" />
+  </ItemGroup>
+
+</Project>

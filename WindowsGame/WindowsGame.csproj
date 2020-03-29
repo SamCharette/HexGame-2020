@@ -127,6 +127,10 @@
       <Project>{8EB73B78-A2D3-4064-B4F9-99C86210B0A4}</Project>
       <Name>HexLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PlaybackPlayer\PlaybackPlayer.csproj">
+      <Project>{1239EA32-DD2F-4824-8622-9F496B4BBD74}</Project>
+      <Name>PlaybackPlayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Players\Players.csproj">
       <Project>{4CE1B85D-B268-4CFF-8C8A-820040374010}</Project>
       <Name>Players</Name>

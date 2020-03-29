@@ -2,8 +2,8 @@
   {
     "name": "Dozer",
     "type": "Dozer AI",
-    "playerNumber": "2",
-    "talkative" :  "0", 
+    "playerNumber": "0",
+    "talkative": "0",
     "settings": [
       {
         "key": "costToClaimedNode",
@@ -29,7 +29,7 @@
     "name": "Random",
     "type": "Random AI",
     "talkative": "0",
-        "settings": [
+    "settings": [
       {
         "key": "waitTime",
         "value": "0"
@@ -44,7 +44,7 @@
     "settings": [
       {
         "key": "minLevels",
-        "value": "2"
+        "value": "3"
       },
       {
         "key": "maxLevels",
@@ -66,6 +66,47 @@
       {
         "key": "costToUnclaimedNode",
         "value": "10"
+      },
+      {
+        "key": "UseThreads",
+        "value": "0"
+      }
+    ]
+  },
+  {
+    "name": "Jeanie",
+    "type": "Minimax List AI",
+    "playerNumber": "2",
+    "talkative": "1",
+    "settings": [
+      {
+        "key": "minLevels",
+        "value": "3"
+      },
+      {
+        "key": "maxLevels",
+        "value": "4"
+      },
+      {
+        "key": "movesPerBrainJump",
+        "value": "1"
+      },
+
+      {
+        "key": "costToClaimedNode",
+        "value": "0"
+      },
+      {
+        "key": "costPerNodeTillEnd",
+        "value": "100"
+      },
+      {
+        "key": "costToUnclaimedNode",
+        "value": "10"
+      },
+      {
+        "key": "UseThreads",
+        "value": "1"
       }
     ]
   },

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Players.Minimax
+namespace Players.Common
 {
     /*
      * A static class that can give you a delta for a direction,

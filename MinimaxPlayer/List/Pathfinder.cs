@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
-using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.List
 {
     /*
      * This class is what will find a path from one side to the other
+     *
+     * It uses an aspiration search to determine the best path, ordering the
+     * possible moves by likeliest best moves.
      */
     public class Pathfinder
     {
@@ -53,7 +53,7 @@ namespace Players.Minimax.List
             var endHexes = GetEndingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
             var path = new List<ListHex>();
 
-            var pathEase = _searchSpace.Size * _searchSpace.Size * costPerOpenNode;
+            var pathEase = _searchSpace.Size * _searchSpace.Size * Math.Max(costPerOpenNode, costPerNodeLeft);
             //AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == opponent) + " hexes.");
             //_searchSpace.Board.Where(x => x.Owner == opponent).ToList().ForEach(x => AddLog(x + " "));
             //AddLogLine("");
@@ -179,7 +179,7 @@ namespace Players.Minimax.List
                                          : costPerOpenNode);
                             
                             node.H =
-                                (_playerSearchingFor == Common.PlayerType.Blue 
+                                (_playerSearchingFor == Players.Common.PlayerType.Blue 
                                     ? _searchSpace.Size - 1 - node.Row 
                                     : _searchSpace.Size - 1 - node.Column) *  costPerNodeLeft;
                         }
@@ -193,7 +193,7 @@ namespace Players.Minimax.List
                                      ? costPerFriendlyNode 
                                      : costPerOpenNode);
 
-                        node.H = (_playerSearchingFor == Common.PlayerType.Blue 
+                        node.H = (_playerSearchingFor == Players.Common.PlayerType.Blue 
                                      ? _searchSpace.Size - 1 - node.Row 
                                      : _searchSpace.Size - 1 - node.Column) * costPerNodeLeft;
                     }

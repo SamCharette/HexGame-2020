@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.List
 {
     public class ListHex : SimpleHex
     {

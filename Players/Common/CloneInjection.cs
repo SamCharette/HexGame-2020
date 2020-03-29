@@ -3,11 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
 using Omu.ValueInjecter;
 using Omu.ValueInjecter.Injections;
 
-namespace Players.Minimax
+namespace Players.Common
 {
     public class CloneInjection : LoopInjection
     {

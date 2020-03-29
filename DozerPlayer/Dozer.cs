@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Players.Base;
 using Players.Common;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Players
+namespace Dozer
 {
     /*
      *  PATH FINDER PLAYER
@@ -31,7 +31,7 @@ namespace Players
      * 2) React to the enemy in a thoughtful way
      */
 
-    public class DozerPlayer : Player
+    public class Dozer : Player
     {
         private List<BaseNode> _preferredPath;
         private bool havePath = false;
@@ -58,7 +58,7 @@ namespace Players
             _preferredPath = null;
         }
        
-        public DozerPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public Dozer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, (Config) playerConfig)
         {
             _preferredPath = new List<BaseNode>();
             costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);

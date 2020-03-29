@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Players.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Omu.ValueInjecter;
-using Players.Common;
+using Console = System.Console;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.List
 {
     /*
      * This class is the threaded worker that will be given a move and
@@ -15,16 +13,21 @@ namespace Players.Minimax.List
      */
     public class Inquisitor
     {
-        private ListMap _map;
-        private Thread _workerThread;
+        private int threadsInUse = 0;
+        private List<Task> workerThreads = new List<Task>();
+        private Dictionary<ListHex, int> moveScores = new Dictionary<ListHex, int>();
         private int _finalScore;
         private Tuple<int,int> _finalChoice;
-   
+        private int positiveUnreachableScore = 9999;
+        private int negativeUnreachableScore = -9999;
+        private bool isThreaded = true;
 
-        public Inquisitor()
+         
+
+        public Inquisitor(bool threadIt = true)
         {
-
-            _finalScore = -9999;
+            isThreaded = threadIt;
+            _finalScore = negativeUnreachableScore;
         }
 
         public int GetScore()
@@ -46,22 +49,152 @@ namespace Players.Minimax.List
                 searchPlayer.CostToMoveToUnclaimedNode,
                 searchPlayer.CostPerNodeTillEnd);
 
+            var enemyScout = new Pathfinder(mapToSearch,
+                searchPlayer.Opponent(),
+                searchPlayer.CostToMoveToClaimedNode,
+                searchPlayer.CostToMoveToUnclaimedNode,
+                searchPlayer.CostPerNodeTillEnd);
+
+            var path = searchScout.GetPathForPlayer();
+            var theirPath = enemyScout.GetPathForPlayer();
+            var possibleMoves = 
+                GetPossibleMoves(path, theirPath, searchPlayer.Me, searchMap).ToList();
+
+            Console.Write("Moves to check this turn: ");
+            possibleMoves.ForEach(x => Console.Write(x + " "));
+            Console.Write(Environment.NewLine);
+
             _finalChoice = null;
-            _finalScore = -9999;
+            _finalScore = negativeUnreachableScore;
 
-            ThinkAboutTheNextMove(
-                searchPlayer,
-                mapToSearch,
-                searchScout.GetPathForPlayer(),
-                null,
-                searchPlayer.CurrentLevels,
-                -9999,
-                9999,
-                true);
-
+            if (isThreaded)
+            {
+                ThreadedStart(
+                    possibleMoves,
+                    searchPlayer,
+                    mapToSearch,
+                    path,
+                    null,
+                    searchPlayer.CurrentLevels,
+                    negativeUnreachableScore,
+                    positiveUnreachableScore,
+                    true);
+            }
+            else
+            {
+                NonThreadedStart(possibleMoves,
+                    searchPlayer,
+                    mapToSearch,
+                    path,
+                    null,
+                    searchPlayer.CurrentLevels,
+                    negativeUnreachableScore,
+                    positiveUnreachableScore,
+                    true);
+            }
         }
 
+        private void NonThreadedStart(List<ListHex> possibleMoves,
+            ListPlayer player,
+            ListMap map,
+            List<ListHex> path,
+            ListHex currentMove,
+            int depth,
+            int alpha,
+            int beta,
+            bool isMaximizing)
+        {
+            foreach (var move in possibleMoves)
+            {
+      
+                var moveScore = ThinkAboutTheNextMove(player,
+                    map, 
+                    path, 
+                    move, 
+                    depth, 
+                    alpha, 
+                    beta, 
+                    false);
+                if (moveScore > _finalScore)
+                {
+                    _finalScore = moveScore;
+                    _finalChoice = move.ToTuple();
+                }
+            }
+        }
 
+        private void ThreadedStart(List<ListHex> possibleMoves,
+            ListPlayer player,
+            ListMap map,
+            List<ListHex> path,
+            ListHex currentMove,
+            int depth,
+            int alpha,
+            int beta,
+            bool isMaximizing)
+        {
+            foreach (var move in possibleMoves)
+            {
+                workerThreads.Add(
+                    Task.Factory.StartNew(() =>
+                        WhatAboutThisMove(player,
+                            map,
+                            path,
+                            move,
+                            depth,
+                            negativeUnreachableScore,
+                            positiveUnreachableScore,
+                            true)));
+            }
+
+            Task.WaitAll(workerThreads.ToArray());
+            if (moveScores.Any())
+            {
+                Console.Write("Moves with scores: ");
+                foreach (var moveScore in moveScores)
+                {
+                    Console.Write(moveScore.Key + " [" + moveScore.Value + "] ");
+                }
+                Console.Write(Environment.NewLine);
+
+                _finalChoice = moveScores
+                    .ToList()
+                    .OrderByDescending(x => x.Value)
+                    .FirstOrDefault()
+                    .Key
+                    .ToTuple();
+            }
+            else
+            {
+                _finalChoice = null;
+            }
+        }
+
+        private void WhatAboutThisMove(ListPlayer player,
+            ListMap map,
+            List<ListHex> path,
+            ListHex currentMove,
+            int depth,
+            int alpha,
+            int beta,
+            bool isMaximizing)
+        {
+            threadsInUse++;
+            Console.WriteLine("Starting thread " + threadsInUse + " for move " + currentMove);
+            var score = ThinkAboutTheNextMove(player,
+                map,
+                path,
+                currentMove,
+                player.CurrentLevels,
+                negativeUnreachableScore,
+                positiveUnreachableScore,
+                true);
+
+            threadsInUse--;
+            moveScores[currentMove] = score;
+            Console.WriteLine("Ending thread for move " + currentMove + " with score " + score);
+
+        }
 
         private int ThinkAboutTheNextMove(
             ListPlayer player,
@@ -79,7 +212,7 @@ namespace Players.Minimax.List
 
             var myPath = scout.GetPathForPlayer();
 
-            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
+            if (depth == 0 || map.Board.All(x => x.Owner != Players.Common.PlayerType.White))
             {
                 return judge.ScoreFromBoard(player, myPath, path);
             }
@@ -90,7 +223,7 @@ namespace Players.Minimax.List
             {
                 foreach (var move in possibleMoves)
                 {
-                    var bestScore = -9999;
+                    var bestScore = negativeUnreachableScore;
                     var newMap = map.GetCopyOf();
                     newMap.TakeHex(player.Me, move.Row, move.Column);
        
@@ -107,7 +240,7 @@ namespace Players.Minimax.List
                     
                     if (bestScore > alpha)
                     {
-                        _finalChoice = move.ToTuple();
+              
                         alpha = bestScore;
                     }
                     if (beta <= alpha)
@@ -124,7 +257,7 @@ namespace Players.Minimax.List
             {
                 foreach (var move in possibleMoves)
                 {
-                    var worstScore = 9999;
+                    var worstScore = positiveUnreachableScore;
                     var newMap = map.GetCopyOf();
                     newMap.TakeHex(player.Opponent(), move.Row, move.Column);
        

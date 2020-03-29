@@ -13,7 +13,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\Dozer.csproj" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\HexLibrary\HexLibrary.csproj" />
+    <ProjectReference Include="..\HumanPlayer\HumanPlayer.csproj" />
+    <ProjectReference Include="..\MinimaxPlayer\MinimaxPlayer.csproj" />
+    <ProjectReference Include="..\PlaybackPlayer\PlaybackPlayer.csproj" />
     <ProjectReference Include="..\Players\Players.csproj" />
+    <ProjectReference Include="..\RandomPlayer\RandomPlayer.csproj" />
+    <ProjectReference Include="..\WindowsGame\WindowsGame.csproj" />
   </ItemGroup>
 
   <ItemGroup>

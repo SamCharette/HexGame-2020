@@ -1,12 +1,8 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
-using MathNet.Numerics.LinearAlgebra.Complex;
+﻿using System;
+using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
-namespace Players.Minimax.Matrix
+namespace MinimaxPlayer.Matrix
 {
     public class MatrixHex
     {

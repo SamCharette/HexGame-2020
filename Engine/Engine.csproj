@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\Dozer.csproj" />
+    <ProjectReference Include="..\DozerPlayer\Dozer.csproj" />
     <ProjectReference Include="..\HexLibrary\HexLibrary.csproj" />
     <ProjectReference Include="..\HumanPlayer\HumanPlayer.csproj" />
     <ProjectReference Include="..\MinimaxPlayer\MinimaxPlayer.csproj" />

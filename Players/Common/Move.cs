@@ -6,8 +6,8 @@ namespace Players.Common
 {
     public class Move
     {
-        internal int X;
-        internal int Y;
-        internal int MoveNumber;
+        public int X;
+        public int Y;
+        public int MoveNumber;
     }
 }

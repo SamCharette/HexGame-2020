@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DozerPlayer;
 using HexLibrary;
 using HumanPlayer;
+using PlaybackPlayer;
 using Players;
 using Players.Base;
 using Players.Common;

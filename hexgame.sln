@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HumanPlayer", "HumanPlayer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomPlayer", "RandomPlayer\RandomPlayer.csproj", "{26D3BF77-BF63-4EE4-BD7B-560142085DBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaybackPlayer", "PlaybackPlayer\PlaybackPlayer.csproj", "{68D593C6-2EFE-4CD6-AF84-FFCA50035A44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{26D3BF77-BF63-4EE4-BD7B-560142085DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26D3BF77-BF63-4EE4-BD7B-560142085DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26D3BF77-BF63-4EE4-BD7B-560142085DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68D593C6-2EFE-4CD6-AF84-FFCA50035A44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68D593C6-2EFE-4CD6-AF84-FFCA50035A44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68D593C6-2EFE-4CD6-AF84-FFCA50035A44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68D593C6-2EFE-4CD6-AF84-FFCA50035A44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

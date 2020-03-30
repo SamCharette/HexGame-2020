@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Threading.Tasks;
-using Omu.ValueInjecter;
 using Players.Common;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.Minimax.List
 {
     /*
     *  This player is currently (Mar-16-2020) doing ok.  It's slow though.
@@ -47,7 +45,7 @@ namespace Players.Minimax.List
             playerConfig)
         {
             PlayerNumber = playerNumber;
-            Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
+            Me = PlayerNumber == 1 ? Players.Common.PlayerType.Blue : Players.Common.PlayerType.Red;
             Size = boardSize;
 
             StartingLevels = GetDefault(playerConfig, "minLevels", 1);
@@ -57,7 +55,7 @@ namespace Players.Minimax.List
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 25);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
-            talkative = Convert.ToInt32(playerConfig.talkative);
+            talkative = Convert.ToInt32((string) playerConfig.talkative);
 
 
             Name = playerConfig.name;
@@ -82,9 +80,9 @@ namespace Players.Minimax.List
 
         public PlayerType Opponent()
         {
-            if (Me == Common.PlayerType.Blue) return Common.PlayerType.Red;
+            if (Me == Players.Common.PlayerType.Blue) return Players.Common.PlayerType.Red;
 
-            return Common.PlayerType.Blue;
+            return Players.Common.PlayerType.Blue;
         }
 
 
@@ -96,7 +94,7 @@ namespace Players.Minimax.List
         private ListHex RandomHex()
         {
             Console.WriteLine("Getting a random hex.");
-            var openNodes = Memory.Board.Where(x => x.Owner == Common.PlayerType.White);
+            var openNodes = Memory.Board.Where(x => x.Owner == Players.Common.PlayerType.White);
             var selectedNode = openNodes.OrderBy(x => x.RandomValue).FirstOrDefault();
             return selectedNode;
         }
@@ -116,7 +114,7 @@ namespace Players.Minimax.List
             inquisitor.StartInquisition(Memory, this);
             CurrentChoice = inquisitor.GetChoice();
 
-            if(CurrentChoice == null || Memory.HexAt(CurrentChoice).Owner != Common.PlayerType.White)
+            if(CurrentChoice == null || Memory.HexAt(CurrentChoice).Owner != Players.Common.PlayerType.White)
             {
                 Console.WriteLine("Why are you trying to take hex " + CurrentChoice + "???");
                 CurrentChoice = null;

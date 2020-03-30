@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Omu.ValueInjecter;
 using Players.Common;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.Minimax.List
 {
     /*
      * This class is the threaded worker that will be given a move and
@@ -79,7 +76,7 @@ namespace Players.Minimax.List
 
             var myPath = scout.GetPathForPlayer();
 
-            if (depth == 0 || map.Board.All(x => x.Owner != Common.PlayerType.White))
+            if (depth == 0 || map.Board.All(x => x.Owner != Players.Common.PlayerType.White))
             {
                 return judge.ScoreFromBoard(player, myPath, path);
             }

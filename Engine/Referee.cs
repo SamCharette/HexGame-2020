@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using DozerPlayer;
 using HexLibrary;
 using HumanPlayer;
+using MinimaxPlayer.Minimax.List;
+using MinimaxPlayer.Minimax.Matrix;
 using PlaybackPlayer;
 using Players;
 using Players.Base;
 using Players.Common;
-using Players.Minimax.List;
-using Players.Minimax.Matrix;
 using RandomPlayer;
 
 namespace Engine

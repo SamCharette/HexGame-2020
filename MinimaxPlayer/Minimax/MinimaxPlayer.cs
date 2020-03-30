@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Players.Base;
 using Players.Common;
 
-namespace Players.Minimax
+namespace MinimaxPlayer.Minimax
 {
     public class MinimaxPlayer : Player
     {
-        public PlayerType Me;
+        public Players.Common.PlayerType Me;
         public int Size;
 
         protected const int AbsoluteWorst = -9999;
@@ -31,7 +30,7 @@ namespace Players.Minimax
         public MinimaxPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             PlayerNumber = playerNumber;
-            Me = PlayerNumber == 1 ? Common.PlayerType.Blue : Common.PlayerType.Red;
+            Me = PlayerNumber == 1 ? Players.Common.PlayerType.Blue : Players.Common.PlayerType.Red;
             Size = boardSize;
 
         }

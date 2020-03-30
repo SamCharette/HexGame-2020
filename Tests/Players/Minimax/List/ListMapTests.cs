@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using MinimaxPlayer.Minimax;
+using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using Players.Common;
-using Players.Minimax;
-using Players.Minimax.List;
 
 namespace Tests.Players.Minimax.List
 {

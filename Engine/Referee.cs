@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DozerPlayer;
 using HexLibrary;
 using Players;
 using Players.Base;
@@ -126,9 +127,9 @@ namespace Engine
                     break;
                 case "Dozer AI":
                     if (playerNumber == 1)
-                        Player1 = new DozerPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new DozerPlayer.DozerPlayer(playerNumber, Size, playerConfig);
                     else
-                        Player2 = new DozerPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new DozerPlayer.DozerPlayer(playerNumber, Size, playerConfig);
 
                     break;
                 case "Minimax Matrix AI":

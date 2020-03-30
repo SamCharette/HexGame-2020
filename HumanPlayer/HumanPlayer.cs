@@ -3,7 +3,7 @@ using Players.Base;
 using Players.Common;
 using Timer = System.Timers.Timer;
 
-namespace Players
+namespace HumanPlayer
 {
     public class HumanPlayer : Player
     {

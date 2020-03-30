@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DozerPlayer\DozerPlayer.csproj" />
     <ProjectReference Include="..\HexLibrary\HexLibrary.csproj" />
+    <ProjectReference Include="..\HumanPlayer\HumanPlayer.csproj" />
     <ProjectReference Include="..\Players\Players.csproj" />
   </ItemGroup>
 

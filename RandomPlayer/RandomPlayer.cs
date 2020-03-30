@@ -1,7 +1,7 @@
 ﻿using Players.Base;
 using Players.Common;
 
-namespace Players
+namespace RandomPlayer
 {
     public class RandomPlayer : Player
     {

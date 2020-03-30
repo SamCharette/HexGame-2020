@@ -9,6 +9,7 @@ using Players.Base;
 using Players.Common;
 using Players.Minimax.List;
 using Players.Minimax.Matrix;
+using RandomPlayer;
 
 namespace Engine
 {
@@ -158,9 +159,9 @@ namespace Engine
 
                 default:
                     if (playerNumber == 1)
-                        Player1 = new RandomPlayer(playerNumber, Size, null);
+                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
                     else
-                        Player2 = new RandomPlayer(playerNumber, Size, null);
+                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
                     break;
             }
         }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.Minimax.List
 {
     public class SimpleHex
     {

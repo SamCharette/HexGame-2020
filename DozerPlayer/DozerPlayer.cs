@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Players.Base;
+using Players.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Players.Base;
-using Players.Common;
 
-namespace Players
+namespace DozerPlayer
 {
     /*
      *  PATH FINDER PLAYER
@@ -64,7 +64,7 @@ namespace Players
             costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
             costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
             costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
-            talkative = Convert.ToInt32(playerConfig.talkative);
+            talkative = Convert.ToInt32((string) playerConfig.talkative);
             Name = playerConfig.name;
             RelayPerformanceInformation();
             SetUpInMemoryBoard();

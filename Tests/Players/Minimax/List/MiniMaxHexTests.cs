@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualBasic;
+using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using Players.Common;
-using Players.Minimax.List;
 
 namespace Tests.Players.Minimax.List
 {

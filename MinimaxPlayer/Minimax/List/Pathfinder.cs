@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
-using MathNet.Numerics.LinearAlgebra;
 using Players.Common;
 
-namespace Players.Minimax.List
+namespace MinimaxPlayer.Minimax.List
 {
     /*
      * This class is what will find a path from one side to the other
@@ -179,7 +176,7 @@ namespace Players.Minimax.List
                                          : costPerOpenNode);
                             
                             node.H =
-                                (_playerSearchingFor == Common.PlayerType.Blue 
+                                (_playerSearchingFor == Players.Common.PlayerType.Blue 
                                     ? _searchSpace.Size - 1 - node.Row 
                                     : _searchSpace.Size - 1 - node.Column) *  costPerNodeLeft;
                         }
@@ -193,7 +190,7 @@ namespace Players.Minimax.List
                                      ? costPerFriendlyNode 
                                      : costPerOpenNode);
 
-                        node.H = (_playerSearchingFor == Common.PlayerType.Blue 
+                        node.H = (_playerSearchingFor == Players.Common.PlayerType.Blue 
                                      ? _searchSpace.Size - 1 - node.Row 
                                      : _searchSpace.Size - 1 - node.Column) * costPerNodeLeft;
                     }

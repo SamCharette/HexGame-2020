@@ -15,6 +15,7 @@ using Engine.Hexagonal;
 using Players;
 using Newtonsoft.Json;
 using Players.Common;
+using PlaybackPlayer;
 
 namespace WindowsGame
 {

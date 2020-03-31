@@ -1,5 +1,5 @@
 ﻿using System;
-using Players.Common;
+using Players;
 using Timer = System.Timers.Timer;
 
 namespace HumanPlayer

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Players.Common;
+using Players;
 
 namespace MinimaxPlayer.Minimax.List
 {
@@ -176,7 +176,7 @@ namespace MinimaxPlayer.Minimax.List
                                          : costPerOpenNode);
                             
                             node.H =
-                                (_playerSearchingFor == Players.Common.PlayerType.Blue 
+                                (_playerSearchingFor == PlayerType.Blue 
                                     ? _searchSpace.Size - 1 - node.Row 
                                     : _searchSpace.Size - 1 - node.Column) *  costPerNodeLeft;
                         }
@@ -190,7 +190,7 @@ namespace MinimaxPlayer.Minimax.List
                                      ? costPerFriendlyNode 
                                      : costPerOpenNode);
 
-                        node.H = (_playerSearchingFor == Players.Common.PlayerType.Blue 
+                        node.H = (_playerSearchingFor == PlayerType.Blue 
                                      ? _searchSpace.Size - 1 - node.Row 
                                      : _searchSpace.Size - 1 - node.Column) * costPerNodeLeft;
                     }

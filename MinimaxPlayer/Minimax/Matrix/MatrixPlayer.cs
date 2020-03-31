@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
-using Players.Common;
+using Players;
 
 namespace MinimaxPlayer.Minimax.Matrix
 {
@@ -15,13 +15,13 @@ namespace MinimaxPlayer.Minimax.Matrix
         private const int AbsoluteBestScore = 9999;
         private const int AbsoluteWorstScore = -9999;
         
-        public PlayerType Opponent => Me == Players.Common.PlayerType.Blue ? Players.Common.PlayerType.Red : Players.Common.PlayerType.Blue;
+        public PlayerType Opponent => Me == Players.PlayerType.Blue ? Players.PlayerType.Red : Players.PlayerType.Blue;
 
         public MatrixPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             Size = boardSize;
             PlayerNumber = playerNumber;
-            Me = PlayerNumber == 1 ? Players.Common.PlayerType.Blue : Players.Common.PlayerType.Red;
+            Me = PlayerNumber == 1 ? Players.PlayerType.Blue : Players.PlayerType.Red;
             MaxLevels = GetDefault(playerConfig, "maxLevels", 20);
             Name = playerConfig.name;
             Board = new MatrixHex[Size,Size];
@@ -107,7 +107,7 @@ namespace MinimaxPlayer.Minimax.Matrix
                 return player == Me ? AbsoluteBestScore : AbsoluteWorstScore;
             }
             // Note, the lower the score the better the score is
-            var otherPlayer = player == Players.Common.PlayerType.Blue ? Players.Common.PlayerType.Red : Players.Common.PlayerType.Blue;
+            var otherPlayer = player == Players.PlayerType.Blue ? Players.PlayerType.Red : Players.PlayerType.Blue;
             var playerScore = CostOfBestPath(board, player);
             var enemyScore = CostOfBestPath(board, otherPlayer);
             return playerScore - enemyScore;
@@ -121,7 +121,7 @@ namespace MinimaxPlayer.Minimax.Matrix
             var emptyVertical = Enumerable.Count<int>(vertical, x => x.Equals(0));
             var emptyHorizontal = Enumerable.Count<int>(horizontal, x => x.Equals(0));
 
-            if (Me == Players.Common.PlayerType.Blue)
+            if (Me == Players.PlayerType.Blue)
             {
                 return 1;
             }
@@ -131,7 +131,7 @@ namespace MinimaxPlayer.Minimax.Matrix
 
         public bool IsWinningPick(int newRow, int newColumn)
         {
-            if (Me == Players.Common.PlayerType.Blue)
+            if (Me == Players.PlayerType.Blue)
             {
                 return Board[newRow, newColumn].ReachesBottom() && Board[newRow, newColumn].ReachesTop();
             }
@@ -141,7 +141,7 @@ namespace MinimaxPlayer.Minimax.Matrix
 
         public bool IsThereAWinner(Matrix<int> board, PlayerType player)
         {
-            if (player == Players.Common.PlayerType.Blue)
+            if (player == Players.PlayerType.Blue)
             {
                 for (var i = 0; i < Size; i++)
                 {

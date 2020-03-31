@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Players.Common
+namespace Players
 {
     public class Setting
     {

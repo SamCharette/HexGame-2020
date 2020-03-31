@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Players.Common;
+using Players;
 
 namespace MinimaxPlayer.Minimax.List
 {
@@ -76,7 +76,7 @@ namespace MinimaxPlayer.Minimax.List
 
             var myPath = scout.GetPathForPlayer();
 
-            if (depth == 0 || map.Board.All(x => x.Owner != Players.Common.PlayerType.White))
+            if (depth == 0 || map.Board.All(x => x.Owner != PlayerType.White))
             {
                 return judge.ScoreFromBoard(player, myPath, path);
             }

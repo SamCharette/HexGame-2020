@@ -8,7 +8,6 @@ using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using Players;
-using Players.Common;
 
 namespace Tests.Players.Minimax.List
 {

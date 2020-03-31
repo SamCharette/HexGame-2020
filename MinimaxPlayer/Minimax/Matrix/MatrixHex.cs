@@ -1,6 +1,6 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
-using Players.Common;
+using Players;
 
 namespace MinimaxPlayer.Minimax.Matrix
 {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Players.Common
+namespace Players
 {
     public abstract class Player
     {

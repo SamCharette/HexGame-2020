@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Players.Common;
+using Players;
 
 namespace MinimaxPlayer.Minimax.List
 {
@@ -45,7 +45,7 @@ namespace MinimaxPlayer.Minimax.List
             playerConfig)
         {
             PlayerNumber = playerNumber;
-            Me = PlayerNumber == 1 ? Players.Common.PlayerType.Blue : Players.Common.PlayerType.Red;
+            Me = PlayerNumber == 1 ? Players.PlayerType.Blue : Players.PlayerType.Red;
             Size = boardSize;
 
             StartingLevels = GetDefault(playerConfig, "minLevels", 1);
@@ -80,9 +80,9 @@ namespace MinimaxPlayer.Minimax.List
 
         public PlayerType Opponent()
         {
-            if (Me == Players.Common.PlayerType.Blue) return Players.Common.PlayerType.Red;
+            if (Me == Players.PlayerType.Blue) return Players.PlayerType.Red;
 
-            return Players.Common.PlayerType.Blue;
+            return Players.PlayerType.Blue;
         }
 
 
@@ -94,7 +94,7 @@ namespace MinimaxPlayer.Minimax.List
         private ListHex RandomHex()
         {
             Console.WriteLine("Getting a random hex.");
-            var openNodes = Memory.Board.Where(x => x.Owner == Players.Common.PlayerType.White);
+            var openNodes = Memory.Board.Where(x => x.Owner == Players.PlayerType.White);
             var selectedNode = openNodes.OrderBy(x => x.RandomValue).FirstOrDefault();
             return selectedNode;
         }
@@ -114,7 +114,7 @@ namespace MinimaxPlayer.Minimax.List
             inquisitor.StartInquisition(Memory, this);
             CurrentChoice = inquisitor.GetChoice();
 
-            if(CurrentChoice == null || Memory.HexAt(CurrentChoice).Owner != Players.Common.PlayerType.White)
+            if(CurrentChoice == null || Memory.HexAt(CurrentChoice).Owner != Players.PlayerType.White)
             {
                 Console.WriteLine("Why are you trying to take hex " + CurrentChoice + "???");
                 CurrentChoice = null;

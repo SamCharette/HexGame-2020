@@ -18,12 +18,19 @@ namespace Players
         {
             PlayerNumber = playerNumber;
             Size = boardSize;
+            Monitors = new ConcurrentDictionary<string, int>();
             RelayPerformanceInformation();
+        }
+
+        protected Player()
+        {
+            throw new NotImplementedException();
         }
 
         public string Name { get; set; }
         public int PlayerNumber { get; set; }
-        private int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
+        protected int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
+
         protected bool IsHorizontal => PlayerNumber == 2;
 
         public event EventHandler RelayInformation;
@@ -97,9 +104,10 @@ namespace Players
             return choice;
         }
 
-        protected virtual BaseNode JustGetARandomHex()
+        protected virtual BaseNode JustGetARandomHex(List<BaseNode> board = null)
         {
-            var openNodes = Memory.Where(x => x.Owner == 0);
+            var searchSpace = board ?? Memory;
+            var openNodes = searchSpace.Where(x => x.Owner == 0);
             var selectedNode = openNodes.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
 
 

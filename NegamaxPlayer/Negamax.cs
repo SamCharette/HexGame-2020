@@ -7,6 +7,9 @@ namespace NegamaxPlayer
 {
     public class Negamax : Player
     {
+        public Board Board { get; set; }
+
+
         public Negamax(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             

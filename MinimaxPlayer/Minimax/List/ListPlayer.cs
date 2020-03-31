@@ -55,7 +55,7 @@ namespace MinimaxPlayer.Minimax.List
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 25);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
-            talkative = Convert.ToInt32((string) playerConfig.talkative);
+            Talkative = Convert.ToInt32((string) playerConfig.talkative);
 
 
             Name = playerConfig.name;

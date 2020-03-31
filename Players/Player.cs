@@ -2,45 +2,49 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+
 
 namespace Players
 {
     public abstract class Player
     {
-        protected List<BaseNode> _memory;
-        protected int _size;
-        public ConcurrentDictionary<string, int> Monitors = new ConcurrentDictionary<string, int>();
-        public int talkative;
-        public int WaitTime = 50;
-
-
+        protected List<BaseNode> Memory { get; set; }
+        protected int Size { get; set; }
+        private ConcurrentDictionary<string, int> Monitors { get; set; }
+        protected int Talkative { get; set; }
+        private string Log { get; set; }
+        
         protected Player(int playerNumber, int boardSize, Config playerConfig)
         {
             PlayerNumber = playerNumber;
-            _size = boardSize;
+            Size = boardSize;
             RelayPerformanceInformation();
-            SetUpInMemoryBoard();
         }
 
         public string Name { get; set; }
         public int PlayerNumber { get; set; }
         private int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
-        protected bool _isHorizontal => PlayerNumber == 2;
+        protected bool IsHorizontal => PlayerNumber == 2;
+
         public event EventHandler RelayInformation;
 
-        public void RelayPerformanceInformation()
+        protected void RelayPerformanceInformation()
         {
-            var args = new PerformanceEventArgs();
-            args.PlayerNumber = PlayerNumber;
-            args.Counters = new ConcurrentDictionary<string, int>();
-            foreach (var item in Monitors) args.Counters[item.Key] = item.Value;
+            var args = new PerformanceEventArgs
+            {
+                PlayerNumber = PlayerNumber, 
+                Counters = new ConcurrentDictionary<string, int>()
+            };
+            foreach (var item in Monitors)
+            {
+                args.Counters[item.Key] = item.Value;
+            }
             RelayInformation?.Invoke(this, args);
         }
 
         public virtual void GameOver(int winningPlayerNumber)
         {
-            _memory = null;
+            Memory = null;
         }
 
         protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
@@ -54,18 +58,22 @@ namespace Players
 
         protected virtual void SetUpInMemoryBoard()
         {
-            _memory = new List<BaseNode>();
+            Memory = new List<BaseNode>();
 
-            for (var x = 0; x < _size; x++)
-            for (var y = 0; y < _size; y++)
+            for (var x = 0; x < Size; x++)
+            for (var y = 0; y < Size; y++)
             {
-                var newNode = new BaseNode();
+                var newNode = new BaseNode {Row = x, Column = y, Owner = 0};
 
-                newNode.Row = x;
-                newNode.Column = y;
-                newNode.Owner = 0;
-                _memory.Add(newNode);
+                Memory.Add(newNode);
             }
+        }
+
+        protected virtual string GetLog()
+        {
+            var tempLog = Log;
+            Log = "";
+            return tempLog;
         }
 
         public virtual Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
@@ -78,7 +86,7 @@ namespace Players
 
         private void UpdateBoard(int playerNumber, int x, int y)
         {
-            var playerChoice = _memory.FirstOrDefault(node => node.Row == x && node.Column == y);
+            var playerChoice = Memory.FirstOrDefault(node => node.Row == x && node.Column == y);
             if (playerChoice != null) playerChoice.Owner = playerNumber;
         }
 
@@ -89,10 +97,9 @@ namespace Players
             return choice;
         }
 
-        public virtual BaseNode JustGetARandomHex()
+        protected virtual BaseNode JustGetARandomHex()
         {
-            var openNodes = _memory.Where(x => x.Owner == 0);
-            Thread.Sleep(WaitTime);
+            var openNodes = Memory.Where(x => x.Owner == 0);
             var selectedNode = openNodes.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
 
 
@@ -109,10 +116,20 @@ namespace Players
             return false;
         }
 
-        public void Quip(string expressionToSay)
+        protected void Quip(string expressionToSay, int level = 1, bool hasNewLine = true)
         {
-            if (talkative == 1)
-                Console.WriteLine(Name + " " + PlayerType() + " (player " + PlayerNumber + ") : " + expressionToSay);
+            if (Talkative >= level)
+            {
+                Log += expressionToSay + (hasNewLine ? Environment.NewLine : "");
+                #if DEBUG
+                    Console.Write(Name + " " + PlayerType() + " (player " + PlayerNumber + ") : " + expressionToSay);
+                    if (hasNewLine)
+                    {
+                        Console.Write(Environment.NewLine);
+                    }
+                #endif
+            }
+
         }
     }
 }

@@ -11,5 +11,15 @@ namespace NegamaxPlayer
         {
             
         }
+
+        public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
+        {
+            
+        }
+
+        public override string PlayerType()
+        {
+            return "Negamax AI";
+        }
     }
 }

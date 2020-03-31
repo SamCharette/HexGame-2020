@@ -165,7 +165,10 @@ namespace DozerPlayer
 
             }
 
-            startingHex = availableStartingHexes.OrderByDescending(x => x.Owner).ThenBy(x => x.uniqueness)
+            startingHex = 
+                availableStartingHexes
+                .OrderByDescending(x => x.Owner)
+                .ThenBy(x => x.RandomValue)
                 .FirstOrDefault();
 
             if (startingHex != null)
@@ -203,7 +206,7 @@ namespace DozerPlayer
             // GEt the best looking node
             bestLookingNode = _memory
                 .OrderBy(x => x.F)
-                .ThenBy(x => x.uniqueness)
+                .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
             if (bestLookingNode == null)
@@ -286,7 +289,7 @@ namespace DozerPlayer
                         newNode.Owner = 0;
                         newNode.Status = Status.Untested;
                         newNode.H = PlayerNumber == 1 ? _size - 1 - column : _size - 1 - row;
-                        newNode.uniqueness = Guid.NewGuid();
+                        newNode.RandomValue = Guid.NewGuid();
 
                     }
                     _memory.Add(newNode);

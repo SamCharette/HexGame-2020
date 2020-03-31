@@ -10,8 +10,20 @@ namespace Players.Common
         public int G;
         public int H;
         public BaseNode Parent = null;
-        public Guid uniqueness;
+        public Guid RandomValue;
         public int Owner;
+
+        public BaseNode()
+        {
+            Row = 0;
+            Column = 0;
+            Status = Status.Untested;
+            G = 0;
+            H = 0;
+            Parent = null;
+            Owner = 0;
+            RandomValue = Guid.NewGuid();
+        }
 
         public int F => G + H;
 
@@ -19,6 +31,17 @@ namespace Players.Common
         {
             return Owner == 1 ? 2 : 1;
         }
+
+        public Tuple<int,int> ToTuple()
+        {
+            return new Tuple<int, int>(Row, Column);
+        }
+
+        public bool Equal(BaseNode node)
+        {
+            return Row == node.Row && Column == node.Column;
+        }
+
         public bool CanWalkTo(BaseNode possibleNeighbour)
         {
             // Can't be a neighbour to itself

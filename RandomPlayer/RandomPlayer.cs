@@ -1,5 +1,4 @@
-﻿using Players.Base;
-using Players.Common;
+﻿using Players.Common;
 
 namespace RandomPlayer
 {

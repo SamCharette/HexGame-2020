@@ -1,7 +1,6 @@
 ﻿using System;
-using Players.Common;
 
-namespace Players.Base
+namespace Players.Common
 {
     public class BaseNode
     {

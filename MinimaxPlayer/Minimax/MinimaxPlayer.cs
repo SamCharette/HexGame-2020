@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Players.Base;
 using Players.Common;
 
 namespace MinimaxPlayer.Minimax

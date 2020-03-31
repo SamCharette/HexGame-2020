@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Players.Common;
 
-namespace Players.Base
+namespace Players.Common
 {
     public abstract class Player
     {

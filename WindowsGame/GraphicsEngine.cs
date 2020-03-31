@@ -3,7 +3,7 @@ using System.Drawing;
 using WindowsGame.Hexagonal;
 using Math = System.Math;
 
-namespace Engine.Hexagonal
+namespace WindowsGame
 {
     public class GraphicsEngine
     {

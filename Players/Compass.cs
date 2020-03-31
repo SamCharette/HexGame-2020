@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MinimaxPlayer.Minimax
+namespace Players
 {
     /*
      * A static class that can give you a delta for a direction,

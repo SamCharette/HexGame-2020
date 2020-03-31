@@ -6,7 +6,7 @@ using System.Reflection;
 using Omu.ValueInjecter;
 using Omu.ValueInjecter.Injections;
 
-namespace MinimaxPlayer.Minimax
+namespace Players
 {
     public class CloneInjection : LoopInjection
     {

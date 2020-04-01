@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Omu.ValueInjecter;
 using Players;
 
 namespace NegamaxPlayer
@@ -15,6 +16,15 @@ namespace NegamaxPlayer
         {
             Size = size;
             Hexes = new List<Hex>(Size * Size);
+            for (var column = 0; column < size; column++)
+            {
+                for (var row = 0; row < size; row++)
+                {
+                    var newHex = new Hex(size, row, column);
+                    newHex.GetNeighbours();
+                    Hexes.Add(newHex);
+                }
+            }
         }
 
         public bool HasWinner()
@@ -22,9 +32,11 @@ namespace NegamaxPlayer
             return false;
         }
 
-        public int Score()
+        public int Score(int player)
         {
-            return 0;
+            var appraiser = new Appraiser();
+            var score = appraiser.ScoreFromBoard(this, player);
+            return score;
         }
 
         public Hex HexAt(int row, int column)
@@ -44,12 +56,40 @@ namespace NegamaxPlayer
 
         public Board GetCopy()
         {
-            throw new NotImplementedException();
+            var newBoard = new Board();
+            newBoard.Setup(Size);
+            newBoard.InjectFrom(this);
+            return newBoard;
         }
 
-        public void TakeHex(Hex node)
+        public void TakeHex(Tuple<int,int> coordinates, int playerNumber)
         {
-            throw new NotImplementedException();
+            HexAt(coordinates).Owner = playerNumber;
+        }
+
+        public List<Hex> GetNeighboursFrom(Hex hex, int player)
+        {
+            var opponent = player == 1 ? 2 : 1;
+            var neighbourHexes = hex.Neighbours.ToList();
+            var neighbours = neighbourHexes.Select(x => HexAt(x.ToTuple())).ToList();
+            neighbours.RemoveAll(x => x.Owner == opponent);
+            return neighbours.ToList();
+
+        }
+
+        private List<Hex> GetNeighboursFor(Hex source)
+        {
+            var neighbours = new List<Hex>();
+            foreach (var neighbour in source.Neighbours)
+            {
+                var neighbourOnBoard = HexAt(neighbour.Row, neighbour.Column);
+                if (neighbourOnBoard != null)
+                {
+                    neighbours.Add(neighbourOnBoard);
+                }
+            }
+
+            return neighbours.ToList();
         }
     }
 }

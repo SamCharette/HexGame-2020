@@ -32,6 +32,15 @@ namespace Players
             return Owner == 1 ? 2 : 1;
         }
 
+        public void ClearPathingVariables()
+        {
+            G = 0;
+            H = 0;
+            Owner = 0;
+            Status = Status.Untested;
+            Parent = null;
+        }
+
         public Tuple<int,int> ToTuple()
         {
             return new Tuple<int, int>(Row, Column);

@@ -51,7 +51,6 @@ namespace MinimaxPlayer.Minimax.List
             StartingLevels = GetDefault(playerConfig, "minLevels", 1);
             MaxLevels = GetDefault(playerConfig, "maxLevels", 5);
             MovesBetweenLevelJump = GetDefault(playerConfig, "movesPerBrainJump", 1);
-            MaxLevels = GetDefault(playerConfig, "maxLevels", 5);
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 25);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);

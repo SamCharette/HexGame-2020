@@ -39,12 +39,12 @@
   {
     "name": "Minnie",
     "type": "Minimax List AI",
-    "playerNumber": "1",
+    "playerNumber": "0",
     "talkative": "1",
     "settings": [
       {
         "key": "minLevels",
-        "value": "2"
+        "value": "0"
       },
       {
         "key": "maxLevels",
@@ -103,21 +103,24 @@
   },
   {
     "name": "Naomi",
-    "type": "Negamax List AI",
-    "playerNumber": "0",
-    "talkative": "1",
+    "type": "Negamax AI",
+    "playerNumber": "1",
     "settings": [
+      {
+        "key": "talkative",
+        "value":  3 
+      },
       {
         "key": "minLevels",
         "value": "1"
       },
       {
         "key": "maxLevels",
-        "value": "6"
+        "value": "4"
       },
       {
         "key": "movesPerBrainJump",
-        "value": "2"
+        "value": "1"
       },
       {
         "key": "costToClaimedNode",

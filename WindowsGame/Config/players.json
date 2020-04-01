@@ -108,7 +108,7 @@
     "settings": [
       {
         "key": "talkative",
-        "value":  3 
+        "value":  "1" 
       },
       {
         "key": "minLevels",

@@ -40,6 +40,12 @@ namespace NegamaxPlayer
         }
         public new int F => G + H;
 
+        public void PostCloneWork()
+        {
+            RandomValue = Guid.NewGuid();
+            GetNeighbours();
+        }
+
         public int DistanceTo(Hex dest)
         {
             if (dest == null)

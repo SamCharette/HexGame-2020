@@ -59,6 +59,7 @@ namespace NegamaxPlayer
             var newBoard = new Board();
             newBoard.Setup(Size);
             newBoard.InjectFrom(this);
+            newBoard.Hexes.ForEach(x => x.PostCloneWork());
             return newBoard;
         }
 

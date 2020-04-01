@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Players;
 
@@ -35,29 +37,58 @@ namespace NegamaxPlayer
         public PlayerType Them => PlayerNumber == 1 ? Players.PlayerType.Red : Players.PlayerType.Blue;
         public Negamax(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
-            Setup(boardSize);
+
+            Setup(boardSize, playerNumber, playerConfig);
+        }
+
+        private int _size;
+        public new int Size {get => _size;
+            set
+            {
+                _size = value;
+                Setup(_size);
+            }
+
+        }
+
+        public Negamax()
+        {
+            Setup(11);
+        }
+
+        private void SetSettings(Config playerConfig)
+        {
             MaxDepth = GetDefault(playerConfig, "maxLevels", 5);
+            StartingLevels = GetDefault(playerConfig, "minLevels", 3);
             Talkative = GetDefault(playerConfig, "talkative", 0);
-            StartingLevels = GetDefault(playerConfig, "startingLevels", 3);
             MovesBetweenLevelJump = GetDefault(playerConfig, "movesPerBrainJump", 1);
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 25);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
 
-            MovesMade = 0;
         }
 
-        public Negamax()
+        public void Setup(int size = 11, int playerNumber = 1, Config playerConfig = null)
         {
-
-        }
-
-        public void Setup(int size)
-        {
-            Size = size;
+            PlayerNumber = playerNumber;
+            _size = size;
             Board = new Board();
             Board.Setup(Size);
+            MovesMade = 0;
+            if (playerConfig != null)
+            {
+                SetSettings(playerConfig);
+            }
+        }
 
+        public void Quip(List<Hex> path, string quip)
+        {
+            var thingToSay = quip;
+            foreach (var hex in path)
+            {
+                thingToSay += " " + hex;
+            }
+            Quip(thingToSay, 2);
         }
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
@@ -65,10 +96,12 @@ namespace NegamaxPlayer
             if (opponentMove != null)
             {
                 Board.TakeHex(opponentMove, OtherPlayer(PlayerNumber));
+                Quip("Opponent chose hex: " + opponentMove);
             }
             BestHex = null;
 
-            DoNegamax(Board, CurrentLevels, -9999, 9999, PlayerNumber);
+            var boardToCheck = Board.GetCopy();
+            DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, PlayerNumber);
 
             if (BestHex == null)
             {
@@ -82,6 +115,7 @@ namespace NegamaxPlayer
 
             Board.TakeHex(BestHex, PlayerNumber);
             MovesMade++;
+            Quip("Selecting hex: " + BestHex);
             return BestHex;
         }
 
@@ -98,18 +132,24 @@ namespace NegamaxPlayer
                 return playerNumber == this.PlayerNumber ? gameState.Score(this.PlayerNumber) : gameState.Score(this.PlayerNumber) * -1;
             }
 
+            var queue = new PriorityQueue();
 
             var value = -9999;
             var scout = new Pathfinder(Board, playerNumber);
-
             var myPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
+            Quip(myPath, "My path: ");
+
             scout.SetPlayer(OtherPlayer(playerNumber));
-
             var theirPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
+            Quip(theirPath, "Their path: ");
+            
             var childNodes = new HashSet<Hex>();
-            myPath.ForEach(x => childNodes.Add(x));
-            theirPath.ForEach(x => childNodes.Add(x));
-
+            myPath.ForEach(x => queue.Push(x)); 
+            theirPath.ForEach(x => queue.Push(x));
+            for (var i = 0; i < 5; i++)
+            {
+                childNodes.Add(queue.Pop());
+            }
     
             foreach (var node in childNodes)
             {

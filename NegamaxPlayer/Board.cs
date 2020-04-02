@@ -12,6 +12,10 @@ namespace NegamaxPlayer
         public List<Hex> Hexes { get; set; }
         public int Size { get; set; }
 
+        public Board()
+        {
+
+        }
         public void Setup(int size)
         {
             Size = size;
@@ -24,6 +28,17 @@ namespace NegamaxPlayer
                     newHex.GetNeighbours();
                     Hexes.Add(newHex);
                 }
+            }
+        }
+
+        public Board(Board original)
+        {
+            Size = original.Size;
+            Hexes = new List<Hex>(Size * Size);
+            foreach (var originalHex in original.Hexes)
+            {
+                var hex = new Hex(originalHex);
+                Hexes.Add(hex);
             }
         }
 
@@ -49,18 +64,9 @@ namespace NegamaxPlayer
             return HexAt(coordinates.Item1, coordinates.Item2);
         }
 
-        public Hex HexAt(BaseNode node)
+        public Hex HexAt(Hex node)
         {
             return HexAt(node.ToTuple());
-        }
-
-        public Board GetCopy()
-        {
-            var newBoard = new Board();
-            newBoard.Setup(Size);
-            newBoard.InjectFrom(this);
-            newBoard.Hexes.ForEach(x => x.PostCloneWork());
-            return newBoard;
         }
 
         public void TakeHex(Tuple<int,int> coordinates, int playerNumber)
@@ -70,7 +76,7 @@ namespace NegamaxPlayer
 
         public List<Hex> GetNeighboursFrom(Hex hex, int player)
         {
-            var opponent = player == 1 ? 2 : 1;
+            var opponent = player == 1 ? -1 : 1;
             var neighbourHexes = hex.Neighbours.ToList();
             var neighbours = neighbourHexes.Select(x => HexAt(x.ToTuple())).ToList();
             neighbours.RemoveAll(x => x.Owner == opponent);

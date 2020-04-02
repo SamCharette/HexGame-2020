@@ -25,7 +25,10 @@ namespace Players
             RandomValue = Guid.NewGuid();
         }
 
-        public int F => G + H;
+        public int F()
+        {
+            return G + H;
+        }
 
         public int EnemyPlayerNumber()
         {

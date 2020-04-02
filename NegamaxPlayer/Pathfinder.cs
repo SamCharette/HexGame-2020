@@ -44,24 +44,19 @@ namespace NegamaxPlayer
                 hex.ClearPathingVariables();
             }
 
-            opponent = _playerSearchingFor == 1 ? 2 : 1;
-            //AddLogLine(" ============ Starting new search for " + _playerSearchingFor);
+            opponent = _playerSearchingFor == 1 ? -1 : 1;
+       
             var startHexes = GetStartingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
             var endHexes = GetEndingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
             var path = new List<Hex>();
 
             var pathEase = _searchSpace.Size * _searchSpace.Size * costPerOpenNode;
-            //AddLogLine("Need to move around " + _searchSpace.Hexes.Count(x => x.Owner == opponent) + " hexes.");
-            //_searchSpace.Hexes.Where(x => x.Owner == opponent).ToList().ForEach(x => AddLog(x + " "));
-            //AddLogLine("");
-
+            
             foreach (var startSpot in startHexes)
             {
            
                 foreach (var endSpot in endHexes)
                 {
-                    //AddLogLine("Best score is " + pathEase);
-                    //AddLogLine("---------- Searching between " + startSpot + " and " + endSpot);
                     foreach (var hex in _searchSpace.Hexes)
                     {
                         hex.ClearPathingVariables();
@@ -69,50 +64,39 @@ namespace NegamaxPlayer
 
                     startSpot.G = startSpot.Owner == 0 ? costPerOpenNode : costPerFriendlyNode;
                     var newPath = PathBetween(startSpot, endSpot, pathEase).ToList();
-                    //Console.WriteLine(GetLog());
+         
 
-                    newPath = newPath.OrderByDescending(x => x.F).ToList();
-                    if (newPath.Any() && ((newPath.First().F < pathEase) 
-                        || (newPath.First().F == pathEase && newPath.Count < path.Count)))
+                    newPath = newPath.OrderByDescending(x => x.F()).ToList();
+                    if (newPath.Any() && ((newPath.First().F() < pathEase) 
+                        || (newPath.First().F() == pathEase && newPath.Count < path.Count)))
                     {
-                        pathEase = newPath.First().F;
+                        pathEase = newPath.First().F();
                         path = newPath;
-                        //Console.WriteLine("");
-                        //Console.WriteLine("(" + path.Count + ") Better path found with score : " + pathEase);
-                        //Console.Write("Path found : ");
-                        //newPath.ForEach(x => Console.Write(" " + x));
-                        //Console.WriteLine("");
                     }
                 }
             }
-            //AddLogLine("---------- ");
-            //AddLogLine("Final score is " + pathEase);
-            //AddLog("Path found : ");
-            //path.ForEach(x => AddLog(" " + x));
-            //AddLogLine("");
-            //OutputLogToConsole();
             return path;
         }
 
         public List<Hex> GetStartingHexes(int player)
         {
-            var opponent = player == 1 ? 2 : 1;
+            var opponenNumber = player == 1 ? -1 : 1;
             if (player == 1)
             {
-                return _searchSpace.Hexes.Where(x => x.Row == 0 && x.Owner != opponent).ToList();
+                return _searchSpace.Hexes.Where(x => x.Row == 0 && x.Owner != opponenNumber).ToList();
             }
-            return _searchSpace.Hexes.Where(x => x.Column == 0 && x.Owner != opponent).ToList();
+            return _searchSpace.Hexes.Where(x => x.Column == 0 && x.Owner != opponenNumber).ToList();
 
         }
 
         public List<Hex> GetEndingHexes(int player)
         {
-            var opponent = player == 1 ? 2 : 1;
+            var opponentNumber = player == 1 ? -1 : 1;
             if (player == 1)
             {
-                return _searchSpace.Hexes.Where(x => x.Row == _searchSpace.Size - 1 && x.Owner != opponent).ToList();
+                return _searchSpace.Hexes.Where(x => x.Row == _searchSpace.Size - 1 && x.Owner != opponentNumber).ToList();
             }
-            return _searchSpace.Hexes.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != opponent).ToList();
+            return _searchSpace.Hexes.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != opponentNumber).ToList();
 
         }
 
@@ -120,7 +104,7 @@ namespace NegamaxPlayer
         {
             // Get the best looking node
             var bestLookingHex = _searchSpace.Hexes
-                .OrderBy(x => x.F)
+                .OrderBy(x => x.F())
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
@@ -134,7 +118,8 @@ namespace NegamaxPlayer
 
             if (bestLookingHex.Equals(end))
             {
-                AddLogLine(bestLookingHex + " is at end.");
+     
+
                 var preferredPath = new List<Hex>();
 
                 var parent = bestLookingHex;
@@ -158,7 +143,7 @@ namespace NegamaxPlayer
 
 
             var neighbours =  _searchSpace.GetNeighboursFrom(bestLookingHex, _playerSearchingFor);
-            AddLog(neighbours.Count + " neighbours to examine.");
+
             foreach (var node in neighbours)
             {
                 if (node.Owner != opponent)

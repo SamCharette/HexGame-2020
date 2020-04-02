@@ -5,21 +5,34 @@ using Players;
 
 namespace NegamaxPlayer
 {
-    public class Hex : BaseNode
+    public class Hex
     {
-        public new Hex Parent = null;
-        public List<Hex> Neighbours;
+        public int Row;
+        public int Column;
+        public Status Status;
+        public int G;
+        public int H;
+        
+        public Guid RandomValue;
+        public int Owner;
+
+        public  Hex Parent = null;
+        public List<Hex> Neighbours = new List<Hex>();
+        private string _hexName;
+
         public int Size { get; set; }
 
         public Hex()
         {
-            SetValues();
+
         }
-        public Hex(int size)
+        public Hex(Hex original)
         {
-            SetValues(11);
+            SetValues(original.Size, original.Row, original.Column);
+            GetNeighbours();
         }
 
+        
         public Hex(int size, int row, int column)
         {
             SetValues(size, row, column);
@@ -38,12 +51,10 @@ namespace NegamaxPlayer
             RandomValue = Guid.NewGuid();
             Neighbours = new List<Hex>();
         }
-        public new int F => G + H;
 
-        public void PostCloneWork()
+        public int F()
         {
-            RandomValue = Guid.NewGuid();
-            GetNeighbours();
+            return G + H;
         }
 
         public int DistanceTo(Hex dest)
@@ -79,9 +90,26 @@ namespace NegamaxPlayer
         {
             return Row >= 0 && Row < Size && Column >= 0 && Column < Size;
         }
+        public string HexName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hexName)) return "(" + Row + "," + Column + ")";
 
+                return _hexName;
+            }
+            set => _hexName = value;
+        }
+
+        public Tuple<int, int> ToTuple()
+        {
+            return new Tuple<int, int>(Row, Column);
+        }
+
+  
         public void GetNeighbours()
         {
+            Neighbours = new List<Hex>();
             for (var i = 0; i < 6; i++)
             {
                 var coordinates = AddDelta(Compass.GetCoordinatesFor(ToTuple(), i));
@@ -99,7 +127,7 @@ namespace NegamaxPlayer
             return new Tuple<int, int>(Row + delta.Item1, Column + delta.Item2);
         }
 
-        public new void ClearPathingVariables()
+        public void ClearPathingVariables()
         {
             G = 0;
             H = 0;
@@ -110,7 +138,7 @@ namespace NegamaxPlayer
 
         public override string ToString()
         {
-            return ToTuple().ToString();
+            return ToTuple().ToString() + "/" + Owner;
         }
     }
 }

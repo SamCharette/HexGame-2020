@@ -16,7 +16,7 @@ namespace NegamaxPlayer
         public int ScoreFromBoard(Board map, int player)
         {
 
-            var opponent = player == 1 ? 2 : 1;
+            var opponent = player == 1 ? -1 : 1;
             // player score
             var playerScore = PlayerScore(map, player);
             // opponent score
@@ -25,16 +25,6 @@ namespace NegamaxPlayer
             return playerScore  - opponentScore;
         }
 
-        public int ScoreFromBoard(Negamax player, List<Hex> playerPath, List<Hex> opponentPath)
-        {
-            var opponent = player.Me == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
-            // player score
-            var playerScore = PlayerScore(playerPath);
-            // opponent score
-            var opponentScore = PlayerScore(opponentPath);
-
-            return playerScore - opponentScore;
-        }
 
         private int PlayerScore(Board map, int player)
         {

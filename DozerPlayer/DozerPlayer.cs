@@ -205,7 +205,7 @@ namespace DozerPlayer
             
             // GEt the best looking node
             bestLookingNode = Memory
-                .OrderBy(x => x.F)
+                .OrderBy(x => x.F())
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 

@@ -16,7 +16,7 @@ namespace NegamaxPlayer
 
         public int OtherPlayer(int player)
         {
-            return player == 1 ? 2 : 1;
+            return player == 1 ? -1 : 1;
         }
 
         public int MovesMade { get; set; }
@@ -33,8 +33,9 @@ namespace NegamaxPlayer
                 return Math.Min(MaxDepth, StartingLevels + numberOfJumps);
             }
         }
-        public PlayerType Me => PlayerNumber == 1 ? Players.PlayerType.Blue : Players.PlayerType.Red;
-        public PlayerType Them => PlayerNumber == 1 ? Players.PlayerType.Red : Players.PlayerType.Blue;
+
+        private int RandomMovesMade = 0;
+
         public Negamax(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
 
@@ -70,7 +71,7 @@ namespace NegamaxPlayer
 
         public void Setup(int size = 11, int playerNumber = 1, Config playerConfig = null)
         {
-            PlayerNumber = playerNumber;
+            PlayerNumber = playerNumber == 1 ? 1 : -1;
             _size = size;
             Board = new Board();
             Board.Setup(Size);
@@ -99,10 +100,19 @@ namespace NegamaxPlayer
                 Quip("Opponent chose hex: " + opponentMove);
             }
             BestHex = null;
+            Quip("-------------------------------------");
+            Quip("-=-=-=-=-=-=-=-={ Turn " + (MovesMade + 1) + " for me }=-=-=-=-=-=-=-=-");
+            Quip("-------------------------------------");
 
-            var boardToCheck = Board.GetCopy();
-            DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, PlayerNumber);
+            var boardToCheck = new Board(Board);
+            DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, 1);
 
+            if (Board.HexAt(BestHex).Owner != 0)
+            {
+                RandomMovesMade++;
+                Quip("Um, for some reason I like the idea of taking an already taken spot " + BestHex + " (" + RandomMovesMade + " Random moves made)");
+                BestHex = null;
+            }
             if (BestHex == null)
             {
                 var openNodes = Board.Hexes.Where(x => x.Owner == 0);
@@ -119,60 +129,67 @@ namespace NegamaxPlayer
             return BestHex;
         }
 
-        private PlayerType Opponent()
-        {
-            return this.PlayerNumber == 1 ? Players.PlayerType.Red : Players.PlayerType.Blue;
-        }
 
-        private int DoNegamax(Board gameState, int currentDepth, int alpha, int beta, int playerNumber)
+        private int DoNegamax(Board gameState, int currentDepth, int alpha, int beta, int pointOfView)
         {
-            if (currentDepth == 0 || gameState.HasWinner())
+            if (currentDepth == 0 || gameState.HasWinner() || gameState.Hexes.All(x => x.Owner != 0))
             {
-     
-                return playerNumber == this.PlayerNumber ? gameState.Score(this.PlayerNumber) : gameState.Score(this.PlayerNumber) * -1;
+                var score = gameState.Score(this.PlayerNumber);
+                return pointOfView * score;
             }
 
             var queue = new PriorityQueue();
 
-            var value = -9999;
-            var scout = new Pathfinder(Board, playerNumber);
+            var scout = new Pathfinder(gameState, pointOfView);
             var myPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
-            Quip(myPath, "My path: ");
+            
 
-            scout.SetPlayer(OtherPlayer(playerNumber));
+            scout.SetPlayer(OtherPlayer(-pointOfView));
             var theirPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
-            Quip(theirPath, "Their path: ");
             
             var childNodes = new HashSet<Hex>();
             myPath.ForEach(x => queue.Push(x)); 
             theirPath.ForEach(x => queue.Push(x));
+            var queuedItemsToSearch = "Queued items: ";
             for (var i = 0; i < 5; i++)
             {
-                childNodes.Add(queue.Pop());
+                var hex = queue.Pop();
+                queuedItemsToSearch += hex + " ";
+                childNodes.Add(hex);
             }
-    
+            if (currentDepth == CurrentLevels)
+            {
+                Quip(myPath, "My path: ");
+                Quip(theirPath, "Their path: ");
+                Quip(queuedItemsToSearch);
+            }
+
             foreach (var node in childNodes)
             {
-                var newBoard = Board.GetCopy();
-                newBoard.TakeHex(node.ToTuple(), playerNumber);
+                var newBoard = new Board(Board);
+                newBoard.TakeHex(node.ToTuple(), pointOfView);
                 var newValue = -1 * DoNegamax(newBoard, 
                                    currentDepth - 1, 
-                                   -1 * alpha, 
                                    -1 * beta, 
-                                   OtherPlayer(playerNumber));
-                if (newValue > value)
+                                   -1 * alpha, 
+                                   -pointOfView);
+                if (newValue > alpha)
                 {
-                    value = newValue;
-                    BestHex = node.ToTuple();
+                    alpha = newValue;
+                    if (currentDepth == CurrentLevels)
+                    {
+                        BestHex = node.ToTuple();
+
+                    }
                 }
-                alpha = Math.Max(alpha, value);
-                if (alpha >= beta)
+
+                if (beta <= alpha)
                 {
-                    break;
+                    return beta;
                 }
             }
 
-            return value;
+            return alpha;
         }
 
         public override string PlayerType()

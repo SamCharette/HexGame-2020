@@ -44,11 +44,11 @@
     "settings": [
       {
         "key": "minLevels",
-        "value": "0"
+        "value": "1"
       },
       {
         "key": "maxLevels",
-        "value": "4"
+        "value": "3"
       },
       {
         "key": "movesPerBrainJump",
@@ -108,7 +108,7 @@
     "settings": [
       {
         "key": "talkative",
-        "value":  "1" 
+        "value":  "3" 
       },
       {
         "key": "minLevels",
@@ -116,7 +116,7 @@
       },
       {
         "key": "maxLevels",
-        "value": "4"
+        "value": "3"
       },
       {
         "key": "movesPerBrainJump",

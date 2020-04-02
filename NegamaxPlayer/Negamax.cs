@@ -144,12 +144,13 @@ namespace NegamaxPlayer
             var myPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
             
 
-            scout.SetPlayer(OtherPlayer(-pointOfView));
+            scout.SetPlayer(-1 * pointOfView);
             var theirPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
             
             var childNodes = new HashSet<Hex>();
             myPath.ForEach(x => queue.Push(x)); 
             theirPath.ForEach(x => queue.Push(x));
+            var combinedPath = myPath.Where(x => theirPath.Contains(x)).ToList();
             var queuedItemsToSearch = "Queued items: ";
             while (childNodes.Count < 5 && queue.HasItems())
             {
@@ -162,6 +163,7 @@ namespace NegamaxPlayer
             {
                 Quip(myPath, "My path: ");
                 Quip(theirPath, "Their path: ");
+                Quip(combinedPath, "Nodes in both paths: ");
                 Quip(queuedItemsToSearch);
             }
 

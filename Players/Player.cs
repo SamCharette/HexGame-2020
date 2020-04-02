@@ -10,7 +10,7 @@ namespace Players
     {
         protected List<BaseNode> Memory { get; set; }
         protected int Size { get; set; }
-        private ConcurrentDictionary<string, int> Monitors { get; set; }
+        protected ConcurrentDictionary<string, int> Monitors { get; set; }
         protected int Talkative { get; set; }
         private string Log { get; set; }
         

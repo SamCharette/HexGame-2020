@@ -67,6 +67,8 @@ namespace NegamaxPlayer
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 25);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
+            Monitors["Items pruned"] = 0;
+            Monitors["Transposition table uses"] = 0;
 
         }
 
@@ -78,6 +80,7 @@ namespace NegamaxPlayer
             Board = new Board();
             Board.Setup(Size);
             MovesMade = 0;
+
             if (playerConfig != null)
             {
                 SetSettings(playerConfig);
@@ -106,6 +109,7 @@ namespace NegamaxPlayer
             Quip("-=-=-=-=-=-=-=-={ Turn " + (MovesMade + 1) + " for me }=-=-=-=-=-=-=-=-");
             Quip("-------------------------------------");
 
+            RelayPerformanceInformation();
             var boardToCheck = new Board(Board);
             DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, Player);
 
@@ -190,9 +194,12 @@ namespace NegamaxPlayer
 
                 if (beta <= alpha)
                 {
+                    Monitors["Items pruned"]++;
                     return beta;
                 }
             }
+
+        
 
             return alpha;
         }

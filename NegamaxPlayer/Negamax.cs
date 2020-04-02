@@ -17,7 +17,8 @@ namespace NegamaxPlayer
         public int OtherPlayer(int player)
         {
             return player == 1 ? -1 : 1;
-        }
+        } 
+        public int Player { get;set; }
 
         public int MovesMade { get; set; }
         public int MovesBetweenLevelJump { get; set; }
@@ -71,7 +72,8 @@ namespace NegamaxPlayer
 
         public void Setup(int size = 11, int playerNumber = 1, Config playerConfig = null)
         {
-            PlayerNumber = playerNumber == 1 ? 1 : -1;
+            Player = playerNumber == 1 ? 1 : -1; // This is the one the AI uses
+            PlayerNumber = playerNumber; // this is the one the ref looks at
             _size = size;
             Board = new Board();
             Board.Setup(Size);
@@ -96,7 +98,7 @@ namespace NegamaxPlayer
         {
             if (opponentMove != null)
             {
-                Board.TakeHex(opponentMove, OtherPlayer(PlayerNumber));
+                Board.TakeHex(opponentMove, OtherPlayer(Player));
                 Quip("Opponent chose hex: " + opponentMove);
             }
             BestHex = null;
@@ -105,7 +107,7 @@ namespace NegamaxPlayer
             Quip("-------------------------------------");
 
             var boardToCheck = new Board(Board);
-            DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, 1);
+            DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, Player);
 
             if (BestHex != null && Board.HexAt(BestHex).Owner != 0)
             {
@@ -123,7 +125,7 @@ namespace NegamaxPlayer
                 Quip("Had to pick randomly.");
             }
 
-            Board.TakeHex(BestHex, PlayerNumber);
+            Board.TakeHex(BestHex, Player);
             MovesMade++;
             Quip("Selecting hex: " + BestHex);
             return BestHex;
@@ -134,7 +136,7 @@ namespace NegamaxPlayer
         {
             if (currentDepth == 0 || gameState.HasWinner() || gameState.Hexes.All(x => x.Owner != 0))
             {
-                var score = gameState.Score(this.PlayerNumber);
+                var score = gameState.Score(this.Player);
                 return pointOfView * score;
             }
 

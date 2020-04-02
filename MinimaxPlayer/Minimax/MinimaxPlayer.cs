@@ -26,6 +26,10 @@ namespace MinimaxPlayer.Minimax
         public int CostToMoveToUnclaimedNode { get; set; }
         public int CostPerNodeTillEnd { get; set; }
 
+        public override string CodeName()
+        {
+            return "Minnie";
+        }
         public MinimaxPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             PlayerNumber = playerNumber;

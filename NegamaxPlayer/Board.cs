@@ -51,6 +51,16 @@ namespace NegamaxPlayer
             return false;
         }
 
+        public string GetHash()
+        {
+            var code = "";
+            foreach (var hex in Hexes.OrderBy(x => x.Row).ThenBy(x => x.Column))
+            {
+                code = code + "[" + hex.Row + hex.Column + hex.Owner + "]";
+            }
+            return code;
+        }
+
         public int Score(int player)
         {
             var appraiser = new Appraiser();

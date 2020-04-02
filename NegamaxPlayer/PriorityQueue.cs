@@ -25,6 +25,10 @@ namespace NegamaxPlayer
             }
         }
 
+        public bool HasItems()
+        {
+            return queue.Count > 0;
+        }
         public int Clear()
         {
             var count = queue.Count;

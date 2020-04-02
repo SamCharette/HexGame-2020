@@ -107,7 +107,7 @@ namespace NegamaxPlayer
             var boardToCheck = new Board(Board);
             DoNegamax(boardToCheck, CurrentLevels, -9999, 9999, 1);
 
-            if (Board.HexAt(BestHex).Owner != 0)
+            if (BestHex != null && Board.HexAt(BestHex).Owner != 0)
             {
                 RandomMovesMade++;
                 Quip("Um, for some reason I like the idea of taking an already taken spot " + BestHex + " (" + RandomMovesMade + " Random moves made)");
@@ -151,12 +151,13 @@ namespace NegamaxPlayer
             myPath.ForEach(x => queue.Push(x)); 
             theirPath.ForEach(x => queue.Push(x));
             var queuedItemsToSearch = "Queued items: ";
-            for (var i = 0; i < 5; i++)
+            while (childNodes.Count < 5 && queue.HasItems())
             {
                 var hex = queue.Pop();
                 queuedItemsToSearch += hex + " ";
                 childNodes.Add(hex);
             }
+ 
             if (currentDepth == CurrentLevels)
             {
                 Quip(myPath, "My path: ");

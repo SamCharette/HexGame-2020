@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Omu.ValueInjecter;
 using Players;
+using Console = System.Console;
 
 namespace NegamaxPlayer
 {
@@ -11,6 +12,7 @@ namespace NegamaxPlayer
     {
         public List<Hex> Hexes { get; set; }
         public int Size { get; set; }
+        private int CopyNumber = 0;
 
         public Board()
         {
@@ -40,6 +42,8 @@ namespace NegamaxPlayer
                 var hex = new Hex(originalHex);
                 Hexes.Add(hex);
             }
+
+            CopyNumber = original.CopyNumber + 1;
         }
 
         public bool HasWinner()
@@ -79,7 +83,9 @@ namespace NegamaxPlayer
             var opponent = player == 1 ? -1 : 1;
             var neighbourHexes = hex.Neighbours.ToList();
             var neighbours = neighbourHexes.Select(x => HexAt(x.ToTuple())).ToList();
+
             neighbours.RemoveAll(x => x.Owner == opponent);
+
             return neighbours.ToList();
 
         }

@@ -118,7 +118,6 @@ namespace NegamaxPlayer
 
             if (bestLookingHex.Equals(end))
             {
-     
 
                 var preferredPath = new List<Hex>();
 

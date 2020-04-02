@@ -29,6 +29,12 @@ namespace NegamaxPlayer
         public Hex(Hex original)
         {
             SetValues(original.Size, original.Row, original.Column);
+            Owner = original.Owner;
+            Status = original.Status;
+            G = original.G;
+            H = original.H;
+            Parent = original.Parent;
+            RandomValue = Guid.NewGuid();
             GetNeighbours();
         }
 
@@ -131,7 +137,6 @@ namespace NegamaxPlayer
         {
             G = 0;
             H = 0;
-            Owner = 0;
             Status = Status.Untested;
             Parent = null;
         }

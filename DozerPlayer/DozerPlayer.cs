@@ -1,8 +1,7 @@
-﻿using Players.Base;
-using Players.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Players;
 
 namespace DozerPlayer
 {
@@ -64,7 +63,7 @@ namespace DozerPlayer
             costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
             costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
             costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
-            talkative = Convert.ToInt32((string) playerConfig.talkative);
+            Talkative = Convert.ToInt32((string) playerConfig.talkative);
             Name = playerConfig.name;
             RelayPerformanceInformation();
             SetUpInMemoryBoard();
@@ -82,7 +81,7 @@ namespace DozerPlayer
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {
-            if (!_memory.Any())
+            if (!Memory.Any())
             {
                 if (opponentMove != null)
                 {
@@ -94,7 +93,7 @@ namespace DozerPlayer
             {
                 // Let's note the enemy's movement
                 BaseNode enemyHex =
-                    (BaseNode) _memory
+                    (BaseNode) Memory
                         .FirstOrDefault(hex => hex.Row == opponentMove.Item1 
                                                && hex.Column == opponentMove.Item2);
 
@@ -142,16 +141,16 @@ namespace DozerPlayer
         {
             
             // Clear the parents
-            _memory.ForEach(x =>x.Parent = null);
+            Memory.ForEach(x =>x.Parent = null);
             // Set everything to untested again
-            _memory.ForEach(x => x.Status = Status.Untested);
+            Memory.ForEach(x => x.Status = Status.Untested);
 
             Quip("Can't see any open hexes.  Let's make one.");
             // Grab a random opening hex
             BaseNode startingHex = null;
 
             // Get all the hexes that are friendly
-            var availableHexes = _memory
+            var availableHexes = Memory
                 .Where(x => x.Owner != EnemyPlayerNumber);
 
             // Now of these hexes, we'd like to start at our board edge
@@ -166,7 +165,10 @@ namespace DozerPlayer
 
             }
 
-            startingHex = availableStartingHexes.OrderByDescending(x => x.Owner).ThenBy(x => x.uniqueness)
+            startingHex = 
+                availableStartingHexes
+                .OrderByDescending(x => x.Owner)
+                .ThenBy(x => x.RandomValue)
                 .FirstOrDefault();
 
             if (startingHex != null)
@@ -178,7 +180,7 @@ namespace DozerPlayer
 
         private bool IsNodeAtBeginning(BaseNode node)
         {
-            if (_isHorizontal)
+            if (IsHorizontal)
             {
                 return node.Column == 0;
             }
@@ -188,12 +190,12 @@ namespace DozerPlayer
 
         private bool IsNodeAtEnd(BaseNode node)
         {
-            if (_isHorizontal)
+            if (IsHorizontal)
             {
-                return node.Column == _size - 1;
+                return node.Column == Size - 1;
             }
 
-            return node.Row == _size - 1;
+            return node.Row == Size - 1;
         }
 
         private void LookForPath()
@@ -202,9 +204,9 @@ namespace DozerPlayer
             Quip("Looking...");
             
             // GEt the best looking node
-            bestLookingNode = _memory
-                .OrderBy(x => x.F)
-                .ThenBy(x => x.uniqueness)
+            bestLookingNode = Memory
+                .OrderBy(x => x.F())
+                .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
 
             if (bestLookingNode == null)
@@ -232,7 +234,7 @@ namespace DozerPlayer
                 return;
             }
 
-            var neighbours = _memory
+            var neighbours = Memory
                 .Where(x => bestLookingNode.CanWalkTo(x)).ToList();
 
             foreach (var node in neighbours)
@@ -245,7 +247,7 @@ namespace DozerPlayer
                         {
                             node.Parent = bestLookingNode;
                             node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode); ;
-                            node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                            node.H = (IsHorizontal ? Size - 1 - node.Column : Size - 1 - node.Row) * costPerNodeTillEnd;
                         }
                     }
                     else if (node.Status == Status.Untested)
@@ -253,7 +255,7 @@ namespace DozerPlayer
                         node.Status = Status.Open;
                         node.Parent = bestLookingNode;
                         node.G = bestLookingNode.G + (node.Owner == PlayerNumber ? costToMoveToClaimedNode : costToMoveToUnclaimedNode);
-                        node.H = (_isHorizontal ? _size - 1 - node.Column : _size - 1 - node.Row) * costPerNodeTillEnd;
+                        node.H = (IsHorizontal ? Size - 1 - node.Column : Size - 1 - node.Row) * costPerNodeTillEnd;
                     }
                 }
                 
@@ -274,11 +276,11 @@ namespace DozerPlayer
         protected sealed override void SetUpInMemoryBoard()
         {
             Quip("Ok, let's start this up!");
-            _memory = new List<BaseNode>();
+            Memory = new List<BaseNode>();
 
-            for (int row = 0; row < _size; row++)
+            for (int row = 0; row < Size; row++)
             {
-                for (int column = 0; column < _size; column++)
+                for (int column = 0; column < Size; column++)
                 {
                     var newNode = new BaseNode();
                     {
@@ -286,11 +288,11 @@ namespace DozerPlayer
                         newNode.Column = column;
                         newNode.Owner = 0;
                         newNode.Status = Status.Untested;
-                        newNode.H = PlayerNumber == 1 ? _size - 1 - column : _size - 1 - row;
-                        newNode.uniqueness = Guid.NewGuid();
+                        newNode.H = PlayerNumber == 1 ? Size - 1 - column : Size - 1 - row;
+                        newNode.RandomValue = Guid.NewGuid();
 
                     }
-                    _memory.Add(newNode);
+                    Memory.Add(newNode);
                 }
             }
         }

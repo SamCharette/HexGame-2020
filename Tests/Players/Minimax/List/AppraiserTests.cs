@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
-using Players.Common;
+using Players;
 
 namespace Tests.Players.Minimax.List
 {

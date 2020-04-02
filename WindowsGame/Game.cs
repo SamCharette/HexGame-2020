@@ -11,10 +11,8 @@ using System.Xml;
 using WindowsGame.Hexagonal;
 using AnimatedGif;
 using Engine;
-using Engine.Hexagonal;
 using Players;
 using Newtonsoft.Json;
-using Players.Common;
 using PlaybackPlayer;
 
 namespace WindowsGame

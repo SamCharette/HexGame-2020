@@ -6,11 +6,11 @@ using HexLibrary;
 using HumanPlayer;
 using MinimaxPlayer.Minimax.List;
 using MinimaxPlayer.Minimax.Matrix;
+using NegamaxPlayer;
 using PlaybackPlayer;
 using Players;
-using Players.Base;
-using Players.Common;
 using RandomPlayer;
+using Hex = HexLibrary.Hex;
 
 namespace Engine
 {
@@ -158,6 +158,13 @@ namespace Engine
 
                     break;
 
+                case "Negamax AI":
+                    if (playerNumber == 1)
+                        Player1 = new Negamax(playerNumber, Size, playerConfig);
+                    else
+                        Player2 = new Negamax(playerNumber, Size, playerConfig);
+
+                    break;
                 default:
                     if (playerNumber == 1)
                         Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);

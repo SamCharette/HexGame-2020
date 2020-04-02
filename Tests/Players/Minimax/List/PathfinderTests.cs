@@ -6,7 +6,7 @@ using System.Text;
 using MinimaxPlayer.Minimax;
 using MinimaxPlayer.Minimax.List;
 using Omu.ValueInjecter;
-using Players.Common;
+using Players;
 
 namespace Tests.Players.Minimax.List
 {

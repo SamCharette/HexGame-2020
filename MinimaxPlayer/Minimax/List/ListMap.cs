@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using Omu.ValueInjecter;
-using Players.Common;
+using Players;
 
 namespace MinimaxPlayer.Minimax.List
 {

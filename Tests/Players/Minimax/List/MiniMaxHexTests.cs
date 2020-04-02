@@ -7,7 +7,7 @@ using Microsoft.VisualBasic;
 using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
-using Players.Common;
+using Players;
 
 namespace Tests.Players.Minimax.List
 {

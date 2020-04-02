@@ -1,4 +1,4 @@
-﻿namespace MinimaxPlayer.Minimax
+﻿namespace Players
 {
     public enum AxialDirections
     {

@@ -6,7 +6,7 @@ using System.Xml;
 using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using Omu.ValueInjecter;
-using Players.Common;
+using Players;
 
 namespace Tests.Players.Minimax.List
 {

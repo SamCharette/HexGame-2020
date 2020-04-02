@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Players;
 
-namespace MinimaxPlayer.Minimax.List
+namespace NegamaxPlayer
 {
     /*
      * This class is what will find a path from one side to the other
      */
     public class Pathfinder
     {
-        private ListMap _searchSpace;
-        private PlayerType _playerSearchingFor;
+        private Board _searchSpace;
+        private int _playerSearchingFor;
         private bool IsLogging;
-        private PlayerType opponent;
+        private int opponent;
         private int costPerFriendlyNode;
         private int costPerOpenNode;
         private int costPerNodeLeft;
         private string Log;
 
-        public Pathfinder(ListMap searchThis, 
-            PlayerType searchForThisPlayer, 
+        public Pathfinder(Board searchThis, 
+            int searchForThisPlayer, 
             int friendlyCost = 0,
             int openCost = 20,
             int costPerNodeTillEnd = 10,
@@ -36,39 +36,35 @@ namespace MinimaxPlayer.Minimax.List
         }
 
      
-        public List<ListHex> GetPathForPlayer()
+        public List<Hex> GetPathForPlayer()
         {
             //ClearLog();
-            foreach (var hex in _searchSpace.Board)
+            foreach (var hex in _searchSpace.Hexes)
             {
                 hex.ClearPathingVariables();
             }
 
-            opponent = _playerSearchingFor == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
-            //AddLogLine(" ============ Starting new search for " + _playerSearchingFor);
+            opponent = _playerSearchingFor == 1 ? -1 : 1;
+       
             var startHexes = GetStartingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
             var endHexes = GetEndingHexes(_playerSearchingFor).OrderBy(x => x.RandomValue);
-            var path = new List<ListHex>();
+            var path = new List<Hex>();
 
             var pathEase = _searchSpace.Size * _searchSpace.Size * costPerOpenNode;
-            //AddLogLine("Need to move around " + _searchSpace.Board.Count(x => x.Owner == opponent) + " hexes.");
-            //_searchSpace.Board.Where(x => x.Owner == opponent).ToList().ForEach(x => AddLog(x + " "));
-            //AddLogLine("");
-
+            
             foreach (var startSpot in startHexes)
             {
            
                 foreach (var endSpot in endHexes)
                 {
-                    //AddLogLine("Best score is " + pathEase);
-                    //AddLogLine("---------- Searching between " + startSpot + " and " + endSpot);
-                    foreach (var hex in _searchSpace.Board)
+                    foreach (var hex in _searchSpace.Hexes)
                     {
                         hex.ClearPathingVariables();
                     }
 
-                    startSpot.G = startSpot.Owner == PlayerType.White ? costPerOpenNode : costPerFriendlyNode;
-                    var newPath = PathBetween(startSpot, endSpot, pathEase);
+                    startSpot.G = startSpot.Owner == 0 ? costPerOpenNode : costPerFriendlyNode;
+                    var newPath = PathBetween(startSpot, endSpot, pathEase).ToList();
+         
 
                     newPath = newPath.OrderByDescending(x => x.F()).ToList();
                     if (newPath.Any() && ((newPath.First().F() < pathEase) 
@@ -76,49 +72,38 @@ namespace MinimaxPlayer.Minimax.List
                     {
                         pathEase = newPath.First().F();
                         path = newPath;
-                        //AddLogLine("");
-                        //AddLogLine("(" + path.Count + ") Better path found with score : " + pathEase);
-                        //AddLog("Path found : ");
-                        //newPath.ForEach(x => AddLog(" " + x));
-                        //AddLogLine("");
                     }
                 }
             }
-            //AddLogLine("---------- ");
-            //AddLogLine("Final score is " + pathEase);
-            //AddLog("Path found : ");
-            //path.ForEach(x => AddLog(" " + x));
-            //AddLogLine("");
-            //OutputLogToConsole();
             return path;
         }
 
-        public List<ListHex> GetStartingHexes(PlayerType player)
+        public List<Hex> GetStartingHexes(int player)
         {
-            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
-            if (player == PlayerType.Blue)
+            var opponenNumber = player == 1 ? -1 : 1;
+            if (player == 1)
             {
-                return _searchSpace.Board.Where(x => x.Row == 0 && x.Owner != opponent).ToList();
+                return _searchSpace.Hexes.Where(x => x.Row == 0 && x.Owner != opponenNumber).ToList();
             }
-            return _searchSpace.Board.Where(x => x.Column == 0 && x.Owner != opponent).ToList();
+            return _searchSpace.Hexes.Where(x => x.Column == 0 && x.Owner != opponenNumber).ToList();
 
         }
 
-        public List<ListHex> GetEndingHexes(PlayerType player)
+        public List<Hex> GetEndingHexes(int player)
         {
-            var opponent = player == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
-            if (player == PlayerType.Blue)
+            var opponentNumber = player == 1 ? -1 : 1;
+            if (player == 1)
             {
-                return _searchSpace.Board.Where(x => x.Row == _searchSpace.Size - 1 && x.Owner != opponent).ToList();
+                return _searchSpace.Hexes.Where(x => x.Row == _searchSpace.Size - 1 && x.Owner != opponentNumber).ToList();
             }
-            return _searchSpace.Board.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != opponent).ToList();
+            return _searchSpace.Hexes.Where(x => x.Column ==  _searchSpace.Size - 1 && x.Owner != opponentNumber).ToList();
 
         }
 
-        public List<ListHex> PathBetween(ListHex start, ListHex end, int currentBest)
+        public List<Hex> PathBetween(Hex start, Hex end, int currentBest)
         {
             // Get the best looking node
-            var bestLookingHex = _searchSpace.Board
+            var bestLookingHex = _searchSpace.Hexes
                 .OrderBy(x => x.F())
                 .ThenBy(x => x.RandomValue)
                 .FirstOrDefault(z => z.Status == Status.Open);
@@ -128,13 +113,13 @@ namespace MinimaxPlayer.Minimax.List
                 if (start.Status == Status.Untested || start.Status == Status.Open)
                     bestLookingHex = start;
                 else
-                    return new List<ListHex>();
+                    return new List<Hex>();
             }
 
             if (bestLookingHex.Equals(end))
             {
-                AddLogLine(bestLookingHex + " is at end.");
-                var preferredPath = new List<ListHex>();
+
+                var preferredPath = new List<Hex>();
 
                 var parent = bestLookingHex;
                 while (parent != null)
@@ -157,7 +142,7 @@ namespace MinimaxPlayer.Minimax.List
 
 
             var neighbours =  _searchSpace.GetNeighboursFrom(bestLookingHex, _playerSearchingFor);
-            AddLog(neighbours.Count + " neighbours to examine.");
+
             foreach (var node in neighbours)
             {
                 if (node.Owner != opponent)
@@ -176,7 +161,7 @@ namespace MinimaxPlayer.Minimax.List
                                          : costPerOpenNode);
                             
                             node.H =
-                                (_playerSearchingFor == PlayerType.Blue 
+                                (_playerSearchingFor == 1 
                                     ? _searchSpace.Size - 1 - node.Row 
                                     : _searchSpace.Size - 1 - node.Column) *  costPerNodeLeft;
                         }
@@ -190,7 +175,7 @@ namespace MinimaxPlayer.Minimax.List
                                      ? costPerFriendlyNode 
                                      : costPerOpenNode);
 
-                        node.H = (_playerSearchingFor == PlayerType.Blue 
+                        node.H = (_playerSearchingFor == 1 
                                      ? _searchSpace.Size - 1 - node.Row 
                                      : _searchSpace.Size - 1 - node.Column) * costPerNodeLeft;
                     }
@@ -201,12 +186,12 @@ namespace MinimaxPlayer.Minimax.List
             return PathBetween(start, end, currentBest);
         }
 
-        public void SetMap(ListMap map)
+        public void SetMap(Board map)
         {
             _searchSpace = map;
         }
 
-        public void SetPlayer(PlayerType player)
+        public void SetPlayer(int player)
         {
             _playerSearchingFor = player;
         }

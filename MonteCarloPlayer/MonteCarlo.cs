@@ -30,6 +30,23 @@ namespace MonteCarloPlayer
             CurrentBestMove = null;
 
 
+            // Monte Carlo has 4 main parts
+
+            // 1) Selection
+            // Select children until a leaf is found (one where no playout has been made for.
+
+            // 2) Expansion
+            // Unless the leaf found in 1 ends the game in a win or loss, create one (or more)
+            // child nodes (moves)
+
+            // 3) Simulation
+            // For the child(ren) above, play out games by itself until a win or loss is found
+
+            // 4) Backpropagation
+            // use the result of 3 to update the nodes from the end to the root
+
+
+            // As that goes on, the node with the best score (most wins) is the best move to make
 
             MovesMade++;
             return CheckBestMove();

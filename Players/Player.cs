@@ -28,7 +28,7 @@ namespace Players
         }
 
         public string Name { get; set; }
-        public int PlayerNumber { get; set; }
+        protected int PlayerNumber { get; set; }
         protected int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
 
         protected bool IsHorizontal => PlayerNumber == 2;

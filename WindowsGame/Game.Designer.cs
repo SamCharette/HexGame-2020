@@ -45,6 +45,7 @@
             this.lblRedWins = new System.Windows.Forms.Label();
             this.numberOfGamesToPlay = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblCurrentPlayer = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -169,7 +170,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1213, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(1213, 28);
             this.menuStrip1.TabIndex = 23;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -181,7 +182,7 @@
             this.reloadConfigurationToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // saveGameToolStripMenuItem
@@ -217,7 +218,7 @@
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
             this.helpToolStripMenuItem.Text = "Help";
             // 
             // aboutToolStripMenuItem
@@ -334,11 +335,23 @@
             this.label1.TabIndex = 33;
             this.label1.Text = "# Games";
             // 
+            // lblCurrentPlayer
+            // 
+            this.lblCurrentPlayer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblCurrentPlayer.AutoSize = true;
+            this.lblCurrentPlayer.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCurrentPlayer.Location = new System.Drawing.Point(35, 572);
+            this.lblCurrentPlayer.Name = "lblCurrentPlayer";
+            this.lblCurrentPlayer.Size = new System.Drawing.Size(148, 25);
+            this.lblCurrentPlayer.TabIndex = 34;
+            this.lblCurrentPlayer.Text = "Current Player: ";
+            // 
             // Game
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1213, 676);
+            this.Controls.Add(this.lblCurrentPlayer);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numberOfGamesToPlay);
             this.Controls.Add(this.lblRedWins);
@@ -406,5 +419,6 @@
         private System.Windows.Forms.Label lblRedWins;
         private System.Windows.Forms.TextBox numberOfGamesToPlay;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblCurrentPlayer;
     }
 }

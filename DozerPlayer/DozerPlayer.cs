@@ -43,6 +43,11 @@ namespace DozerPlayer
             get { return PlayerNumber == 1 ? 2 : 1; }
         }
 
+        public override string CodeName()
+        {
+            return "Dozer";
+        }
+
         public new void GameOver(int winningPlayerNumber)
         {
             base.GameOver(winningPlayerNumber);

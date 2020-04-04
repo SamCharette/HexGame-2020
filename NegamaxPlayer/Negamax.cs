@@ -35,6 +35,11 @@ namespace NegamaxPlayer
             }
         }
 
+        public override string CodeName()
+        {
+            return "Naomi";
+        }
+
         private int RandomMovesMade = 0;
 
         public Negamax(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)

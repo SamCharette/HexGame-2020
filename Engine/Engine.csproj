@@ -14,6 +14,7 @@
     <ProjectReference Include="..\HexLibrary\HexLibrary.csproj" />
     <ProjectReference Include="..\HumanPlayer\HumanPlayer.csproj" />
     <ProjectReference Include="..\MinimaxPlayer\MinimaxPlayer.csproj" />
+    <ProjectReference Include="..\MonteCarloPlayer\MonteCarloPlayer.csproj" />
     <ProjectReference Include="..\NegamaxPlayer\NegamaxPlayer.csproj" />
     <ProjectReference Include="..\PlaybackPlayer\PlaybackPlayer.csproj" />
     <ProjectReference Include="..\Players\Players.csproj" />

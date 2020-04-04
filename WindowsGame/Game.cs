@@ -113,7 +113,7 @@ namespace WindowsGame
                         totalMillisecondsPlayer2 =
                             preTurnTotalMillisecondsPlayer2 + playerTurnTimer.ElapsedMilliseconds;
                     }
-                    UpdateTimerValues();
+                    UpdateTimerValues(null, null);
                     Refresh();
 
 
@@ -144,7 +144,11 @@ namespace WindowsGame
         public async Task StartGame()
         {
             gameStartTime = DateTime.Now;
-
+            var timer = new System.Windows.Forms.Timer();
+            timer.Interval = (1000);
+            timer.Tick += new EventHandler(UpdateTimerValues);
+            timer.Start();
+         
             buttonTestBoard.Enabled = false;
             var boardSize = _referee.Size;
             saveGameToolStripMenuItem.Enabled = false;
@@ -178,24 +182,9 @@ namespace WindowsGame
             _playThrough.Add(_graphicsEngine.CreateImage());
 
             // make the edges colourful!
-            foreach (var hex in _board.Hexes)
-            {
-                if (hex.Row == 0 || hex.Row == boardSize - 1)
-                {
-                    ChangeHexColor(hex, _emptyBlueSide);
-                }
-                if (hex.Column == 0 || hex.Column == boardSize - 1)
-                {
-                    ChangeHexColor(hex, _emptyRedSide);
-                }
-                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
-                    || hex.Column == boardSize - 1 && hex.Row == 0 || hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
-                {
-                    ChangeHexColor(hex, _emptyCorner);
-                }
-            }
+            ColourBoard(boardSize);
 
-       
+            lblCurrentPlayer.Text = "Current Player: Blue";
 
             try
             {
@@ -229,14 +218,16 @@ namespace WindowsGame
                     {
                         totalMillisecondsPlayer1 = preTurnTotalMillisecondsPlayer1 + playerTurnTimer.ElapsedMilliseconds;
                         preTurnTotalMillisecondsPlayer1 = totalMillisecondsPlayer1;
+                        lblCurrentPlayer.Text = "Current Player: Red";
                     }
                     else
                     {
                         totalMillisecondsPlayer2 = preTurnTotalMillisecondsPlayer2 + playerTurnTimer.ElapsedMilliseconds;
                         preTurnTotalMillisecondsPlayer2 = totalMillisecondsPlayer2;
+                        lblCurrentPlayer.Text = "Current Player: Blue";
                     }
 
-                    UpdateTimerValues();
+                    UpdateTimerValues(null,null);
                     Refresh();
 
                     if (hexTaken != null)
@@ -291,11 +282,35 @@ namespace WindowsGame
          
         }
 
-        private void UpdateTimerValues()
+        private void ColourBoard(int boardSize)
+        {
+            foreach (var hex in _board.Hexes)
+            {
+                if (hex.Row == 0 || hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, _emptyBlueSide);
+                }
+
+                if (hex.Column == 0 || hex.Column == boardSize - 1)
+                {
+                    ChangeHexColor(hex, _emptyRedSide);
+                }
+
+                if (hex.Column == 0 && hex.Row == 0 || hex.Column == 0 && hex.Row == boardSize - 1
+                                                    || hex.Column == boardSize - 1 && hex.Row == 0 ||
+                                                    hex.Column == boardSize - 1 && hex.Row == boardSize - 1)
+                {
+                    ChangeHexColor(hex, _emptyCorner);
+                }
+            }
+        }
+
+        private void UpdateTimerValues(object thing, EventArgs args)
         {
             lblBlueTime.Text =  "Blue Time: " + FormatTimeSpan(TimeSpan.FromMilliseconds(totalMillisecondsPlayer1));
             lblRedTime.Text = "Red Time: " + FormatTimeSpan(TimeSpan.FromMilliseconds(totalMillisecondsPlayer2));
             lblTotalTime.Text = "Total Time: " + FormatTimeSpan(DateTime.Now - gameStartTime);
+            Refresh();
         }
 
         private static string FormatTimeSpan(TimeSpan timeSpan)

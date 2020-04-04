@@ -34,7 +34,11 @@ namespace Players
         protected bool IsHorizontal => PlayerNumber == 2;
 
         public event EventHandler RelayInformation;
-
+        public virtual string CodeName()
+        {
+            return "Base player";
+        }
+        
         protected void RelayPerformanceInformation()
         {
             var args = new PerformanceEventArgs

@@ -6,6 +6,7 @@ using HexLibrary;
 using HumanPlayer;
 using MinimaxPlayer.Minimax.List;
 using MinimaxPlayer.Minimax.Matrix;
+using MonteCarloPlayer;
 using NegamaxPlayer;
 using PlaybackPlayer;
 using Players;
@@ -163,6 +164,13 @@ namespace Engine
                         Player1 = new Negamax(playerNumber, Size, playerConfig);
                     else
                         Player2 = new Negamax(playerNumber, Size, playerConfig);
+
+                    break;
+                case "MonteCarlo":
+                    if (playerNumber == 1)
+                        Player1 = new MonteCarlo(playerNumber, Size, playerConfig);
+                    else
+                        Player2 = new MonteCarlo(playerNumber, Size, playerConfig);
 
                     break;
                 default:

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Data;
 using Players;
 
 namespace DozerPlayer
@@ -68,8 +69,8 @@ namespace DozerPlayer
             costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
             costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
             costToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
-            Talkative = Convert.ToInt32((string) playerConfig.talkative);
-            Name = playerConfig.name;
+            Talkative = Convert.ToInt32((string) playerConfig.Talkative);
+            Name = playerConfig.Name;
             RelayPerformanceInformation();
             SetUpInMemoryBoard();
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Data;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,8 +29,8 @@ namespace Players
         }
 
         public string Name { get; set; }
-        protected int PlayerNumber { get; set; }
-        protected int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
+        public int PlayerNumber { get; set; }
+        public int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
 
         protected bool IsHorizontal => PlayerNumber == 2;
 
@@ -60,8 +61,8 @@ namespace Players
 
         protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
         {
-            var setting = playerConfig?.settings?.FirstOrDefault(x => x.key == settingName);
-            var parseWorked = int.TryParse(setting?.value, out var value);
+            var setting = playerConfig?.Settings?.FirstOrDefault(x => x.Key == settingName);
+            var parseWorked = int.TryParse(setting?.Value, out var value);
             if (parseWorked)
                 return value;
             return defaultValue;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Data;
 using DozerPlayer;
 using HexLibrary;
 using HumanPlayer;
@@ -120,7 +121,7 @@ namespace Engine
 
         public void AddPlayer(Config playerConfig, int playerNumber)
         {
-            switch (playerConfig.type)
+            switch (playerConfig.Type)
             {
                 case "Human":
                     if (playerNumber == 1)
@@ -175,9 +176,9 @@ namespace Engine
                     break;
                 default:
                     if (playerNumber == 1)
-                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
+                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, new Config());
                     else
-                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
+                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, new Config());
                     break;
             }
         }

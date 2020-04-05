@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Data;
 using MathNet.Numerics.LinearAlgebra;
 using Players;
 
@@ -23,7 +24,7 @@ namespace MinimaxPlayer.Minimax.Matrix
             PlayerNumber = playerNumber;
             Me = PlayerNumber == 1 ? Players.PlayerType.Blue : Players.PlayerType.Red;
             MaxLevels = GetDefault(playerConfig, "maxLevels", 20);
-            Name = playerConfig.name;
+            Name = playerConfig.Name;
             Board = new MatrixHex[Size,Size];
             for (int row = 0; row < Size; row++)
             {

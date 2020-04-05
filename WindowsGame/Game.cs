@@ -11,9 +11,11 @@ using System.Xml;
 using WindowsGame.Hexagonal;
 using AnimatedGif;
 using Engine;
+using LiteDB;
 using Players;
 using Newtonsoft.Json;
 using PlaybackPlayer;
+using Data;
 
 namespace WindowsGame
 {
@@ -34,7 +36,6 @@ namespace WindowsGame
         private readonly Color _emptyRedSide = Color.MistyRose;
         private readonly Color _lastTakenByPlayer1Colour = Color.Blue;
         private readonly Color _lastTakenByPlayer2Colour = Color.Red;
-        private List<Config> _playerConfigs;
         private Int64 totalMillisecondsPlayer1 = 0;
         private Int64 totalMillisecondsPlayer2 = 0;
         private Int64 preTurnTotalMillisecondsPlayer1 = 0;
@@ -45,12 +46,21 @@ namespace WindowsGame
         private int blueWins = 0;
         private int redWins = 0;
         private string currentGameSaveDirectory;
+        private LiteDatabase db;
+        private ILiteCollection<Config> playerConfigs;
+        private Data.Game CurrentGame { get; set; }
 
         public Game()
         {
      
             InitializeComponent();
+            OpenDatabase();
             SetUpPlayers();
+        }
+
+        private void OpenDatabase()
+        {
+            db = new LiteDatabase(Path.Combine(Application.StartupPath, "Database.db"));
         }
 
         private void SetUpPlayers()
@@ -59,20 +69,19 @@ namespace WindowsGame
             comboBoxPlayer2Type.Items.Clear();
             player1Metrics.Text = "";
             player2Metrics.Text = "";
-            var appPath = Application.StartupPath;
-            var configPath = Path.Combine(appPath, "Config\\players.json");
-            _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
+
+            playerConfigs = db.GetCollection<Config>("PlayerConfigs");
 
             int count = 0;
-            foreach (var player in _playerConfigs)
+            foreach (var player in playerConfigs.FindAll())
             {
-                comboBoxPlayer1Type.Items.Add(player.name);
-                if (player.playerNumber == "1")
+                comboBoxPlayer1Type.Items.Add(player.Name);
+                if (player.PlayerNumber == "1")
                 {
                     comboBoxPlayer1Type.SelectedItem = comboBoxPlayer1Type.Items[count];
                 }
-                comboBoxPlayer2Type.Items.Add(player.name);
-                if (player.playerNumber == "2")
+                comboBoxPlayer2Type.Items.Add(player.Name);
+                if (player.PlayerNumber == "2")
                 {
                     comboBoxPlayer2Type.SelectedItem = comboBoxPlayer2Type.Items[count];
                 }
@@ -127,16 +136,27 @@ namespace WindowsGame
         }
         public async Task Play()
         {
+            var game = new Data.Game();
+            game.BoardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
+            game.Player1 = playerConfigs.FindOne(x => x.Name == comboBoxPlayer1Type.SelectedItem);
+            game.Player2 = playerConfigs.FindOne(x => x.Name == comboBoxPlayer2Type.SelectedItem);
+
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
             //_referee.GameOver += GameOver;
             //_referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
-            _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
+            _referee.AddPlayer(game.Player1, 1);
             _referee.Player1.RelayInformation += PerformanceInformationRelayed;
-            _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
+            _referee.AddPlayer(game.Player2, 2);
             _referee.Player2.RelayInformation += PerformanceInformationRelayed;
             player1Metrics.Text = "";
             player2Metrics.Text = "";
+
+            game.StartTime = DateTime.Now;
+            var games = db.GetCollection<Data.Game>("Games");
+            games.Insert(game);
+
+            CurrentGame = game;
             await StartGame();
         }
 
@@ -188,7 +208,7 @@ namespace WindowsGame
 
             try
             {
-
+                var moveNumber = 1;
                 while (_referee.WinningPlayer == null)
                 {
 
@@ -213,6 +233,17 @@ namespace WindowsGame
                     var playerNumber = _referee.CurrentPlayer().PlayerNumber;
                     var hexTaken = await (_referee.TakeTurn(_referee.CurrentPlayer()));
                     playerTurnTimer.Stop();
+
+                    var move = new Data.Move();
+                    move.MoveNumber = moveNumber;
+                    move.PlayerNumber = playerNumber;
+                    move.Row = hexTaken.Item1;
+                    move.Column = hexTaken.Item2;
+                    move.SecondsTaken = (int)playerTurnTimer.ElapsedMilliseconds / 1000;
+                    // TODO Get the player's notes
+                    CurrentGame.Moves.Insert(move);
+
+                    db.GetCollection<Data.Game>("Games").Update(CurrentGame);
 
                     if (playerNumber == 1)
                     {
@@ -249,7 +280,8 @@ namespace WindowsGame
 
                         _playThrough.Add(_graphicsEngine.CreateImage());
                     }
-                   
+
+                    moveNumber++;
                     this.Refresh();
                 }
 

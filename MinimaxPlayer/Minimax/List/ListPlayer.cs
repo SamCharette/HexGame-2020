@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Data;
 using Players;
 
 namespace MinimaxPlayer.Minimax.List
@@ -54,10 +55,10 @@ namespace MinimaxPlayer.Minimax.List
             CostPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 25);
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
-            Talkative = Convert.ToInt32((string) playerConfig.talkative);
+            Talkative = Convert.ToInt32((string) playerConfig.Talkative);
 
 
-            Name = playerConfig.name;
+            Name = playerConfig.Name;
             MovesMade = 0;
 
             Startup();

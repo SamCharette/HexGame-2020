@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace Data
 {
    
     public class Setting
     {
-        public string Name;
-        public string Value;
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
 
     }
 }

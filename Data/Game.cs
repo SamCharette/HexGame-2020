@@ -6,6 +6,7 @@ namespace Data
 {
     public class Game
     {
+        public int Id { get; set; }
         public Config Player1 { get; set; }
         public Config Player2 { get; set; }
         public int BoardSize { get; set; }

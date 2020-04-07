@@ -45,15 +45,21 @@ namespace WindowsGame
         private int redWins = 0;
         private string currentGameSaveDirectory;
         private List<Config> playerConfigs;
-    
+        private ApplicationDbContext db;
         private Data.Game CurrentGame { get; set; }
 
         public Game()
         {
      
             InitializeComponent();
+            SetupDatabase();
             SetupPlayerConfigs();
             SetUpPlayers();
+        }
+
+        private void SetupDatabase()
+        {
+            db = new ApplicationDbContext();
         }
 
 
@@ -86,8 +92,9 @@ namespace WindowsGame
                         config.Settings.Add(newSetting);
                     }
                 }
-                   
-                 
+
+                db.PlayerConfigurations.Add(config);
+                db.SaveChanges();
             }
         }
         private void SetUpPlayers()

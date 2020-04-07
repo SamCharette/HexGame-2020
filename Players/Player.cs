@@ -61,10 +61,13 @@ namespace Players
 
         protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
         {
-            var setting = playerConfig?.Settings?.FirstOrDefault(x => x.Key == settingName);
-            var parseWorked = int.TryParse(setting?.Value, out var value);
-            if (parseWorked)
-                return value;
+            if (playerConfig != null)
+            {
+                var setting = playerConfig.Settings.FirstOrDefault(x => x.Name == settingName);
+                var parseWorked = int.TryParse(setting?.Value, out var value);
+                if (parseWorked)
+                    return value;
+            }
             return defaultValue;
         }
 

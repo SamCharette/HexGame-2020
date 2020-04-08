@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
+using Microsoft.Extensions.Configuration;
 
 namespace WindowsGame
 {
@@ -11,9 +13,17 @@ namespace WindowsGame
         [STAThread]
         private static void Main()
         {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("Config.json");
+
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("Config.json", true, true)
+                .Build();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Game());
+            Application.Run(new Game(config));
         }
     }
 }

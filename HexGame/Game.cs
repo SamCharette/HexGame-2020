@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml;
 using WindowsGame.Hexagonal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace WindowsGame
 {
@@ -48,10 +49,11 @@ namespace WindowsGame
         private List<Config> playerConfigs;
         private ApplicationDbContext db;
         private Data.Game CurrentGame { get; set; }
+        private IConfiguration Configuration { get; set; }
 
-        public Game()
+        public Game(IConfiguration config)
         {
-     
+            Configuration = config;
             InitializeComponent();
             SetupDatabase();
             SetUpPlayers();
@@ -59,7 +61,7 @@ namespace WindowsGame
 
         private void SetupDatabase()
         {
-            db = new ApplicationDbContext();
+            db = new ApplicationDbContext(Configuration);
         }
 
 
@@ -123,8 +125,8 @@ namespace WindowsGame
                 count++;
             }
 
-            textBoxHexBoardSize.Text = @"7";
-            numberOfGamesToPlay.Text = @"1";
+            textBoxHexBoardSize.Text = Configuration["boardSize"];
+            numberOfGamesToPlay.Text = Configuration["numberOfGamesToPlay"];
             lblGamesPlayed.Text = "Games Played: ";
             lblBlueWIns.Text = "Blue Wins: ";
             lblRedWins.Text = "Red Wins: ";

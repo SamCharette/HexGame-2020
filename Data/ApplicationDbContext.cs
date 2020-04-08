@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext()
+        private readonly IConfiguration appConfiguration;
+        public ApplicationDbContext(IConfiguration config)
         {
+            appConfiguration = config;
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("DataSource=" + Data.Properties.Resources.ConnectionString);
+            optionsBuilder.UseSqlite("DataSource=" + appConfiguration["DataSource"]);
         }
 
         public DbSet<Config> PlayerConfigurations { get; set; }

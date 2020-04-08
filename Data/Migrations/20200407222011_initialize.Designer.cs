@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200407164426_UpdateSettings")]
-    partial class UpdateSettings
+    [Migration("20200407222011_initialize")]
+    partial class initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -117,7 +117,7 @@ namespace Data.Migrations
                     b.Property<int?>("ConfigId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Key")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")

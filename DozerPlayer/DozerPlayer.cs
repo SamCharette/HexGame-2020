@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Data;
 using Players;
 
@@ -33,6 +34,16 @@ namespace DozerPlayer
 
     public class DozerPlayer : Player
     {
+
+        // Player default information
+        private new string _type = "A* Pathfinder";
+        private new string _codeName = "Dozer";
+        private new string _version = "Dozer v1-";
+        private new string _defaultName = "Dozer";
+        private new string _description =
+            "An AI that looks for the best path from where it's at and keeps trying to get to the end without deviating more than it has to.";
+
+
         private List<BaseNode> _preferredPath;
         private bool havePath = false;
         private BaseNode nodeIWant;
@@ -44,10 +55,6 @@ namespace DozerPlayer
             get { return PlayerNumber == 1 ? 2 : 1; }
         }
 
-        public override string CodeName()
-        {
-            return "Dozer";
-        }
 
         public new void GameOver(int winningPlayerNumber)
         {
@@ -63,8 +70,11 @@ namespace DozerPlayer
             _preferredPath = null;
         }
        
+ 
         public DozerPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
+            SetVersionNumber("DozerPlayer.dll");
+
             _preferredPath = new List<BaseNode>();
             costPerNodeTillEnd = GetDefault(playerConfig, "costPerNodeTillEnd", 1000);
             costToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 100);
@@ -75,15 +85,7 @@ namespace DozerPlayer
             SetUpInMemoryBoard();
         }
 
-       
-        public override string PlayerType()
-        {
-            return "Dozer";
-        }
-        public bool IsAvailableToPlay()
-        {
-            return true;
-        }
+        
 
         public override Tuple<int, int> SelectHex(Tuple<int, int> opponentMove)
         {

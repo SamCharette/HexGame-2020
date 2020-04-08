@@ -16,8 +16,8 @@ namespace Tests.Players.Minimax.List
         {            
             var map = new ListMap(11);
 
-            var bluePlayer = new ListPlayer(1, map.Size, new Config());
-            var redPlayer = new ListPlayer(2, map.Size, new Config());
+            var bluePlayer = new MinimaxPlayer.Minimax.MinimaxPlayer(1, map.Size, new Config());
+            var redPlayer = new MinimaxPlayer.Minimax.MinimaxPlayer(2, map.Size, new Config());
             map.TakeHex(PlayerType.Red, 1, 1);
             map.TakeHex(PlayerType.Red, 1, 2);
             map.TakeHex(PlayerType.Red, 1, 3);

@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using WindowsGame.Hexagonal;
+using Microsoft.EntityFrameworkCore;
 
 namespace WindowsGame
 {
@@ -53,7 +54,6 @@ namespace WindowsGame
      
             InitializeComponent();
             SetupDatabase();
-            SetupPlayerConfigs();
             SetUpPlayers();
         }
 
@@ -86,7 +86,7 @@ namespace WindowsGame
                     {
                         var newSetting = new Setting
                         {
-                            Name = setting.Name,
+                            Key = setting.Key,
                             Value = setting.Value
                         };
                         config.Settings.Add(newSetting);
@@ -104,12 +104,8 @@ namespace WindowsGame
             player1Metrics.Text = "";
             player2Metrics.Text = "";
 
-            var appPath = Application.StartupPath;
-            var configPath = Path.Combine(appPath, "Config\\players.json");
-
-            playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
-
-
+            playerConfigs = db.PlayerConfigurations.Include(x => x.Settings).ToList();
+            
             int count = 0;
             foreach (var player in playerConfigs)
             {

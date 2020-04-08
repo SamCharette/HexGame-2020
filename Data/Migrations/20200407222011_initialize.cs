@@ -59,6 +59,8 @@ namespace Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    Key = table.Column<string>(nullable: true),
+                    Value = table.Column<string>(nullable: true),
                     ConfigId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>

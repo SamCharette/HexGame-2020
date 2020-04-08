@@ -20,8 +20,8 @@ namespace Tests.Players.Minimax.List
         public void GetPathForPlayerTest()
         {
             var map = new ListMap(11);
-            var player = new ListPlayer(1, 11, new Config());
-            var redPlayer = new ListPlayer(2, 11, new Config());
+            var player = new MinimaxPlayer.Minimax.MinimaxPlayer(1, 11, new Config());
+            var redPlayer = new MinimaxPlayer.Minimax.MinimaxPlayer(2, 11, new Config());
 
             var pathfinder = new Pathfinder(map, player.Me);
 

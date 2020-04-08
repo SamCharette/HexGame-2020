@@ -11,6 +11,15 @@ namespace NegamaxPlayer
 {
     public class Negamax : Player
     {
+
+        // Player default information
+        private new string _type = "Negamax";
+        private new string _codeName = "Naomi";
+        private new string _version = "Negamax v1-";
+        private new string _defaultName = "Naomi";
+        private new string _description =
+            "Uses A* for pathfinding and Negamax with Alpha Beta pruning to make choices.  Always stronger than Dozer and Minnie.";
+
         public Board Board { get; set; }
         public int MaxDepth { get; set; }
         public Tuple<int,int> BestHex { get; set; }
@@ -36,16 +45,12 @@ namespace NegamaxPlayer
             }
         }
 
-        public override string CodeName()
-        {
-            return "Naomi";
-        }
 
         private int RandomMovesMade = 0;
 
         public Negamax(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
-
+            SetVersionNumber("NegamaxPlayer.dll");
             Setup(boardSize, playerNumber, playerConfig);
         }
 
@@ -210,9 +215,6 @@ namespace NegamaxPlayer
             return alpha;
         }
 
-        public override string PlayerType()
-        {
-            return "Negamax AI";
-        }
+      
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,10 @@ namespace Data
     {
         public ApplicationDbContext()
         {
-
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(@"DataSource=HexGameDatabase.db;");
+            optionsBuilder.UseSqlite("DataSource=" + Data.Properties.Resources.ConnectionString);
         }
 
         public DbSet<Config> PlayerConfigurations { get; set; }

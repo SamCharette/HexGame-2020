@@ -115,7 +115,7 @@ namespace Data.Migrations
                     b.Property<int?>("ConfigId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Key")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")

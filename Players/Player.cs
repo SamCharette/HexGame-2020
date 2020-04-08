@@ -3,18 +3,32 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 
 namespace Players
 {
     public abstract class Player
     {
+        protected string _name;
+        protected string _codeName;
+        protected string _type;
+        protected string _defaultName;
+        protected string _version;
+        protected string _description;
+
         protected List<BaseNode> Memory { get; set; }
         protected int Size { get; set; }
         protected ConcurrentDictionary<string, int> Monitors { get; set; }
         protected int Talkative { get; set; }
         private string Log { get; set; }
-        
+        protected void SetVersionNumber(string assemblyName)
+        {
+            Assembly assembly = Assembly.LoadFrom(assemblyName);
+            Version ver = assembly.GetName().Version;
+            _version += ver.Major + "." + ver.Minor + "." + ver.Revision;
+
+        }
         protected Player(int playerNumber, int boardSize, Config playerConfig)
         {
             PlayerNumber = playerNumber;
@@ -28,18 +42,25 @@ namespace Players
             throw new NotImplementedException();
         }
 
-        public string Name { get; set; }
+        public string DefaultName => _defaultName;
+        public string CodeName => _codeName;
+        public string Type => _type;
+        public string Description => _description;
+        public string Version => _version;
+
         public int PlayerNumber { get; set; }
         public int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
 
         protected bool IsHorizontal => PlayerNumber == 2;
 
         public event EventHandler RelayInformation;
-        public virtual string CodeName()
+
+        public string Name
         {
-            return "Base player";
+            get => String.IsNullOrEmpty(_name) ? _defaultName : _name;
+            set => _name = value;
         }
-        
+
         protected void RelayPerformanceInformation()
         {
             var args = new PerformanceEventArgs
@@ -63,7 +84,7 @@ namespace Players
         {
             if (playerConfig != null)
             {
-                var setting = playerConfig.Settings.FirstOrDefault(x => x.Name == settingName);
+                var setting = playerConfig.Settings.FirstOrDefault(x => x.Key == settingName);
                 var parseWorked = int.TryParse(setting?.Value, out var value);
                 if (parseWorked)
                     return value;
@@ -124,13 +145,9 @@ namespace Players
 
         public virtual string PlayerType()
         {
-            return "Base Player";
+            return _codeName;
         }
 
-        public bool IsAvailableToPlay()
-        {
-            return false;
-        }
 
         protected void Quip(string expressionToSay, int level = 1, bool hasNewLine = true)
         {

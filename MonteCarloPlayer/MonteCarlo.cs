@@ -12,6 +12,15 @@ namespace MonteCarloPlayer
 {
     public class MonteCarlo : Player
     {
+
+        // Player default information
+        private new string _type = "Monte Carlo Tree Search";
+        private new string _codeName = "Melece";
+        private new string _version = "MCTS v1-";
+        private new string _defaultName = "Melece";
+        private new string _description =
+            "Uses the Monte Carlo tree search algorithm.";
+
         public Tuple<int,int> CurrentBestMove { get; set; }
         public Matrix<int> Board { get; set; }
 
@@ -186,9 +195,6 @@ namespace MonteCarloPlayer
             NumberOfSecondsForSearch = GetDefault(playerConfig, "maxSearchTime", 60);
         }
 
-        public override string CodeName()
-        {
-            return "Melece";
-        }
+      
     }
 }

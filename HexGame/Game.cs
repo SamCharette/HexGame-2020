@@ -269,13 +269,16 @@ namespace WindowsGame
                     var hexTaken = await (_referee.TakeTurn(_referee.CurrentPlayer()));
                     playerTurnTimer.Stop();
 
-                    var move = new Data.Move();
-                    move.MoveNumber = moveNumber;
-                    move.PlayerNumber = playerNumber;
-                    move.Row = hexTaken.Item1;
-                    move.Column = hexTaken.Item2;
-                    move.SecondsTaken = (int)playerTurnTimer.ElapsedMilliseconds / 1000;
-                    // TODO Get the player's notes
+                    var move = new Data.Move
+                    {
+                        MoveNumber = moveNumber,
+                        PlayerNumber = playerNumber,
+                        Row = hexTaken.Item1,
+                        Column = hexTaken.Item2,
+                        SecondsTaken = (int) playerTurnTimer.ElapsedMilliseconds / 1000,
+                        PlayerNotes = _referee.CurrentPlayer().GetLog()
+                    };
+
                     CurrentGame.Moves.Add(move);
 
            
@@ -337,7 +340,10 @@ namespace WindowsGame
                 {
                     redWins++;
                 }
-                //MessageBox.Show("The winner is " + _referee.WinningPlayer.Name + ", player #" + _referee.WinningPlayer.PlayerNumber, "Winner!");
+
+                CurrentGame.Winner = _referee.WinningPlayer.PlayerNumber;
+                db.Games.Add(CurrentGame);
+                db.SaveChanges();
             }
             catch (Exception e)
             {

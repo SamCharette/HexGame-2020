@@ -105,10 +105,13 @@ namespace Players
             }
         }
 
-        protected virtual string GetLog()
+        public virtual string GetLog(bool clearAfter = true)
         {
             var tempLog = Log;
-            Log = "";
+            if (clearAfter)
+            {
+                Log = "";
+            }
             return tempLog;
         }
 

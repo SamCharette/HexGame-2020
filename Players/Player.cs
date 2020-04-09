@@ -21,7 +21,9 @@ namespace Players
         protected int Size { get; set; }
         protected ConcurrentDictionary<string, int> Monitors { get; set; }
         protected int Talkative { get; set; }
-        private string Log { get; set; }
+        protected string Log { get; set; }
+        protected Config Configuration { get; set; }
+
         protected void SetVersionNumber(string assemblyName)
         {
             Assembly assembly = Assembly.LoadFrom(assemblyName);
@@ -29,11 +31,28 @@ namespace Players
             _version += ver.Major + "." + ver.Minor + "." + ver.Revision;
 
         }
+
+        public string GetInformation()
+        {
+            var info = "Code name: " + _codeName + Environment.NewLine
+                   + "Version: " + _version + Environment.NewLine
+                   + "Type: " + _type + Environment.NewLine
+                   + "Description: " + _description + Environment.NewLine;
+
+            foreach (var setting in Configuration.Settings)
+            {
+                info += setting.Key + ": " + setting.Value + Environment.NewLine;
+            }
+
+            return info;
+        }
         protected Player(int playerNumber, int boardSize, Config playerConfig)
         {
             PlayerNumber = playerNumber;
             Size = boardSize;
             Monitors = new ConcurrentDictionary<string, int>();
+            Configuration = playerConfig;
+            SetVersionNumber(Assembly.GetAssembly(typeof(Player)).ManifestModule.Name);
             RelayPerformanceInformation();
         }
 

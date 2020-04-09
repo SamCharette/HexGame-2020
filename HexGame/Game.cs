@@ -189,7 +189,8 @@ namespace WindowsGame
             player2Metrics.Text = "";
 
             game.StartTime = DateTime.Now;
-
+            game.Player1Info = _referee.Player1.GetInformation();
+            game.Player2Info = _referee.Player2.GetInformation();
 
             CurrentGame = game;
             await StartGame();

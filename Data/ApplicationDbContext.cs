@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,19 @@ namespace Data
         private readonly IConfiguration appConfiguration;
         public ApplicationDbContext(IConfiguration config)
         {
+            appConfiguration = config;
+        }
+
+        public ApplicationDbContext()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("Config.json");
+
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("Config.json", true, true)
+                .Build();
+
             appConfiguration = config;
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

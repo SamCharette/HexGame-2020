@@ -8,7 +8,9 @@ namespace Data
     {
         public int Id { get; set; }
         public Config Player1 { get; set; }
+        public string Player1Info { get; set; }
         public Config Player2 { get; set; }
+        public string Player2Info { get; set; }
         public int BoardSize { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

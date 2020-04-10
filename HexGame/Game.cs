@@ -55,6 +55,7 @@ namespace WindowsGame
         public Game(IConfiguration config)
         {
             Configuration = config;
+            playerConfigs = new List<Config>();
             InitializeComponent();
             SetupDatabase();
             SetUpPlayers();
@@ -72,41 +73,39 @@ namespace WindowsGame
         {
 
             // Check to see if there are already
-            if (!db.PlayerConfigurations.Any())
-            {
+           
                 var appPath = Application.StartupPath;
                 var configPath = Path.Combine(appPath, "Config\\players.json");
                 var configurations = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
 
-                foreach (var player in configurations)
+                foreach (var player in Configuration.GetSection("playerTypes").GetChildren())
                 {
                     var config = new Config
                     {
-                        PlayerNumber = player.PlayerNumber,
-                        Talkative = player.Talkative,
-                        Name = player.Name,
-                        Type = player.Type,
+                        PlayerNumber = player["playerNumber"],
+                        Talkative = player["talkative"],
+                        Name = player["name"],
+                        Type = player["type"],
                         Settings = new List<Setting>()
                     };
 
-                    if (player.Settings != null && player.Settings.Count > 0)
+           
+                    foreach (var setting in player.GetChildren())
                     {
-                        foreach (var setting in player.Settings)
+                        var newSetting = new Setting
                         {
-                            var newSetting = new Setting
-                            {
-                                Key = setting.Key,
-                                Value = setting.Value
-                            };
-                            config.Settings.Add(newSetting);
-                        }
+                            Key = setting.Key,
+                            Value = setting.Value
+                        };
+                        config.Settings.Add(newSetting);
                     }
-
-                    db.PlayerConfigurations.Add(config);
-                    db.SaveChanges();
+                
+                //db.PlayerConfigurations.Add(config);
+                //db.SaveChanges();
+                playerConfigs.Add(config);
                 }
 
-            }
+            
         }
         private void SetUpPlayers()
         {
@@ -115,7 +114,6 @@ namespace WindowsGame
             player1Metrics.Text = "";
             player2Metrics.Text = "";
 
-            playerConfigs = db.PlayerConfigurations.Include(x => x.Settings).ToList();
             
             int count = 0;
             foreach (var player in playerConfigs)

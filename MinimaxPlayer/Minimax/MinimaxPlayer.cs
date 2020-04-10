@@ -75,7 +75,7 @@ namespace MinimaxPlayer.Minimax
         public int StartingLevels { get; set; }
         public List<Task> Threads { get; set; }
 
-        public MinimaxPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize,
+        public MinimaxPlayer(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize,
             playerConfig)
         {
             SetVersionNumber("MinimaxPlayer.dll");

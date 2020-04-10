@@ -28,7 +28,7 @@ namespace MonteCarloPlayer
         private int MovesMade = 0;
         private int NumberOfSecondsForSearch;
 
-        public MonteCarlo(int playerNumber, int boardSize, Config playerConfig) 
+        public MonteCarlo(int playerNumber, int boardSize, GamePlayer playerConfig) 
             : base(playerNumber, boardSize, playerConfig)
         {
             Size = boardSize;
@@ -190,7 +190,7 @@ namespace MonteCarloPlayer
             return CurrentBestMove;
         }
 
-        private void Setup(Config playerConfig)
+        private void Setup(GamePlayer playerConfig)
         {
             NumberOfSecondsForSearch = GetDefault(playerConfig, "maxSearchTime", 60);
         }

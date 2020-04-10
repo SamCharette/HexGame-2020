@@ -38,7 +38,7 @@ namespace HumanPlayer
             _hasReceivedInput = true;
         }
 
-        public HumanPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public HumanPlayer(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             RelayPerformanceInformation();
             base.SetUpInMemoryBoard();

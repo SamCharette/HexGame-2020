@@ -48,7 +48,7 @@ namespace NegamaxPlayer
 
         private int RandomMovesMade = 0;
 
-        public Negamax(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public Negamax(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             SetVersionNumber("NegamaxPlayer.dll");
             Setup(boardSize, playerNumber, playerConfig);
@@ -69,7 +69,7 @@ namespace NegamaxPlayer
             Setup(11);
         }
 
-        private void SetSettings(Config playerConfig)
+        private void SetSettings(GamePlayer playerConfig)
         {
             MaxDepth = GetDefault(playerConfig, "maxLevels", 5);
             StartingLevels = GetDefault(playerConfig, "minLevels", 3);
@@ -83,7 +83,7 @@ namespace NegamaxPlayer
 
         }
 
-        public void Setup(int size = 11, int playerNumber = 1, Config playerConfig = null)
+        public void Setup(int size = 11, int playerNumber = 1, GamePlayer playerConfig = null)
         {
             Player = playerNumber == 1 ? 1 : -1; // This is the one the AI uses
             PlayerNumber = playerNumber; // this is the one the ref looks at

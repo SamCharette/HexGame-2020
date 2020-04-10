@@ -44,8 +44,8 @@ namespace Engine
         public Referee(int size = 11)
         {
             NewGame(size);
-            AddPlayer(new Config(), 1);
-            AddPlayer(new Config(), 2);
+            AddPlayer(new GamePlayer(), 1);
+            AddPlayer(new GamePlayer(), 2);
         }
 
         public Player Player1 { get; set; }
@@ -119,15 +119,15 @@ namespace Engine
             _lastPlayer = Player2;
         }
 
-        public void AddPlayer(Config playerConfig, int playerNumber)
+        public void AddPlayer(GamePlayer playerConfig, int playerNumber)
         {
             switch (playerConfig.Type)
             {
                 case "Human":
                     if (playerNumber == 1)
-                        Player1 = new HumanPlayer.HumanPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new HumanPlayer.HumanPlayer(playerNumber, Size, new GamePlayer());
                     else
-                        Player2 = new HumanPlayer.HumanPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new HumanPlayer.HumanPlayer(playerNumber, Size, new GamePlayer() );
 
                     break;
                 case "Dozer AI":
@@ -170,9 +170,9 @@ namespace Engine
                     break;
                 default:
                     if (playerNumber == 1)
-                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, new Config());
+                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, new GamePlayer());
                     else
-                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, new Config());
+                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, new GamePlayer());
                     break;
             }
         }

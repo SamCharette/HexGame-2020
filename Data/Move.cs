@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using System.Collections.Generic;
+using System.Net.Mime;
 
 namespace Data
 {
@@ -10,7 +11,8 @@ namespace Data
         public int MoveNumber { get; set; }
         public int PlayerNumber { get; set; }
         public string PlayerNotes { get; set; }
-        public int SecondsTaken { get; set; }
+        public List<string> PlayerMonitors { get; set; }
+        public int TimeTaken { get; set; }
 
 
     }

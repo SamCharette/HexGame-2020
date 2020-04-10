@@ -16,6 +16,7 @@ using System.Xml;
 using WindowsGame.Hexagonal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Omu.ValueInjecter;
 
 namespace WindowsGame
 {
@@ -174,8 +175,10 @@ namespace WindowsGame
         {
             var game = new Data.Game();
             game.BoardSize = Convert.ToInt32(textBoxHexBoardSize.Text);
-            game.Player1 = playerConfigs.FirstOrDefault(x => x.Name == comboBoxPlayer1Type.SelectedItem);
-            game.Player2 = playerConfigs.FirstOrDefault(x => x.Name == comboBoxPlayer2Type.SelectedItem);
+            game.Player1 = new GamePlayer();
+            game.Player1.InjectFrom(playerConfigs.FirstOrDefault(x => x.Name == comboBoxPlayer1Type.SelectedItem));
+            game.Player2 = new GamePlayer();
+            game.Player2.InjectFrom(playerConfigs.FirstOrDefault(x => x.Name == comboBoxPlayer2Type.SelectedItem));
 
             _referee = new Referee(Convert.ToInt32(textBoxHexBoardSize.Text));
             //_referee.GameOver += GameOver;
@@ -189,8 +192,8 @@ namespace WindowsGame
             player2Metrics.Text = "";
 
             game.StartTime = DateTime.Now;
-            game.Player1Info = _referee.Player1.GetInformation();
-            game.Player2Info = _referee.Player2.GetInformation();
+            game.Player1.GeneralInfo = _referee.Player1.GetInformation();
+            game.Player2.GeneralInfo = _referee.Player2.GetInformation();
 
             CurrentGame = game;
             await StartGame();
@@ -276,7 +279,7 @@ namespace WindowsGame
                         PlayerNumber = playerNumber,
                         Row = hexTaken.Item1,
                         Column = hexTaken.Item2,
-                        SecondsTaken = (int) playerTurnTimer.ElapsedMilliseconds / 1000,
+                        TimeTaken = (int) playerTurnTimer.ElapsedMilliseconds,
                         PlayerNotes = _referee.CurrentPlayer().GetLog()
                     };
 
@@ -343,6 +346,7 @@ namespace WindowsGame
                 }
 
                 CurrentGame.Winner = _referee.WinningPlayer.PlayerNumber;
+                CurrentGame.EndTime = DateTime.Now;
                 db.Games.Add(CurrentGame);
                 db.SaveChanges();
             }
@@ -672,8 +676,8 @@ namespace WindowsGame
 
                     _referee = new Referee(Convert.ToInt32(sizeNode.InnerText));
 
-                    var firstPlayer = new Playback(1, _referee.Size, new Config());
-                    var otherPlayer = new Playback(2, _referee.Size, new Config());
+                    var firstPlayer = new Playback(1, _referee.Size, new GamePlayer());
+                    var otherPlayer = new Playback(2, _referee.Size, new GamePlayer());
                     var player1Turn = 1;
                     var player2Turn = 1;
                     var moves = doc.GetElementsByTagName("Move");

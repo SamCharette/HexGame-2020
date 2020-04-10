@@ -37,7 +37,7 @@ namespace PlaybackPlayer
             return new Tuple<int, int>(moveToMake.Row, moveToMake.Column);
         }
 
-        public Playback(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public Playback(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             RelayPerformanceInformation();
         }

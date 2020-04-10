@@ -22,7 +22,7 @@ namespace Players
         protected ConcurrentDictionary<string, int> Monitors { get; set; }
         protected int Talkative { get; set; }
         protected string Log { get; set; }
-        protected Config Configuration { get; set; }
+        protected GamePlayer Configuration { get; set; }
 
         protected void SetVersionNumber(string assemblyName)
         {
@@ -46,7 +46,7 @@ namespace Players
 
             return info;
         }
-        protected Player(int playerNumber, int boardSize, Config playerConfig)
+        protected Player(int playerNumber, int boardSize, GamePlayer playerConfig)
         {
             PlayerNumber = playerNumber;
             Size = boardSize;
@@ -99,7 +99,7 @@ namespace Players
             Memory = null;
         }
 
-        protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
+        protected int GetDefault(GamePlayer playerConfig, string settingName, int defaultValue)
         {
             if (playerConfig != null)
             {

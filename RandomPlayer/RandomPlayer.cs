@@ -14,7 +14,7 @@ namespace RandomPlayer
         {
             return true;
         }
-        public RandomPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public RandomPlayer(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             RelayPerformanceInformation();
             Name = playerConfig?.Name ?? "Random";

@@ -71,7 +71,7 @@ namespace DozerPlayer
         }
        
  
-        public DozerPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public DozerPlayer(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             SetVersionNumber("DozerPlayer.dll");
 

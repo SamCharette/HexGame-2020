@@ -66,39 +66,46 @@ namespace WindowsGame
             SetupPlayerConfigs();
         }
 
+    
 
         private void SetupPlayerConfigs()
         {
-            var appPath = Application.StartupPath;
-            var configPath = Path.Combine(appPath, "Config\\players.json");
-            var configurations = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
 
-            foreach (var player in configurations)
+            // Check to see if there are already
+            if (!db.PlayerConfigurations.Any())
             {
-                var config = new Config
-                {
-                    PlayerNumber = player.PlayerNumber,
-                    Talkative = player.Talkative,
-                    Name = player.Name,
-                    Type = player.Type,
-                    Settings = new List<Setting>()
-                };
+                var appPath = Application.StartupPath;
+                var configPath = Path.Combine(appPath, "Config\\players.json");
+                var configurations = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
 
-                if (player.Settings != null && player.Settings.Count > 0)
+                foreach (var player in configurations)
                 {
-                    foreach (var setting in player.Settings)
+                    var config = new Config
                     {
-                        var newSetting = new Setting
+                        PlayerNumber = player.PlayerNumber,
+                        Talkative = player.Talkative,
+                        Name = player.Name,
+                        Type = player.Type,
+                        Settings = new List<Setting>()
+                    };
+
+                    if (player.Settings != null && player.Settings.Count > 0)
+                    {
+                        foreach (var setting in player.Settings)
                         {
-                            Key = setting.Key,
-                            Value = setting.Value
-                        };
-                        config.Settings.Add(newSetting);
+                            var newSetting = new Setting
+                            {
+                                Key = setting.Key,
+                                Value = setting.Value
+                            };
+                            config.Settings.Add(newSetting);
+                        }
                     }
+
+                    db.PlayerConfigurations.Add(config);
+                    db.SaveChanges();
                 }
 
-                db.PlayerConfigurations.Add(config);
-                db.SaveChanges();
             }
         }
         private void SetUpPlayers()

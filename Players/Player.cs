@@ -39,7 +39,7 @@ namespace Players
                    + "Type: " + _type + Environment.NewLine
                    + "Description: " + _description + Environment.NewLine;
 
-            foreach (var setting in Configuration.Settings)
+            foreach (var setting in Configuration.Settings.OrderBy(x => x.Key))
             {
                 info += setting.Key + ": " + setting.Value + Environment.NewLine;
             }

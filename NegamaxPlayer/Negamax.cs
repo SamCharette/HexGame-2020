@@ -79,7 +79,6 @@ namespace NegamaxPlayer
             CostToMoveToUnclaimedNode = GetDefault(playerConfig, "costToMoveToUnclaimedNode", 5);
             CostToMoveToClaimedNode = GetDefault(playerConfig, "costToMoveToClaimedNode", 0);
             Monitors["Items pruned"] = 0;
-            Monitors["Transposition table uses"] = 0;
 
         }
 

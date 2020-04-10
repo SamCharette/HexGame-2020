@@ -11,9 +11,13 @@ namespace Data
         public int MoveNumber { get; set; }
         public int PlayerNumber { get; set; }
         public string PlayerNotes { get; set; }
-        public List<string> PlayerMonitors { get; set; }
+        public List<Monitor> PlayerMonitors { get; set; }
         public int TimeTaken { get; set; }
 
+        public Move()
+        {
+            PlayerMonitors = new List<Monitor>();
+        }
 
     }
 }

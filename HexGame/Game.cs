@@ -63,6 +63,7 @@ namespace WindowsGame
         private void SetupDatabase()
         {
             db = new ApplicationDbContext(Configuration);
+            SetupPlayerConfigs();
         }
 
 
@@ -282,6 +283,15 @@ namespace WindowsGame
                         TimeTaken = (int) playerTurnTimer.ElapsedMilliseconds,
                         PlayerNotes = _referee.CurrentPlayer().GetLog()
                     };
+                    foreach (var monitor in _referee.LastPlayer().Monitors)
+                    {
+                        var item = new Monitor
+                        {
+                            Name = monitor.Key,
+                            Value = monitor.Value.ToString()
+                        };
+                        move.PlayerMonitors.Add(item);
+                    }
 
                     CurrentGame.Moves.Add(move);
 

@@ -37,5 +37,7 @@ namespace Data
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Move> Moves { get; set; }
+        public DbSet<GamePlayer> GamePlayers { get; set; }
+        public DbSet<Monitor> Monitors { get; set; }
     }
 }

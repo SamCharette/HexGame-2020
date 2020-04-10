@@ -19,7 +19,7 @@ namespace Players
 
         protected List<BaseNode> Memory { get; set; }
         protected int Size { get; set; }
-        protected ConcurrentDictionary<string, int> Monitors { get; set; }
+        public ConcurrentDictionary<string, int> Monitors { get; set; }
         protected int Talkative { get; set; }
         protected string Log { get; set; }
         protected GamePlayer Configuration { get; set; }

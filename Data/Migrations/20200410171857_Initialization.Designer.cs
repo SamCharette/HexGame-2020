@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200407222011_initialize")]
-    partial class initialize
+    [Migration("20200410171857_Initialization")]
+    partial class Initialization
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -74,6 +74,54 @@ namespace Data.Migrations
                     b.ToTable("Games");
                 });
 
+            modelBuilder.Entity("Data.GamePlayer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GeneralInfo")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PlayerNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Talkative")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GamePlayers");
+                });
+
+            modelBuilder.Entity("Data.Monitor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("MoveId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MoveId");
+
+                    b.ToTable("Monitors");
+                });
+
             modelBuilder.Entity("Data.Move", b =>
                 {
                     b.Property<int>("Id")
@@ -98,7 +146,7 @@ namespace Data.Migrations
                     b.Property<int>("Row")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("SecondsTaken")
+                    b.Property<int>("TimeTaken")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -117,6 +165,9 @@ namespace Data.Migrations
                     b.Property<int?>("ConfigId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("GamePlayerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Key")
                         .HasColumnType("TEXT");
 
@@ -127,18 +178,27 @@ namespace Data.Migrations
 
                     b.HasIndex("ConfigId");
 
+                    b.HasIndex("GamePlayerId");
+
                     b.ToTable("Settings");
                 });
 
             modelBuilder.Entity("Data.Game", b =>
                 {
-                    b.HasOne("Data.Config", "Player1")
+                    b.HasOne("Data.GamePlayer", "Player1")
                         .WithMany()
                         .HasForeignKey("Player1Id");
 
-                    b.HasOne("Data.Config", "Player2")
+                    b.HasOne("Data.GamePlayer", "Player2")
                         .WithMany()
                         .HasForeignKey("Player2Id");
+                });
+
+            modelBuilder.Entity("Data.Monitor", b =>
+                {
+                    b.HasOne("Data.Move", "Move")
+                        .WithMany("PlayerMonitors")
+                        .HasForeignKey("MoveId");
                 });
 
             modelBuilder.Entity("Data.Move", b =>
@@ -153,6 +213,10 @@ namespace Data.Migrations
                     b.HasOne("Data.Config", null)
                         .WithMany("Settings")
                         .HasForeignKey("ConfigId");
+
+                    b.HasOne("Data.GamePlayer", null)
+                        .WithMany("Settings")
+                        .HasForeignKey("GamePlayerId");
                 });
 #pragma warning restore 612, 618
         }

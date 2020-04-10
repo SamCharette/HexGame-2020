@@ -1,24 +1,58 @@
-﻿using System;
+﻿using Data;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 
 namespace Players
 {
     public abstract class Player
     {
+        protected string _name;
+        protected string _codeName;
+        protected string _type;
+        protected string _defaultName;
+        protected string _version;
+        protected string _description;
+
         protected List<BaseNode> Memory { get; set; }
         protected int Size { get; set; }
-        protected ConcurrentDictionary<string, int> Monitors { get; set; }
+        public ConcurrentDictionary<string, int> Monitors { get; set; }
         protected int Talkative { get; set; }
-        private string Log { get; set; }
-        
-        protected Player(int playerNumber, int boardSize, Config playerConfig)
+        protected string Log { get; set; }
+        protected GamePlayer Configuration { get; set; }
+
+        protected void SetVersionNumber(string assemblyName)
+        {
+            Assembly assembly = Assembly.LoadFrom(assemblyName);
+            Version ver = assembly.GetName().Version;
+            _version += ver.Major + "." + ver.Minor + "." + ver.Revision;
+
+        }
+
+        public string GetInformation()
+        {
+            var info = "Code name: " + _codeName + Environment.NewLine
+                   + "Version: " + _version + Environment.NewLine
+                   + "Type: " + _type + Environment.NewLine
+                   + "Description: " + _description + Environment.NewLine;
+
+            foreach (var setting in Configuration.Settings.OrderBy(x => x.Key))
+            {
+                info += setting.Key + ": " + setting.Value + Environment.NewLine;
+            }
+
+            return info;
+        }
+        protected Player(int playerNumber, int boardSize, GamePlayer playerConfig)
         {
             PlayerNumber = playerNumber;
             Size = boardSize;
             Monitors = new ConcurrentDictionary<string, int>();
+            Configuration = playerConfig;
+            SetVersionNumber(Assembly.GetAssembly(typeof(Player)).ManifestModule.Name);
             RelayPerformanceInformation();
         }
 
@@ -27,18 +61,25 @@ namespace Players
             throw new NotImplementedException();
         }
 
-        public string Name { get; set; }
+        public string DefaultName => _defaultName;
+        public string CodeName => _codeName;
+        public string Type => _type;
+        public string Description => _description;
+        public string Version => _version;
+
         public int PlayerNumber { get; set; }
-        protected int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
+        public int EnemyPlayerNumber => PlayerNumber == 1 ? 2 : 1;
 
         protected bool IsHorizontal => PlayerNumber == 2;
 
         public event EventHandler RelayInformation;
-        public virtual string CodeName()
+
+        public string Name
         {
-            return "Base player";
+            get => String.IsNullOrEmpty(_name) ? _defaultName : _name;
+            set => _name = value;
         }
-        
+
         protected void RelayPerformanceInformation()
         {
             var args = new PerformanceEventArgs
@@ -58,12 +99,15 @@ namespace Players
             Memory = null;
         }
 
-        protected int GetDefault(Config playerConfig, string settingName, int defaultValue)
+        protected int GetDefault(GamePlayer playerConfig, string settingName, int defaultValue)
         {
-            var setting = playerConfig?.settings?.FirstOrDefault(x => x.key == settingName);
-            var parseWorked = int.TryParse(setting?.value, out var value);
-            if (parseWorked)
-                return value;
+            if (playerConfig != null)
+            {
+                var setting = playerConfig.Settings.FirstOrDefault(x => x.Key == settingName);
+                var parseWorked = int.TryParse(setting?.Value, out var value);
+                if (parseWorked)
+                    return value;
+            }
             return defaultValue;
         }
 
@@ -80,10 +124,13 @@ namespace Players
             }
         }
 
-        protected virtual string GetLog()
+        public virtual string GetLog(bool clearAfter = true)
         {
             var tempLog = Log;
-            Log = "";
+            if (clearAfter)
+            {
+                Log = "";
+            }
             return tempLog;
         }
 
@@ -120,13 +167,9 @@ namespace Players
 
         public virtual string PlayerType()
         {
-            return "Base Player";
+            return _codeName;
         }
 
-        public bool IsAvailableToPlay()
-        {
-            return false;
-        }
 
         protected void Quip(string expressionToSay, int level = 1, bool hasNewLine = true)
         {

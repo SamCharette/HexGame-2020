@@ -13,7 +13,7 @@ namespace MinimaxPlayer.Minimax.List
      */
     public class Appraiser
     {
-        public int ScoreFromBoard(ListMap map, ListPlayer player)
+        public int ScoreFromBoard(ListMap map, MinimaxPlayer player)
         {
 
             var opponent = player.Me == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
@@ -25,7 +25,7 @@ namespace MinimaxPlayer.Minimax.List
             return playerScore  - opponentScore;
         }
 
-        public int ScoreFromBoard(ListPlayer player, List<ListHex> playerPath, List<ListHex> opponentPath)
+        public int ScoreFromBoard(MinimaxPlayer player, List<ListHex> playerPath, List<ListHex> opponentPath)
         {
             var opponent = player.Me == PlayerType.Blue ? PlayerType.Red : PlayerType.Blue;
             // player score

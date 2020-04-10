@@ -1,0 +1,5 @@
+﻿{
+  "DataSource": "C:\\Users\\spamf\\source\\repos\\hexgame\\HexGame\\bin\\Debug\\netcoreapp3.1\\hexgame.db",
+  "boardSize": 8,
+  "numberOfGamesToPlay": 1
+}

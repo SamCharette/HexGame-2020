@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Data;
 using Players;
 
 namespace PlaybackPlayer
@@ -22,7 +23,7 @@ namespace PlaybackPlayer
         }
         public void AddMove(int x, int y, int moveNumber)
         {
-            var move = new Move {X = x, Y = y, MoveNumber = moveNumber};
+            var move = new Move {Row = x, Column = y, MoveNumber = moveNumber};
             Moves.Add(move);
         }
         public override Tuple<int, int> SelectHex(Tuple<int, int> opposingPick)
@@ -33,10 +34,10 @@ namespace PlaybackPlayer
             {
                 return null;
             }
-            return new Tuple<int, int>(moveToMake.X, moveToMake.Y);
+            return new Tuple<int, int>(moveToMake.Row, moveToMake.Column);
         }
 
-        public Playback(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public Playback(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             RelayPerformanceInformation();
         }

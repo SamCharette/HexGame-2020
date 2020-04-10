@@ -1,4 +1,5 @@
-﻿using Players;
+﻿using Data;
+using Players;
 
 namespace RandomPlayer
 {
@@ -13,10 +14,10 @@ namespace RandomPlayer
         {
             return true;
         }
-        public RandomPlayer(int playerNumber, int boardSize, Config playerConfig) : base(playerNumber, boardSize, playerConfig)
+        public RandomPlayer(int playerNumber, int boardSize, GamePlayer playerConfig) : base(playerNumber, boardSize, playerConfig)
         {
             RelayPerformanceInformation();
-            Name = playerConfig?.name ?? "Random";
+            Name = playerConfig?.Name ?? "Random";
         }
     }
 }

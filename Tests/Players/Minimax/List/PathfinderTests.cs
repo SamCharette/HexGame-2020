@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Data;
 using MinimaxPlayer.Minimax;
 using MinimaxPlayer.Minimax.List;
 using Omu.ValueInjecter;
@@ -19,8 +20,8 @@ namespace Tests.Players.Minimax.List
         public void GetPathForPlayerTest()
         {
             var map = new ListMap(11);
-            var player = new ListPlayer(1, 11, new Config());
-            var redPlayer = new ListPlayer(2, 11, new Config());
+            var player = new MinimaxPlayer.Minimax.MinimaxPlayer(1, 11, new GamePlayer());
+            var redPlayer = new MinimaxPlayer.Minimax.MinimaxPlayer(2, 11, new GamePlayer());
 
             var pathfinder = new Pathfinder(map, player.Me);
 

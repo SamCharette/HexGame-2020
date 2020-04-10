@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Data;
 using DozerPlayer;
 using HexLibrary;
 using HumanPlayer;
 using MinimaxPlayer.Minimax.List;
-using MinimaxPlayer.Minimax.Matrix;
+using MinimaxPlayer.Minimax;
 using MonteCarloPlayer;
 using NegamaxPlayer;
 using PlaybackPlayer;
@@ -43,8 +44,8 @@ namespace Engine
         public Referee(int size = 11)
         {
             NewGame(size);
-            AddPlayer(new Config(), 1);
-            AddPlayer(new Config(), 2);
+            AddPlayer(new GamePlayer(), 1);
+            AddPlayer(new GamePlayer(), 2);
         }
 
         public Player Player1 { get; set; }
@@ -118,15 +119,15 @@ namespace Engine
             _lastPlayer = Player2;
         }
 
-        public void AddPlayer(Config playerConfig, int playerNumber)
+        public void AddPlayer(GamePlayer playerConfig, int playerNumber)
         {
-            switch (playerConfig.type)
+            switch (playerConfig.Type)
             {
                 case "Human":
                     if (playerNumber == 1)
-                        Player1 = new HumanPlayer.HumanPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new HumanPlayer.HumanPlayer(playerNumber, Size, new GamePlayer());
                     else
-                        Player2 = new HumanPlayer.HumanPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new HumanPlayer.HumanPlayer(playerNumber, Size, new GamePlayer() );
 
                     break;
                 case "Dozer AI":
@@ -136,18 +137,12 @@ namespace Engine
                         Player2 = new DozerPlayer.DozerPlayer(playerNumber, Size, playerConfig);
 
                     break;
-                case "Minimax Matrix AI":
-                    if (playerNumber == 1)
-                        Player1 = new MatrixPlayer(playerNumber, Size, playerConfig);
-                    else
-                        Player2 = new MatrixPlayer(playerNumber, Size, playerConfig);
-
-                    break;
+              
                 case "Minimax List AI":
                     if (playerNumber == 1)
-                        Player1 = new ListPlayer(playerNumber, Size, playerConfig);
+                        Player1 = new MinimaxPlayer.Minimax.MinimaxPlayer(playerNumber, Size, playerConfig);
                     else
-                        Player2 = new ListPlayer(playerNumber, Size, playerConfig);
+                        Player2 = new MinimaxPlayer.Minimax.MinimaxPlayer(playerNumber, Size, playerConfig);
 
                     break;
 
@@ -175,9 +170,9 @@ namespace Engine
                     break;
                 default:
                     if (playerNumber == 1)
-                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
+                        Player1 = new RandomPlayer.RandomPlayer(playerNumber, Size, new GamePlayer());
                     else
-                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, null);
+                        Player2 = new RandomPlayer.RandomPlayer(playerNumber, Size, new GamePlayer());
                     break;
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Data;
 using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using Omu.ValueInjecter;
@@ -19,7 +20,7 @@ namespace Tests.Players.Minimax.List
         {
 
             var map = new ListMap(6);
-            var player = new ListPlayer(1, map.Size, new Config());
+            var player = new MinimaxPlayer.Minimax.MinimaxPlayer(1, map.Size, new GamePlayer());
             map.TakeHex(PlayerType.Red, 3, 3);
             var inquisitor = new Inquisitor();
             var testMap = new ListMap(map.Size);
@@ -34,8 +35,8 @@ namespace Tests.Players.Minimax.List
         public void GetPossibleMoves_ShouldGivePriorities_Appropriately()
         {
             var map = new ListMap(6);
-            var player = new ListPlayer(1, map.Size, new Config());
-            var player2 = new ListPlayer(2, map.Size, new Config());
+            var player = new MinimaxPlayer.Minimax.MinimaxPlayer(1, map.Size, new GamePlayer());
+            var player2 = new MinimaxPlayer.Minimax.MinimaxPlayer(2, map.Size, new GamePlayer());
             map.TakeHex(PlayerType.Blue, 0, 3);
             map.TakeHex(PlayerType.Red, 3, 3);
             map.TakeHex(PlayerType.Blue, 2, 3);

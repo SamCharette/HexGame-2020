@@ -34,7 +34,7 @@ namespace MinimaxPlayer.Minimax.List
             return _finalChoice;
         }
 
-        public void StartInquisition(ListMap searchMap, ListPlayer searchPlayer)
+        public void StartInquisition(ListMap searchMap, MinimaxPlayer searchPlayer)
         {
             var mapToSearch = searchMap.GetCopyOf();
             var searchScout = new Pathfinder(mapToSearch, 
@@ -61,7 +61,7 @@ namespace MinimaxPlayer.Minimax.List
 
 
         private int ThinkAboutTheNextMove(
-            ListPlayer player,
+            MinimaxPlayer player,
           ListMap map,
           List<ListHex> path,
           ListHex currentMove,

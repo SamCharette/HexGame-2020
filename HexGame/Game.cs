@@ -72,11 +72,9 @@ namespace WindowsGame
         private void SetupPlayerConfigs()
         {
 
+   
+
             // Check to see if there are already
-       
-            var appPath = Application.StartupPath;
-            var configPath = Path.Combine(appPath, "Config\\players.json");
-            var configurations = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
 
             foreach (var player in Configuration.GetSection("playerTypes").GetChildren())
             {

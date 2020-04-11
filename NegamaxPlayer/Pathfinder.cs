@@ -36,7 +36,7 @@ namespace NegamaxPlayer
         }
 
      
-        public List<Hex> GetPathForPlayer()
+        public List<Hex> GetBestPathForPlayer()
         {
             //ClearLog();
             foreach (var hex in _searchSpace.Hexes)

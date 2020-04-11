@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using Omu.ValueInjecter;
@@ -48,8 +49,47 @@ namespace NegamaxPlayer
 
         public bool HasWinner()
         {
-            return false;
+
+            var scout = new Pathfinder(this, 1);
+            var path = scout.GetBestPathForPlayer();
+            var player1Winner = path.All(x => x.Owner == 1);
+
+            if (!player1Winner)
+            {
+                scout.SetPlayer(-1);
+                path = scout.GetBestPathForPlayer();
+                var player2Winner = path.All(x => x.Owner == -1);
+                if (!player2Winner)
+                {
+                    return false;
+                }
+            }
+          
+            return true;
+    
+            //// Check for player 1
+            //var player1Win = false;
+            //var startSpots = Hexes.Where(x => x.Row == 0 && x.Owner == 1).ToList();
+            //var endSpots = Hexes.Where(x => x.Row == Size - 1 && x.Owner == 1).ToList();
+            //if (startSpots.Any() && endSpots.Any())
+            //{
+            //    player1Win = IsWinningPathBetween(startSpots, endSpots);
+            //}
+
+            //// Check for player 2
+            //if (!player1Win)
+            //{
+            //    startSpots = Hexes.Where(x => x.Column == 0 && x.Owner == -1).ToList();
+            //    endSpots = Hexes.Where(x => x.Column == Size - 1 && x.Owner == -1).ToList();
+            //    if (startSpots.Any() && endSpots.Any())
+            //    {
+            //        return IsWinningPathBetween(startSpots, endSpots);
+            //    }
+            //}
+
+            //return true;
         }
+
 
         public string GetHash()
         {

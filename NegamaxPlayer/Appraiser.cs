@@ -29,7 +29,7 @@ namespace NegamaxPlayer
         private int PlayerScore(Board map, int player)
         {
             var scout = new Pathfinder(map, player);
-            var path = scout.GetPathForPlayer();
+            var path = scout.GetBestPathForPlayer();
  
 
             return PlayerScore(path);

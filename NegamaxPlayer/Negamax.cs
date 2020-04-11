@@ -157,11 +157,11 @@ namespace NegamaxPlayer
             var queue = new PriorityQueue();
 
             var scout = new Pathfinder(gameState, pointOfView);
-            var myPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
+            var myPath = scout.GetBestPathForPlayer().Where(x => x.Owner == 0).ToList();
             
 
             scout.SetPlayer(-1 * pointOfView);
-            var theirPath = scout.GetPathForPlayer().Where(x => x.Owner == 0).ToList();
+            var theirPath = scout.GetBestPathForPlayer().Where(x => x.Owner == 0).ToList();
             
             var childNodes = new HashSet<Hex>();
             myPath.ForEach(x => queue.Push(x)); 

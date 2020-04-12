@@ -113,9 +113,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{AD2BCECC-D1BD-42FC-8C8C-223D510CBB5F}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{3A81126F-59DB-4088-AFCA-69ACBDB814EA}</Project>
       <Name>Engine</Name>
@@ -133,8 +134,6 @@
       <Name>Players</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Config\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

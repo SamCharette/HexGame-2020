@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Data;
 using MinimaxPlayer.Minimax.List;
 using NUnit.Framework;
 using Players;

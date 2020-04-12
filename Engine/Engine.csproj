@@ -21,10 +21,4 @@
     <ProjectReference Include="..\RandomPlayer\RandomPlayer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="AppConfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

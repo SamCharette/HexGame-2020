@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Players;
 
-namespace Engine
+namespace Data
 {
     [Serializable]
     public class AppConfig

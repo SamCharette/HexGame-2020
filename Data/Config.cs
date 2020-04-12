@@ -1,12 +1,7 @@
 ﻿using System.Collections.Generic;
 
-namespace Players
+namespace Data
 {
-    public class Setting
-    {
-        public string key;
-        public string value;
-    }
     public class Config
     {
         public string name;

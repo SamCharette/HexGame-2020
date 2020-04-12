@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Data;
 using MinimaxPlayer.Minimax;
 using MinimaxPlayer.Minimax.List;
 using Omu.ValueInjecter;

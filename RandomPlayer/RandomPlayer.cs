@@ -1,4 +1,5 @@
-﻿using Players;
+﻿using Data;
+using Players;
 
 namespace RandomPlayer
 {

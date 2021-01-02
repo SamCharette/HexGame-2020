@@ -34,7 +34,7 @@ namespace WindowsGame
         private readonly Color _emptyRedSide = Color.MistyRose;
         private readonly Color _lastTakenByPlayer1Colour = Color.Blue;
         private readonly Color _lastTakenByPlayer2Colour = Color.Red;
-        private List<Config> _playerConfigs;
+        private AppConfig configuration;
         private Int64 totalMillisecondsPlayer1 = 0;
         private Int64 totalMillisecondsPlayer2 = 0;
         private Int64 preTurnTotalMillisecondsPlayer1 = 0;
@@ -60,11 +60,11 @@ namespace WindowsGame
             player1Metrics.Text = "";
             player2Metrics.Text = "";
             var appPath = Application.StartupPath;
-            var configPath = Path.Combine(appPath, "Config\\players.json");
-            _playerConfigs = JsonConvert.DeserializeObject<List<Config>>(File.ReadAllText(configPath));
+            var configPath = Path.Combine(appPath, "AppConfig.json");
+            configuration = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(configPath));
 
             int count = 0;
-            foreach (var player in _playerConfigs)
+            foreach (var player in configuration.PlayerConfigs)
             {
                 comboBoxPlayer1Type.Items.Add(player.name);
                 if (player.playerNumber == "1")
@@ -80,8 +80,8 @@ namespace WindowsGame
                 count++;
             }
 
-            textBoxHexBoardSize.Text = @"7";
-            numberOfGamesToPlay.Text = @"1";
+            textBoxHexBoardSize.Text = configuration.BoardSize.ToString();
+            numberOfGamesToPlay.Text = configuration.NumberOfGames.ToString();
             lblGamesPlayed.Text = "Games Played: ";
             lblBlueWIns.Text = "Blue Wins: ";
             lblRedWins.Text = "Red Wins: ";
@@ -131,9 +131,9 @@ namespace WindowsGame
             //_referee.GameOver += GameOver;
             //_referee.PlayerMadeMove += PlayerMadeMove;
             _referee.NewGame(Convert.ToInt32(textBoxHexBoardSize.Text));
-            _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
+            _referee.AddPlayer(configuration.PlayerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer1Type.SelectedItem), 1);
             _referee.Player1.RelayInformation += PerformanceInformationRelayed;
-            _referee.AddPlayer(_playerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
+            _referee.AddPlayer(configuration.PlayerConfigs.FirstOrDefault(x => x.name == comboBoxPlayer2Type.SelectedItem), 2);
             _referee.Player2.RelayInformation += PerformanceInformationRelayed;
             player1Metrics.Text = "";
             player2Metrics.Text = "";

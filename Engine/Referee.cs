@@ -21,7 +21,7 @@ namespace Engine
         public Player player;
     }
 
-    public class Referee
+    public class Referee : IDisposable
     {
         private Tuple<int, int> _lastPlay;
         private Player _lastPlayer;

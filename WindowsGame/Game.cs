@@ -487,7 +487,7 @@ namespace WindowsGame
                                + _referee.LosingPlayer().Name 
                                + "-"
                                + _referee.AllGameMoves.Count();
-                if (numberOfGames > 1)
+                if (numberOfGames > 0)
                 {
                     SaveGame(currentGameSaveDirectory + "\\" + gamesPlayed + "--" + gameName + ".xml");
                 }
